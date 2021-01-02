@@ -4,6 +4,6 @@
 
 int main(int argc, char *argv[]) {
     auto app = Gtk::Application::create(argc, argv, "org.gtkmm.Automaton");
-    FieldWindow fw;
+    automaton::FieldWindow fw;
     return app->run(fw);
 }
