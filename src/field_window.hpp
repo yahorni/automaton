@@ -1,14 +1,24 @@
+#pragma once
+
 #include <gtkmm/applicationwindow.h>
-#include <gtkmm/button.h>
+#include <gtkmm/frame.h>
+
+#include "graphic.hpp"
+
+namespace automaton {
 
 class FieldWindow : public Gtk::ApplicationWindow {
-    Gtk::Button btn;
-
    public:
-    FieldWindow() : btn("Start") {
-        btn.signal_clicked().connect([this]() { btn.set_label("Automaton"); });
-        add(btn);
-        show_all();
-    }
+    FieldWindow();
+    ~FieldWindow() override;
+
+   private:
+    // members
+    Gtk::Frame _frame;
+    CellArea _area;
+
+    // signals
+    bool on_key_press(GdkEventKey* ev);
 };
 
+}  // namespace automaton
