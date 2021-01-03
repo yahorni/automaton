@@ -1,9 +1,8 @@
-#include "field_window.hpp"
-#include <iostream>
+#include "grid_window.hpp"
 
 namespace automaton {
 
-FieldWindow::FieldWindow() {
+grid_window::grid_window() {
     set_title("Automaton");
     set_default_size(800, 600);
     add(_frame);
@@ -14,12 +13,12 @@ FieldWindow::FieldWindow() {
 
     _area.property_visible() = true;
 
-    signal_key_press_event().connect(sigc::mem_fun(*this, &FieldWindow::on_key_press));
+    signal_key_press_event().connect(sigc::mem_fun(*this, &grid_window::on_key_press));
 }
 
-FieldWindow::~FieldWindow() {}
+grid_window::~grid_window() {}
 
-bool FieldWindow::on_key_press(GdkEventKey* ev) {
+bool grid_window::on_key_press(GdkEventKey* ev) {
     if (ev->keyval == GDK_KEY_q) {
         close();
         return true;
