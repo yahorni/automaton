@@ -4,8 +4,7 @@
 
 namespace automaton {
 
-grid_area::grid_area()
-    : _grid(_grid_y_cells, std::vector<char>(_grid_x_cells, false)) {
+grid_area::grid_area(std::shared_ptr<base_grid> grid) : _grid(grid) {
     // to catch mouse events
     add_events(Gdk::BUTTON_PRESS_MASK);
     signal_button_press_event().connect(
@@ -33,15 +32,15 @@ bool grid_area::on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
 
 bool grid_area::on_button_press(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
-        size_t j = ev->x / _cell_width;
-        size_t i = ev->y / _cell_width;
+        size_t col = ev->x / _cell_width;
+        size_t row = ev->y / _cell_width;
 
-        if (i >= _grid_y_cells || j >= _grid_x_cells) return false;
+        if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
 
         if (ev->button == 1)
-            _grid[i][j] = true;
+            _grid->add(row, col);
         else if (ev->button == 3)
-            _grid[i][j] = false;
+            _grid->remove(row, col);
 
         queue_draw();
         return true;
@@ -52,11 +51,11 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
 
 bool grid_area::on_key_press(GdkEventKey* ev) {
     if (ev->keyval == GDK_KEY_s) {
-        do_step();
+        _grid->step();
         queue_draw();
         return true;
     } else if (ev->keyval == GDK_KEY_c) {
-        clear();
+        _grid->clear();
         queue_draw();
         return true;
     }
@@ -92,13 +91,13 @@ void grid_area::draw_grid_borders(const Cairo::RefPtr<Cairo::Context>& cr) {
     double x = _cell_width, y = _cell_width;
     size_t width = get_grid_width(), height = get_grid_height();
 
-    for (size_t j = 0; j < _grid_x_cells - 1; j++) {
+    for (size_t col = 0; col < _grid->get_cols() - 1; col++) {
         cr->move_to(x, 0);
         cr->line_to(x, height);
         x += _cell_width;
     }
 
-    for (size_t i = 0; i < _grid_y_cells - 1; i++) {
+    for (size_t row = 0; row < _grid->get_rows() - 1; row++) {
         cr->move_to(0, y);
         cr->line_to(width, y);
         y += _cell_width;
@@ -110,56 +109,27 @@ void grid_area::draw_grid_borders(const Cairo::RefPtr<Cairo::Context>& cr) {
 
 void grid_area::draw_grid_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->save();
-
     cr->set_source_rgb(_cell_color.red, _cell_color.green, _cell_color.blue);
 
-    for (size_t i = 0; i < _grid_y_cells; i++) {
-        for (size_t j = 0; j < _grid_x_cells; j++) {
-            if (!_grid[i][j]) continue;
-
-            auto xy = get_cell_xy(i, j);
-            cr->rectangle(xy.first, xy.second, _cell_width, _cell_width);
-            cr->fill();
-        }
+    for (auto& cell : _grid->get_drawable_cells()) {
+        auto xy = get_cell_xy(cell.row, cell.col);
+        cr->rectangle(xy.first, xy.second, _cell_width, _cell_width);
+        cr->fill();
     }
 
     cr->restore();
 }
 
-double grid_area::get_grid_width() const { return _cell_width * _grid_x_cells; }
-
-double grid_area::get_grid_height() const { return _cell_width * _grid_y_cells; }
-
-std::pair<size_t, size_t> grid_area::get_cell_xy(size_t i, size_t j) const {
-    return std::make_pair(_cell_width * j, _cell_width * i);
+double grid_area::get_grid_width() const {
+    return _cell_width * _grid->get_cols();
 }
 
-void grid_area::do_step() {
-    // NOTE: start with grid.size - 2 to skip check for lowest level drop
-    for (int i = _grid_y_cells - 2; i >= 0; i--) {
-        for (size_t j = 0; j < _grid_x_cells; j++) {
-            if (_grid[i][j]) {
-                if (!_grid[i + 1][j]) {
-                    _grid[i][j] = false;
-                    _grid[i + 1][j] = true;
-                } else if (j > 0 && !_grid[i + 1][j - 1]) {
-                    _grid[i][j] = false;
-                    _grid[i + 1][j - 1] = true;
-                } else if (j < _grid_x_cells - 1 && !_grid[i + 1][j + 1]) {
-                    _grid[i][j] = false;
-                    _grid[i + 1][j + 1] = true;
-                }
-            }
-        }
-    }
+double grid_area::get_grid_height() const {
+    return _cell_width * _grid->get_rows();
 }
 
-void grid_area::clear() {
-    for (size_t i = 0; i < _grid_y_cells; i++) {
-        for (size_t j = 0; j < _grid_x_cells; j++) {
-            if (_grid[i][j]) _grid[i][j] = false;
-        }
-    }
+std::pair<double, double> grid_area::get_cell_xy(size_t row, size_t col) const {
+    return std::make_pair(_cell_width * col, _cell_width * row);
 }
 
 }  // namespace automaton

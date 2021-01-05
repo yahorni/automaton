@@ -1,8 +1,11 @@
 #include "grid_window.hpp"
 
+#include "grid_2d.hpp"
+
 namespace automaton {
 
-grid_window::grid_window() {
+grid_window::grid_window(std::shared_ptr<base_grid> grid)
+    : _area(grid) {
     set_title("Automaton");
     set_default_size(800, 600);
     add(_frame);
@@ -13,7 +16,8 @@ grid_window::grid_window() {
 
     _area.property_visible() = true;
 
-    signal_key_press_event().connect(sigc::mem_fun(*this, &grid_window::on_key_press));
+    signal_key_press_event().connect(
+        sigc::mem_fun(*this, &grid_window::on_key_press));
 }
 
 grid_window::~grid_window() {}
