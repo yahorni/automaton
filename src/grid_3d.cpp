@@ -1,0 +1,72 @@
+#include "grid_3d.hpp"
+
+#include "falling_logic.hpp"
+
+namespace automaton {
+
+cell_3d::cell_3d(size_t row, size_t col, int level)
+    : base_cell(row, col), level(level) {}
+
+bool cell_3d::operator<(const cell_3d& other) const {
+    if (row == other.row) {
+        if (col == other.col) return level < other.level;
+        return col < other.col;
+    }
+
+    // return backwards to put upper point in std::set first
+    return row > other.row;
+}
+
+grid_3d::grid_3d(size_t rows, size_t cols)
+    : base_grid(rows, cols),
+      _logic(std::static_pointer_cast<logic_3d>(
+          std::make_shared<falling_logic_3d>())) {}
+
+grid_3d::~grid_3d() {}
+
+void grid_3d::add(size_t row, size_t col) { _data.emplace(row, col); }
+
+bool grid_3d::has(size_t row, size_t col) {
+    for (auto it = _data.begin(); it != _data.end(); it++) {
+        if (it->row == row && it->col == col) return true;
+    }
+    return false;
+}
+
+bool grid_3d::remove(size_t row, size_t col) {
+    bool removed = false;
+
+    for (auto it = _data.begin(); it != _data.end(); it++) {
+        if (it->row == row && it->col == col) {
+            _data.erase(it);
+            // don't return from cycle to remove
+            // same row/col with diff levels
+            removed = true;
+        }
+    }
+
+    return removed;
+}
+
+void grid_3d::clear() { _data.clear(); }
+
+void grid_3d::step() { _logic->step(*this); }
+
+std::set<base_cell> grid_3d::get_drawable_cells() const {
+    std::set<base_cell> cells;
+    for (auto& cell : _data) cells.emplace(cell.row, cell.col);
+    return cells;
+}
+
+bool grid_3d::has(size_t row, size_t col, int level) const {
+    return _data.count(cell_3d{row, col, level}) == 1;
+}
+
+void grid_3d::move(cell_3d from, cell_3d to) {
+    _data.erase(_data.find(from));
+    _data.insert(to);
+}
+
+std::set<cell_3d> grid_3d::get_data_copy() const { return _data; }
+
+}  // namespace automaton
