@@ -1,6 +1,5 @@
-#include "grid_2d.hpp"
-
-#include "falling_logic.hpp"
+#include <automaton/grid_2d.hpp>
+#include <automaton/logic/falling.hpp>
 
 namespace automaton {
 
@@ -41,7 +40,7 @@ void grid_2d::move(base_cell from, base_cell to) {
     _data.insert(to);
 }
 
-std::set<base_cell> grid_2d::get_data_copy() const { return _data; }
+const std::set<base_cell>& grid_2d::get_data() const { return _data; }
 
 void grid_2d::set_rows(size_t rows) {
     base_grid::set_rows(rows);

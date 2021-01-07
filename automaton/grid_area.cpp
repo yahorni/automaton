@@ -1,8 +1,5 @@
-#include "grid_area.hpp"
-
 #include <glibmm/main.h>
-
-#include <iostream>  // debug
+#include <automaton/grid_area.hpp>
 
 namespace automaton {
 

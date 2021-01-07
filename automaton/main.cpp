@@ -1,9 +1,6 @@
 #include <gtkmm/application.h>
 
-#include "base/grid.hpp"
-#include "grid_2d.hpp"
-#include "grid_3d.hpp"
-#include "grid_window.hpp"
+#include <automaton/grid_window.hpp>
 
 int main(int argc, char* argv[]) {
     auto app = Gtk::Application::create(argc, argv, "org.gtkmm.Automaton",

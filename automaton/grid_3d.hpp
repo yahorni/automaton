@@ -1,11 +1,10 @@
 #pragma once
 
+#include <automaton/base/cell.hpp>
+#include <automaton/base/grid.hpp>
 #include <memory>
 #include <set>
 #include <vector>
-
-#include "base/cell.hpp"
-#include "base/grid.hpp"
 
 namespace automaton {
 

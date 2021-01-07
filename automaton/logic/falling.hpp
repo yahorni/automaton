@@ -2,8 +2,8 @@
 
 #include <random>
 
-#include "grid_2d.hpp"
-#include "grid_3d.hpp"
+#include <automaton/grid_2d.hpp>
+#include <automaton/grid_3d.hpp>
 
 namespace automaton {
 

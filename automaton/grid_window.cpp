@@ -1,12 +1,10 @@
-#include "grid_window.hpp"
-
 #include <glibmm/optioncontext.h>
 
+#include <automaton/grid_2d.hpp>
+#include <automaton/grid_3d.hpp>
+#include <automaton/grid_window.hpp>
 #include <iostream>
 #include <memory>
-
-#include "grid_2d.hpp"
-#include "grid_3d.hpp"
 
 namespace automaton {
 
