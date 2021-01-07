@@ -4,8 +4,8 @@
 #include <set>
 #include <vector>
 
-#include "interfaces/base_cell.hpp"
-#include "interfaces/base_grid.hpp"
+#include "base/cell.hpp"
+#include "base/grid.hpp"
 
 namespace automaton {
 
@@ -30,12 +30,18 @@ class grid_2d : public base_grid {
 
     std::set<base_cell> get_drawable_cells() const override;
 
+    void set_rows(size_t rows) override;
+    void set_cols(size_t cols) override;
+
+    // custom methods
     void move(base_cell from, base_cell to);
     std::set<base_cell> get_data_copy() const;
 
    private:
     std::set<base_cell> _data;
     std::shared_ptr<logic_2d> _logic;
+
+    void update_sizes(size_t rows, size_t cols);
 };
 
 }  // namespace automaton

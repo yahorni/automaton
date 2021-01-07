@@ -5,14 +5,15 @@
 
 #include <memory>
 
+#include "base/grid.hpp"
 #include "grid_area.hpp"
-#include "interfaces/base_grid.hpp"
+#include "utils/cmdline.hpp"
 
 namespace automaton {
 
 class grid_window : public Gtk::ApplicationWindow {
    public:
-    explicit grid_window(std::shared_ptr<base_grid> grid);
+    grid_window();
     ~grid_window() override;
 
    private:
@@ -20,8 +21,15 @@ class grid_window : public Gtk::ApplicationWindow {
     Gtk::Frame _frame;
     grid_area _area;
 
+    std::shared_ptr<base_grid> _grid;
+    cmdline _options;
+
     // signals
     bool on_key_press(GdkEventKey* ev);
+
+   public:
+    int on_cmdline(const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
+                   Glib::RefPtr<Gtk::Application>& app);
 };
 
 }  // namespace automaton

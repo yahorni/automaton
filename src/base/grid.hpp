@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "base_cell.hpp"
+#include "cell.hpp"
 
 namespace automaton {
 
@@ -19,6 +19,9 @@ class base_grid {
     virtual void step() = 0;
 
     virtual std::set<base_cell> get_drawable_cells() const = 0;
+
+    virtual void set_rows(size_t rows) { _rows = rows; }
+    virtual void set_cols(size_t cols) { _cols = cols; }
 
     size_t get_rows() const { return _rows; }
     size_t get_cols() const { return _cols; }
