@@ -219,6 +219,8 @@ void grid_area::draw_grid_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->restore();
 }
 
+double grid_area::get_cell_width() const { return _cell_width; }
+
 double grid_area::get_grid_width() const {
     if (!_grid) return 0;
 

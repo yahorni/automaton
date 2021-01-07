@@ -21,6 +21,8 @@ class grid_area : public Gtk::DrawingArea {
     void set_grid_borders(bool borders);
     void set_step_delay(size_t delay);
 
+    double get_cell_width() const;
+
    private:
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
     bool on_button_press(GdkEventButton* ev);

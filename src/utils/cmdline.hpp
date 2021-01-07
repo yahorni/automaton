@@ -6,8 +6,8 @@ namespace automaton {
 
 struct cmdline {
     // OptionEntry params
-    int width = 40;
-    int height = 50;
+    int width = 0; // 0 - means fill widget width
+    int height = 0; // 0 - means fill widget height
     Glib::ustring type = "2D";
     bool borders = false;
     int delay = 100;

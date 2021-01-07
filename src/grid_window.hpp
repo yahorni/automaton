@@ -26,6 +26,10 @@ class grid_window : public Gtk::ApplicationWindow {
 
     // signals
     bool on_key_press(GdkEventKey* ev);
+    void on_resize();
+
+    // methods
+    void initialize_grid();
 
    public:
     int on_cmdline(const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
