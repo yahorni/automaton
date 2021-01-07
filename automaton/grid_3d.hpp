@@ -17,7 +17,7 @@ struct cell_3d : public base_cell {
     bool operator<(const cell_3d& other) const;
 };
 
-class logic_3d {
+class logic_3d : public base_logic {
    public:
     virtual void step(grid_3d& grid) = 0;
 };
@@ -34,6 +34,7 @@ class grid_3d : public base_grid {
     bool has(size_t row, size_t col) override;
     void clear() override;
 
+    void set_logic(std::shared_ptr<base_logic> logic) override;
     void step() override;
 
     std::set<base_cell> get_drawable_cells() const override;
@@ -44,7 +45,7 @@ class grid_3d : public base_grid {
     // custom methods
     bool has(size_t row, size_t col, int level) const;
     void move(cell_3d from, cell_3d to);
-    std::set<cell_3d> get_data_copy() const;
+    const std::set<cell_3d>& get_data() const;
 
    private:
     std::set<cell_3d> _data;
