@@ -23,7 +23,9 @@ class grid_area : public Gtk::DrawingArea {
    private:
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
     bool on_button_press(GdkEventButton* ev);
+    bool on_button_release(GdkEventButton* ev);
     bool on_key_press(GdkEventKey* ev);
+    bool on_motion(GdkEventMotion* ev);
 
     void draw_background(const Cairo::RefPtr<Cairo::Context>& cr);
     void draw_frame(const Cairo::RefPtr<Cairo::Context>& cr);
@@ -35,6 +37,9 @@ class grid_area : public Gtk::DrawingArea {
     std::pair<double, double> get_cell_xy(size_t row, size_t col) const;
 
     std::shared_ptr<base_grid> _grid;
+
+    bool _is_drawing = false;
+    bool _is_clearing = false;
 
     bool _grid_borders = false;
 
