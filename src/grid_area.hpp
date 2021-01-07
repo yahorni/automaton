@@ -2,11 +2,11 @@
 
 #include <gtkmm/drawingarea.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
-#include <memory>
 
-#include "interfaces/base_grid.hpp"
+#include "base/grid.hpp"
 #include "falling_logic.hpp"
 #include "utils/color.hpp"
 
@@ -14,8 +14,11 @@ namespace automaton {
 
 class grid_area : public Gtk::DrawingArea {
    public:
-    explicit grid_area(std::shared_ptr<base_grid> grid);
+    grid_area();
     virtual ~grid_area();
+
+    void set_grid(std::shared_ptr<base_grid> grid);
+    void set_grid_borders(bool borders);
 
    private:
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
@@ -32,6 +35,8 @@ class grid_area : public Gtk::DrawingArea {
     std::pair<double, double> get_cell_xy(size_t row, size_t col) const;
 
     std::shared_ptr<base_grid> _grid;
+
+    bool _grid_borders = false;
 
     const color_t _bg_color{0.8, 0.8, 0.8};
     const color_t _border_color{0, 0, 0};

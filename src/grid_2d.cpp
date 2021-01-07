@@ -43,4 +43,23 @@ void grid_2d::move(base_cell from, base_cell to) {
 
 std::set<base_cell> grid_2d::get_data_copy() const { return _data; }
 
+void grid_2d::set_rows(size_t rows) {
+    base_grid::set_rows(rows);
+    update_sizes(rows, _cols);
+}
+
+void grid_2d::set_cols(size_t cols) {
+    base_grid::set_cols(cols);
+    update_sizes(_rows, cols);
+}
+
+void grid_2d::update_sizes(size_t rows, size_t cols) {
+    for (auto it = _data.begin(); it != _data.end();) {
+        if (it->row > rows - 1 || it->col > cols - 1)
+            it = _data.erase(it);
+        else
+            it++;
+    }
+}
+
 }  // namespace automaton

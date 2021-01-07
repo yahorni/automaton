@@ -4,7 +4,7 @@
 
 namespace automaton {
 
-grid_area::grid_area(std::shared_ptr<base_grid> grid) : _grid(grid) {
+grid_area::grid_area() {
     // to catch mouse events
     add_events(Gdk::BUTTON_PRESS_MASK);
     signal_button_press_event().connect(
@@ -22,15 +22,25 @@ grid_area::grid_area(std::shared_ptr<base_grid> grid) : _grid(grid) {
 
 grid_area::~grid_area() {}
 
+void grid_area::set_grid(std::shared_ptr<base_grid> grid) { _grid = grid; }
+
+void grid_area::set_grid_borders(bool borders) { _grid_borders = borders; }
+
 bool grid_area::on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     draw_background(cr);
     draw_frame(cr);
-    draw_grid_borders(cr);
-    draw_grid_cells(cr);
+
+    if (_grid) {
+        if (_grid_borders) draw_grid_borders(cr);
+        draw_grid_cells(cr);
+    }
+
     return false;
 }
 
 bool grid_area::on_button_press(GdkEventButton* ev) {
+    if (!_grid) return false;
+
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
         size_t col = ev->x / _cell_width;
         size_t row = ev->y / _cell_width;
@@ -50,6 +60,8 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
 }
 
 bool grid_area::on_key_press(GdkEventKey* ev) {
+    if (!_grid) return false;
+
     if (ev->keyval == GDK_KEY_s) {
         _grid->step();
         queue_draw();
@@ -121,14 +133,20 @@ void grid_area::draw_grid_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
 }
 
 double grid_area::get_grid_width() const {
+    if (!_grid) return 0;
+
     return _cell_width * _grid->get_cols();
 }
 
 double grid_area::get_grid_height() const {
+    if (!_grid) return 0;
+
     return _cell_width * _grid->get_rows();
 }
 
 std::pair<double, double> grid_area::get_cell_xy(size_t row, size_t col) const {
+    if (!_grid) return {0, 0};
+
     return std::make_pair(_cell_width * col, _cell_width * row);
 }
 

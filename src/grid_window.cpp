@@ -1,11 +1,16 @@
 #include "grid_window.hpp"
 
+#include <glibmm/optioncontext.h>
+
+#include <iostream>
+#include <memory>
+
 #include "grid_2d.hpp"
+#include "grid_3d.hpp"
 
 namespace automaton {
 
-grid_window::grid_window(std::shared_ptr<base_grid> grid)
-    : _area(grid) {
+grid_window::grid_window() : _grid(nullptr) {
     set_title("Automaton");
     set_default_size(800, 600);
     add(_frame);
@@ -28,6 +33,86 @@ bool grid_window::on_key_press(GdkEventKey* ev) {
         return true;
     }
     return false;
+}
+
+int grid_window::on_cmdline(
+    const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
+    Glib::RefPtr<Gtk::Application>& app) {
+    // NOTE: https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
+
+    Glib::OptionContext ctx;
+    Glib::OptionGroup group("options", "Main options");
+
+    Glib::OptionEntry entry;
+    entry.set_short_name('w');
+    entry.set_long_name("width");
+    entry.set_arg_description("NUM");
+    entry.set_description("Grid width. Should be greater than 0");
+    group.add_entry(entry, _options.width);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('H');
+    entry.set_long_name("height");
+    entry.set_arg_description("NUM");
+    entry.set_description("Grid height. Should be greater than 0");
+    group.add_entry(entry, _options.height);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('t');
+    entry.set_long_name("type");
+    entry.set_arg_description("TYPE");
+    entry.set_description("Grid type. Should be in '2D' or '3D'");
+    group.add_entry(entry, _options.type);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('b');
+    entry.set_long_name("borders");
+    /* entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG); */
+    entry.set_description("Draw borders between cells in grid");
+    group.add_entry(entry, _options.borders);
+
+    ctx.add_group(group);
+
+    // add GTK options, --help-gtk, etc
+    Glib::OptionGroup gtkgroup(gtk_get_option_group(true));
+    ctx.add_group(gtkgroup);
+
+    int argc;
+    char** argv = cmdline->get_arguments(argc);
+
+    try {
+        ctx.parse(argc, argv);
+    } catch (Glib::OptionError& e) {
+        g_warning("%s", e.what().c_str());
+        std::cout << e.what() << std::endl;
+        return 1;
+    }
+
+    auto invalid_value = [](const Glib::ustring& param) {
+        Glib::ustring msg = "Invalid value for param " + param;
+        g_warning("%s", msg.c_str());
+        std::cout << msg << std::endl;
+    };
+
+    if (!_options.validate_width()) { invalid_value("width"); return -1; }
+    if (!_options.validate_height()) { invalid_value("height"); return -1; }
+    if (!_options.validate_type()) { invalid_value("type"); return -1; }
+
+    // initialize grid
+    if (_options.type == "2D")
+        _grid = std::static_pointer_cast<automaton::base_grid>(
+            std::make_shared<automaton::grid_2d>(_options.height, _options.width));
+    else if (_options.type == "3D")
+        _grid = std::static_pointer_cast<automaton::base_grid>(
+            std::make_shared<automaton::grid_3d>(_options.height, _options.width));
+
+    // setup grid drawing area
+    _area.set_grid(_grid);
+    _area.set_grid_borders(_options.borders);
+
+    app->activate();
+
+    return 0;
 }
 
 }  // namespace automaton
