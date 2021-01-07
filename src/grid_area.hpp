@@ -19,6 +19,7 @@ class grid_area : public Gtk::DrawingArea {
 
     void set_grid(std::shared_ptr<base_grid> grid);
     void set_grid_borders(bool borders);
+    void set_step_delay(size_t delay);
 
    private:
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
@@ -26,6 +27,9 @@ class grid_area : public Gtk::DrawingArea {
     bool on_button_release(GdkEventButton* ev);
     bool on_key_press(GdkEventKey* ev);
     bool on_motion(GdkEventMotion* ev);
+    bool on_timeout();
+
+    void toggle_ongoing();
 
     void draw_background(const Cairo::RefPtr<Cairo::Context>& cr);
     void draw_frame(const Cairo::RefPtr<Cairo::Context>& cr);
@@ -41,11 +45,15 @@ class grid_area : public Gtk::DrawingArea {
     bool _is_drawing = false;
     bool _is_clearing = false;
 
+    bool _is_ongoing = false;
+    size_t _delay = 100;
+    sigc::connection _ongoing_connection;
+
     bool _grid_borders = false;
 
     const color_t _bg_color{0.8, 0.8, 0.8};
     const color_t _border_color{0, 0, 0};
-    const color_t _cell_color{0.756, 0.69, 0.569};
+    const color_t _cell_color{0, 0.5, 0.5};
 
     const double _cell_width = 15;
     const double _line_width = 0.5;

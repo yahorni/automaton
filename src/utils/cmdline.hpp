@@ -6,23 +6,17 @@ namespace automaton {
 
 struct cmdline {
     // OptionEntry params
-    int width;
-    int height;
-    Glib::ustring type;
-    bool borders;
-
-    cmdline();
+    int width = 40;
+    int height = 50;
+    Glib::ustring type = "2D";
+    bool borders = false;
+    int delay = 100;
 
     // validators
     bool validate_width() const;
     bool validate_height() const;
     bool validate_type() const;
-
-    // default values
-    static const uint32_t default_width = 40;
-    static const uint32_t default_height = 50;
-    static constexpr char default_type[] = "2D";
-    static const bool default_borders = false;
+    bool validate_delay() const;
 };
 
 }  // namespace automaton
