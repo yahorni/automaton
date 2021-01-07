@@ -170,6 +170,7 @@ void grid_window::initialize_grid() {
     // setup grid drawing area
     _area.set_grid(_grid);
     _area.set_grid_borders(_options.borders);
+    _area.set_step_delay(_options.delay);
 }
 
 void grid_window::on_resize() {

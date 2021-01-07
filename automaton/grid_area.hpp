@@ -3,7 +3,6 @@
 #include <gtkmm/drawingarea.h>
 
 #include <automaton/base/grid.hpp>
-#include <automaton/utils/color.hpp>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -51,9 +50,9 @@ class grid_area : public Gtk::DrawingArea {
 
     bool _grid_borders = false;
 
-    const color_t _bg_color{0.8, 0.8, 0.8};
-    const color_t _border_color{0, 0, 0};
-    const color_t _cell_color{0, 0.5, 0.5};
+    const Gdk::Color _bg_color{"#fbfbfb"};
+    const Gdk::Color _border_color{"#000000"};
+    const Gdk::Color _cell_color{"#008080"};
 
     const double _cell_width = 15;
     const double _line_width = 0.5;

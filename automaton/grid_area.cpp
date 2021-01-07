@@ -1,5 +1,6 @@
 #include <glibmm/main.h>
 #include <automaton/grid_area.hpp>
+#include <gdkmm/general.h>
 
 namespace automaton {
 
@@ -161,15 +162,14 @@ void grid_area::toggle_ongoing() {
 
 void grid_area::draw_background(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->save();
-    cr->set_source_rgb(_bg_color.red, _bg_color.green, _bg_color.blue);
+    Gdk::Cairo::set_source_color(cr, _bg_color);
     cr->paint();
     cr->restore();
 }
 
 void grid_area::draw_frame(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->save();
-    cr->set_source_rgb(_border_color.red, _border_color.green,
-                       _border_color.blue);
+    Gdk::Cairo::set_source_color(cr, _border_color);
     cr->set_line_width(_line_width);
 
     cr->rectangle(0, 0, get_grid_width(), get_grid_height());
@@ -180,8 +180,7 @@ void grid_area::draw_frame(const Cairo::RefPtr<Cairo::Context>& cr) {
 
 void grid_area::draw_grid_borders(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->save();
-    cr->set_source_rgb(_border_color.red, _border_color.green,
-                       _border_color.blue);
+    Gdk::Cairo::set_source_color(cr, _border_color);
     cr->set_line_width(_line_width);
 
     double x = _cell_width, y = _cell_width;
@@ -205,7 +204,7 @@ void grid_area::draw_grid_borders(const Cairo::RefPtr<Cairo::Context>& cr) {
 
 void grid_area::draw_grid_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->save();
-    cr->set_source_rgb(_cell_color.red, _cell_color.green, _cell_color.blue);
+    Gdk::Cairo::set_source_color(cr, _cell_color);
 
     for (auto& cell : _grid->get_drawable_cells()) {
         auto xy = get_cell_xy(cell.row, cell.col);
