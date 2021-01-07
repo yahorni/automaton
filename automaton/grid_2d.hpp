@@ -10,7 +10,7 @@ namespace automaton {
 
 class grid_2d;
 
-class logic_2d {
+class logic_2d : public base_logic {
    public:
     virtual void step(grid_2d& grid) = 0;
 };
@@ -25,6 +25,7 @@ class grid_2d : public base_grid {
     bool has(size_t row, size_t col) override;
     void clear() override;
 
+    void set_logic(std::shared_ptr<base_logic> logic) override;
     void step() override;
 
     std::set<base_cell> get_drawable_cells() const override;

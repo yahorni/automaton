@@ -1,10 +1,12 @@
 #pragma once
 
+#include <automaton/base/cell.hpp>
+#include <memory>
 #include <set>
 
-#include <automaton/base/cell.hpp>
-
 namespace automaton {
+
+class base_logic {};
 
 class base_grid {
    public:
@@ -16,6 +18,7 @@ class base_grid {
     virtual bool has(size_t row, size_t col) = 0;
     virtual void clear() = 0;
 
+    virtual void set_logic(std::shared_ptr<base_logic>) = 0;
     virtual void step() = 0;
 
     virtual std::set<base_cell> get_drawable_cells() const = 0;

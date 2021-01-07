@@ -1,19 +1,18 @@
 #include <automaton/grid_2d.hpp>
-#include <automaton/logic/falling.hpp>
+#include <automaton/logic/fall.hpp>
+#include <automaton/logic/life.hpp>
 
 namespace automaton {
 
 grid_2d::grid_2d(size_t rows, size_t cols)
-    : base_grid(rows, cols),
-      _logic(std::static_pointer_cast<logic_2d>(
-          std::make_shared<falling_logic_2d>())) {}
+    : base_grid(rows, cols), _logic(nullptr) {}
 
 grid_2d::~grid_2d() {}
 
 void grid_2d::add(size_t row, size_t col) { _data.emplace(row, col); }
 
 bool grid_2d::has(size_t row, size_t col) {
-    return _data.count(base_cell{row, col}) == 1;
+    return _data.find(base_cell{row, col}) != _data.end();
 }
 
 bool grid_2d::remove(size_t row, size_t col) {
@@ -29,7 +28,13 @@ bool grid_2d::remove(size_t row, size_t col) {
 
 void grid_2d::clear() { _data.clear(); }
 
-void grid_2d::step() { _logic->step(*this); }
+void grid_2d::set_logic(std::shared_ptr<base_logic> logic) {
+    _logic = std::static_pointer_cast<logic_2d>(logic);
+}
+
+void grid_2d::step() {
+    if (_logic) _logic->step(*this);
+}
 
 std::set<base_cell> grid_2d::get_drawable_cells() const {
     return {_data.begin(), _data.end()};

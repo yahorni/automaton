@@ -1,5 +1,5 @@
 #include <automaton/grid_3d.hpp>
-#include <automaton/logic/falling.hpp>
+#include <automaton/logic/fall.hpp>
 
 namespace automaton {
 
@@ -19,7 +19,7 @@ bool cell_3d::operator<(const cell_3d& other) const {
 grid_3d::grid_3d(size_t rows, size_t cols)
     : base_grid(rows, cols),
       _logic(std::static_pointer_cast<logic_3d>(
-          std::make_shared<falling_logic_3d>())) {}
+          std::make_shared<logic::fall_3d>())) {}
 
 grid_3d::~grid_3d() {}
 
@@ -49,7 +49,13 @@ bool grid_3d::remove(size_t row, size_t col) {
 
 void grid_3d::clear() { _data.clear(); }
 
-void grid_3d::step() { _logic->step(*this); }
+void grid_3d::set_logic(std::shared_ptr<base_logic> logic) {
+    _logic = std::static_pointer_cast<logic_3d>(logic);
+}
+
+void grid_3d::step() {
+    if (_logic) _logic->step(*this);
+}
 
 std::set<base_cell> grid_3d::get_drawable_cells() const {
     std::set<base_cell> cells;
@@ -58,7 +64,7 @@ std::set<base_cell> grid_3d::get_drawable_cells() const {
 }
 
 bool grid_3d::has(size_t row, size_t col, int level) const {
-    return _data.count(cell_3d{row, col, level}) == 1;
+    return _data.find(cell_3d{row, col, level}) != _data.end();
 }
 
 void grid_3d::move(cell_3d from, cell_3d to) {
@@ -66,7 +72,7 @@ void grid_3d::move(cell_3d from, cell_3d to) {
     _data.insert(to);
 }
 
-std::set<cell_3d> grid_3d::get_data_copy() const { return _data; }
+const std::set<cell_3d>& grid_3d::get_data() const { return _data; }
 
 void grid_3d::set_rows(size_t rows) {
     base_grid::set_rows(rows);

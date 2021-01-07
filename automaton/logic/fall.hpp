@@ -1,20 +1,20 @@
 #pragma once
 
-#include <random>
-
 #include <automaton/grid_2d.hpp>
 #include <automaton/grid_3d.hpp>
+#include <random>
 
 namespace automaton {
+namespace logic {
 
-class falling_logic_2d : public logic_2d {
+class fall_2d : public logic_2d {
    public:
     void step(grid_2d& grid) override;
 };
 
-class falling_logic_3d : public logic_3d {
+class fall_3d : public logic_3d {
    public:
-    falling_logic_3d();
+    fall_3d();
     void step(grid_3d& grid) override;
 
    private:
@@ -22,4 +22,5 @@ class falling_logic_3d : public logic_3d {
     std::uniform_int_distribution<int16_t> _dist;
 };
 
+}  // namespace logic
 }  // namespace automaton

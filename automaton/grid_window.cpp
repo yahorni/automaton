@@ -3,6 +3,8 @@
 #include <automaton/grid_2d.hpp>
 #include <automaton/grid_3d.hpp>
 #include <automaton/grid_window.hpp>
+#include <automaton/logic/fall.hpp>
+#include <automaton/logic/life.hpp>
 #include <iostream>
 #include <memory>
 
@@ -45,18 +47,21 @@ int grid_window::on_cmdline(
     Glib::OptionGroup group("options", "Main options");
 
     Glib::OptionEntry entry;
-    entry.set_short_name('w');
-    entry.set_long_name("width");
+    entry.set_short_name('c');
+    entry.set_long_name("cols");
     entry.set_arg_description("NUM");
-    entry.set_description("Grid width. Should be greater than 0");
-    group.add_entry(entry, _options.width);
+    entry.set_description(
+        "Grid columns. Should be >= 0. Zero means fill window, sets by "
+        "default");
+    group.add_entry(entry, _options.cols);
 
     entry = Glib::OptionEntry();
-    entry.set_short_name('H');
-    entry.set_long_name("height");
+    entry.set_short_name('r');
+    entry.set_long_name("rows");
     entry.set_arg_description("NUM");
-    entry.set_description("Grid height. Should be greater than 0");
-    group.add_entry(entry, _options.height);
+    entry.set_description(
+        "Grid rows. Should be >= 0. Zero means fill window, sets by default");
+    group.add_entry(entry, _options.rows);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('t');
@@ -77,6 +82,13 @@ int grid_window::on_cmdline(
     entry.set_long_name("delay");
     entry.set_description("Sets delay between grid updates in ms");
     group.add_entry(entry, _options.delay);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('l');
+    entry.set_long_name("logic");
+    entry.set_arg_description("LOGIC");
+    entry.set_description("Grid logic. Should be in 'fall' or 'life'");
+    group.add_entry(entry, _options.logic);
 
     ctx.add_group(group);
 
@@ -101,12 +113,12 @@ int grid_window::on_cmdline(
         std::cout << msg << std::endl;
     };
 
-    if (!_options.validate_width()) {
-        invalid_value("width");
+    if (!_options.validate_cols()) {
+        invalid_value("cols");
         return -1;
     }
-    if (!_options.validate_height()) {
-        invalid_value("height");
+    if (!_options.validate_rows()) {
+        invalid_value("rows");
         return -1;
     }
     if (!_options.validate_type()) {
@@ -117,29 +129,43 @@ int grid_window::on_cmdline(
         invalid_value("delay");
         return -1;
     }
+    if (!_options.validate_logic()) {
+        invalid_value("logic");
+        return -1;
+    }
 
     app->activate();
-
     initialize_grid();
-
     return 0;
 }
 
 void grid_window::initialize_grid() {
-    size_t width =
-        (_options.width == 0 ? _area.get_width() / _area.get_cell_width()
-                             : _options.width);
-    size_t height =
-        (_options.height == 0 ? _area.get_height() / _area.get_cell_width()
-                              : _options.height);
+    size_t cols =
+        (_options.cols == 0 ? _area.get_width() / _area.get_cell_width()
+                            : _options.cols);
+    size_t rows =
+        (_options.rows == 0 ? _area.get_height() / _area.get_cell_width()
+                            : _options.rows);
 
     // initialize grid
-    if (_options.type == "2D")
+    if (_options.type == "2D") {
         _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_2d>(height, width));
-    else if (_options.type == "3D")
+            std::make_shared<automaton::grid_2d>(rows, cols));
+
+        // initialize logic
+        if (_options.logic == "fall")
+            _grid->set_logic(std::make_shared<logic::fall_2d>());
+        else if (_options.logic == "life")
+            _grid->set_logic(std::make_shared<logic::life_2d>());
+
+    } else if (_options.type == "3D") {
         _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_3d>(height, width));
+            std::make_shared<automaton::grid_3d>(rows, cols));
+
+        // initialize logic
+        if (_options.logic == "fall")
+            _grid->set_logic(std::make_shared<logic::fall_3d>());
+    }
 
     // setup grid drawing area
     _area.set_grid(_grid);
@@ -149,15 +175,11 @@ void grid_window::initialize_grid() {
 void grid_window::on_resize() {
     if (!_grid) return;
 
-    if (_options.width == 0) {
-        size_t width = _area.get_width() / _area.get_cell_width();
-        _grid->set_cols(width);
-    }
+    if (_options.cols == 0)
+        _grid->set_cols(_area.get_width() / _area.get_cell_width());
 
-    if (_options.height == 0) {
-        size_t height = _area.get_height() / _area.get_cell_width();
-        _grid->set_rows(height);
-    }
+    if (_options.rows == 0)
+        _grid->set_rows(_area.get_height() / _area.get_cell_width());
 }
 
 }  // namespace automaton
