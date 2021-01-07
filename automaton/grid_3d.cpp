@@ -1,6 +1,5 @@
-#include "grid_3d.hpp"
-
-#include "falling_logic.hpp"
+#include <automaton/grid_3d.hpp>
+#include <automaton/logic/falling.hpp>
 
 namespace automaton {
 

@@ -1,11 +1,10 @@
 #pragma once
 
+#include <automaton/base/cell.hpp>
+#include <automaton/base/grid.hpp>
 #include <memory>
 #include <set>
 #include <vector>
-
-#include "base/cell.hpp"
-#include "base/grid.hpp"
 
 namespace automaton {
 
@@ -35,7 +34,7 @@ class grid_2d : public base_grid {
 
     // custom methods
     void move(base_cell from, base_cell to);
-    std::set<base_cell> get_data_copy() const;
+    const std::set<base_cell>& get_data() const;
 
    private:
     std::set<base_cell> _data;

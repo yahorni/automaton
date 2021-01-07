@@ -1,4 +1,4 @@
-#include "cmdline.hpp"
+#include <automaton/utils/cmdline.hpp>
 
 namespace automaton {
 

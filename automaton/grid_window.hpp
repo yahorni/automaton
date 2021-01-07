@@ -3,11 +3,10 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/frame.h>
 
+#include <automaton/base/grid.hpp>
+#include <automaton/grid_area.hpp>
+#include <automaton/utils/cmdline.hpp>
 #include <memory>
-
-#include "base/grid.hpp"
-#include "grid_area.hpp"
-#include "utils/cmdline.hpp"
 
 namespace automaton {
 

@@ -2,13 +2,11 @@
 
 #include <gtkmm/drawingarea.h>
 
+#include <automaton/base/grid.hpp>
+#include <automaton/utils/color.hpp>
 #include <memory>
 #include <utility>
 #include <vector>
-
-#include "base/grid.hpp"
-#include "falling_logic.hpp"
-#include "utils/color.hpp"
 
 namespace automaton {
 

@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "cell.hpp"
+#include <automaton/base/cell.hpp>
 
 namespace automaton {
 

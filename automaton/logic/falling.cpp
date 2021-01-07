@@ -1,12 +1,9 @@
-#include "falling_logic.hpp"
-
-#include "grid_2d.hpp"
-#include "grid_3d.hpp"
+#include <automaton/logic/falling.hpp>
 
 namespace automaton {
 
 void falling_logic_2d::step(grid_2d& grid) {
-    auto data_copy = grid.get_data_copy();
+    std::set<base_cell> data_copy = {grid.get_data().begin(), grid.get_data().end()};
 
     for (auto it = data_copy.begin(); it != data_copy.end(); it++) {
         if (it->row == grid.get_rows() - 1) continue;
