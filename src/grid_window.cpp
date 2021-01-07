@@ -23,6 +23,8 @@ grid_window::grid_window() : _grid(nullptr) {
 
     signal_key_press_event().connect(
         sigc::mem_fun(*this, &grid_window::on_key_press));
+    signal_check_resize().connect(
+        sigc::mem_fun(*this, &grid_window::on_resize));
 }
 
 grid_window::~grid_window() {}
@@ -38,7 +40,8 @@ bool grid_window::on_key_press(GdkEventKey* ev) {
 int grid_window::on_cmdline(
     const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
     Glib::RefPtr<Gtk::Application>& app) {
-    // NOTE: https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
+    // NOTE:
+    // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
 
     Glib::OptionContext ctx;
     Glib::OptionGroup group("options", "Main options");
@@ -100,25 +103,63 @@ int grid_window::on_cmdline(
         std::cout << msg << std::endl;
     };
 
-    if (!_options.validate_width()) { invalid_value("width"); return -1; }
-    if (!_options.validate_height()) { invalid_value("height"); return -1; }
-    if (!_options.validate_type()) { invalid_value("type"); return -1; }
+    if (!_options.validate_width()) {
+        invalid_value("width");
+        return -1;
+    }
+    if (!_options.validate_height()) {
+        invalid_value("height");
+        return -1;
+    }
+    if (!_options.validate_type()) {
+        invalid_value("type");
+        return -1;
+    }
+    if (!_options.validate_delay()) {
+        invalid_value("delay");
+        return -1;
+    }
+
+    app->activate();
+
+    initialize_grid();
+
+    return 0;
+}
+
+void grid_window::initialize_grid() {
+    size_t width =
+        (_options.width == 0 ? _area.get_width() / _area.get_cell_width()
+                             : _options.width);
+    size_t height =
+        (_options.height == 0 ? _area.get_height() / _area.get_cell_width()
+                              : _options.height);
 
     // initialize grid
     if (_options.type == "2D")
         _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_2d>(_options.height, _options.width));
+            std::make_shared<automaton::grid_2d>(height, width));
     else if (_options.type == "3D")
         _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_3d>(_options.height, _options.width));
+            std::make_shared<automaton::grid_3d>(height, width));
 
     // setup grid drawing area
     _area.set_grid(_grid);
     _area.set_grid_borders(_options.borders);
+}
 
-    app->activate();
+void grid_window::on_resize() {
+    if (!_grid) return;
 
-    return 0;
+    if (_options.width == 0) {
+        size_t width = _area.get_width() / _area.get_cell_width();
+        _grid->set_cols(width);
+    }
+
+    if (_options.height == 0) {
+        size_t height = _area.get_height() / _area.get_cell_width();
+        _grid->set_rows(height);
+    }
 }
 
 }  // namespace automaton
