@@ -1,4 +1,4 @@
-# Finite automaton
+# Cellular automaton
 
 ## Build
 
