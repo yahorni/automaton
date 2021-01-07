@@ -1,5 +1,7 @@
 #include "grid_area.hpp"
 
+#include <glibmm/main.h>
+
 #include <iostream>  // debug
 
 namespace automaton {
@@ -31,6 +33,8 @@ void grid_area::set_grid(std::shared_ptr<base_grid> grid) { _grid = grid; }
 
 void grid_area::set_grid_borders(bool borders) { _grid_borders = borders; }
 
+void grid_area::set_step_delay(size_t delay) { _delay = delay; }
+
 bool grid_area::on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     draw_background(cr);
     draw_frame(cr);
@@ -47,11 +51,19 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
     if (!_grid) return false;
 
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
-        if (ev->button == 1)
-            _is_drawing = true;
-        else if (ev->button == 3)
-            _is_clearing = true;
+        size_t col = ev->x / _cell_width;
+        size_t row = ev->y / _cell_width;
+        if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
 
+        if (ev->button == 1) {
+            _grid->add(row, col);
+            _is_drawing = true;
+        } else if (ev->button == 3) {
+            _grid->remove(row, col);
+            _is_clearing = true;
+        }
+
+        queue_draw();
         return true;
     }
 
@@ -61,20 +73,11 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
 bool grid_area::on_button_release(GdkEventButton* ev) {
     if (!_grid) return false;
 
-    if (_is_drawing || _is_clearing) {
-        size_t col = ev->x / _cell_width;
-        size_t row = ev->y / _cell_width;
-        if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
-
-        if (_is_drawing) {
-            _grid->add(row, col);
-            _is_drawing = false;
-        } else if (_is_clearing) {
-            _grid->remove(row, col);
-            _is_clearing = false;
-        }
-
-        queue_draw();
+    if (ev->button == 1 && _is_drawing) {
+        _is_drawing = false;
+        return true;
+    } else if (ev->button == 3 && _is_clearing) {
+        _is_clearing = false;
         return true;
     }
 
@@ -85,7 +88,7 @@ bool grid_area::on_motion(GdkEventMotion* ev) {
     if (!_grid) return false;
     if (!_is_drawing && !_is_clearing) return false;
 
-    if (_is_drawing) {
+    if (_is_drawing || _is_clearing) {
         size_t col = ev->x / _cell_width;
         size_t row = ev->y / _cell_width;
         if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
@@ -102,12 +105,37 @@ bool grid_area::on_motion(GdkEventMotion* ev) {
     return false;
 }
 
+bool grid_area::on_timeout() {
+    if (!_grid) return false;
+
+    if (_is_drawing || _is_clearing) {
+        int x, y;
+        get_pointer(x, y);
+
+        size_t col = x / _cell_width;
+        size_t row = y / _cell_width;
+        if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
+
+        if (_is_drawing)
+            _grid->add(row, col);
+        else if (_is_clearing)
+            _grid->remove(row, col);
+    }
+
+    _grid->step();
+    queue_draw();
+    return true;
+}
+
 bool grid_area::on_key_press(GdkEventKey* ev) {
     if (!_grid) return false;
 
     if (ev->keyval == GDK_KEY_s) {
         _grid->step();
         queue_draw();
+        return true;
+    } else if (ev->keyval == GDK_KEY_space) {
+        toggle_ongoing();
         return true;
     } else if (ev->keyval == GDK_KEY_c) {
         _grid->clear();
@@ -116,6 +144,22 @@ bool grid_area::on_key_press(GdkEventKey* ev) {
     }
 
     return false;
+}
+
+void grid_area::toggle_ongoing() {
+    if (!_is_ongoing) {
+        // ongoing timeout
+        sigc::slot<bool()> _ongoing_slot =
+            sigc::mem_fun(*this, &grid_area::on_timeout);
+
+        // ongoing connection
+        _ongoing_connection =
+            Glib::signal_timeout().connect(_ongoing_slot, _delay);
+        _is_ongoing = true;
+    } else {
+        _ongoing_connection.disconnect();
+        _is_ongoing = false;
+    }
 }
 
 void grid_area::draw_background(const Cairo::RefPtr<Cairo::Context>& cr) {

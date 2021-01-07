@@ -71,6 +71,12 @@ int grid_window::on_cmdline(
     entry.set_description("Draw borders between cells in grid");
     group.add_entry(entry, _options.borders);
 
+    entry = Glib::OptionEntry();
+    entry.set_short_name('d');
+    entry.set_long_name("delay");
+    entry.set_description("Sets delay between grid updates in ms");
+    group.add_entry(entry, _options.delay);
+
     ctx.add_group(group);
 
     // add GTK options, --help-gtk, etc
