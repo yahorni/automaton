@@ -6,9 +6,14 @@ namespace automaton {
 
 grid_area::grid_area() {
     // to catch mouse events
-    add_events(Gdk::BUTTON_PRESS_MASK);
+    add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
+               Gdk::POINTER_MOTION_MASK);
     signal_button_press_event().connect(
         sigc::mem_fun(*this, &grid_area::on_button_press));
+    signal_button_release_event().connect(
+        sigc::mem_fun(*this, &grid_area::on_button_release));
+    signal_motion_notify_event().connect(
+        sigc::mem_fun(*this, &grid_area::on_motion));
 
     // to catch keyboard events
     add_events(Gdk::KEY_PRESS_MASK);
@@ -42,14 +47,52 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
     if (!_grid) return false;
 
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
+        if (ev->button == 1)
+            _is_drawing = true;
+        else if (ev->button == 3)
+            _is_clearing = true;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool grid_area::on_button_release(GdkEventButton* ev) {
+    if (!_grid) return false;
+
+    if (_is_drawing || _is_clearing) {
         size_t col = ev->x / _cell_width;
         size_t row = ev->y / _cell_width;
-
         if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
 
-        if (ev->button == 1)
+        if (_is_drawing) {
             _grid->add(row, col);
-        else if (ev->button == 3)
+            _is_drawing = false;
+        } else if (_is_clearing) {
+            _grid->remove(row, col);
+            _is_clearing = false;
+        }
+
+        queue_draw();
+        return true;
+    }
+
+    return false;
+}
+
+bool grid_area::on_motion(GdkEventMotion* ev) {
+    if (!_grid) return false;
+    if (!_is_drawing && !_is_clearing) return false;
+
+    if (_is_drawing) {
+        size_t col = ev->x / _cell_width;
+        size_t row = ev->y / _cell_width;
+        if (row >= _grid->get_rows() || col >= _grid->get_cols()) return false;
+
+        if (_is_drawing)
+            _grid->add(row, col);
+        else if (_is_clearing)
             _grid->remove(row, col);
 
         queue_draw();
