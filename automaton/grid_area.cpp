@@ -1,6 +1,7 @@
-#include <glibmm/main.h>
-#include <automaton/grid_area.hpp>
 #include <gdkmm/general.h>
+#include <glibmm/main.h>
+
+#include <automaton/grid_area.hpp>
 
 namespace automaton {
 
@@ -9,11 +10,11 @@ grid_area::grid_area() {
     add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
                Gdk::POINTER_MOTION_MASK);
     signal_button_press_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_button_press));
+        sigc::mem_fun(*this, &grid_area::on_mouse_press));
     signal_button_release_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_button_release));
+        sigc::mem_fun(*this, &grid_area::on_mouse_release));
     signal_motion_notify_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_motion));
+        sigc::mem_fun(*this, &grid_area::on_mouse_motion));
 
     // to catch keyboard events
     add_events(Gdk::KEY_PRESS_MASK);
@@ -45,7 +46,26 @@ bool grid_area::on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     return false;
 }
 
-bool grid_area::on_button_press(GdkEventButton* ev) {
+bool grid_area::on_key_press(GdkEventKey* ev) {
+    if (!_grid) return false;
+
+    if (ev->keyval == GDK_KEY_s) {
+        _grid->step();
+        queue_draw();
+        return true;
+    } else if (ev->keyval == GDK_KEY_space) {
+        toggle_ongoing();
+        return true;
+    } else if (ev->keyval == GDK_KEY_c) {
+        _grid->clear();
+        queue_draw();
+        return true;
+    }
+
+    return false;
+}
+
+bool grid_area::on_mouse_press(GdkEventButton* ev) {
     if (!_grid) return false;
 
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
@@ -68,7 +88,7 @@ bool grid_area::on_button_press(GdkEventButton* ev) {
     return false;
 }
 
-bool grid_area::on_button_release(GdkEventButton* ev) {
+bool grid_area::on_mouse_release(GdkEventButton* ev) {
     if (!_grid) return false;
 
     if (ev->button == 1 && _is_drawing) {
@@ -82,7 +102,7 @@ bool grid_area::on_button_release(GdkEventButton* ev) {
     return false;
 }
 
-bool grid_area::on_motion(GdkEventMotion* ev) {
+bool grid_area::on_mouse_motion(GdkEventMotion* ev) {
     if (!_grid) return false;
     if (!_is_drawing && !_is_clearing) return false;
 
@@ -123,25 +143,6 @@ bool grid_area::on_timeout() {
     _grid->step();
     queue_draw();
     return true;
-}
-
-bool grid_area::on_key_press(GdkEventKey* ev) {
-    if (!_grid) return false;
-
-    if (ev->keyval == GDK_KEY_s) {
-        _grid->step();
-        queue_draw();
-        return true;
-    } else if (ev->keyval == GDK_KEY_space) {
-        toggle_ongoing();
-        return true;
-    } else if (ev->keyval == GDK_KEY_c) {
-        _grid->clear();
-        queue_draw();
-        return true;
-    }
-
-    return false;
 }
 
 void grid_area::toggle_ongoing() {
