@@ -21,11 +21,15 @@ class grid_area : public Gtk::DrawingArea {
     double get_cell_width() const;
 
    private:
+    // drawing
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
-    bool on_button_press(GdkEventButton* ev);
-    bool on_button_release(GdkEventButton* ev);
+    // keyboard
     bool on_key_press(GdkEventKey* ev);
-    bool on_motion(GdkEventMotion* ev);
+    // mouse
+    bool on_mouse_press(GdkEventButton* ev);
+    bool on_mouse_release(GdkEventButton* ev);
+    bool on_mouse_motion(GdkEventMotion* ev);
+    // other
     bool on_timeout();
 
     void toggle_ongoing();

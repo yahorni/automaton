@@ -17,9 +17,7 @@ bool cell_3d::operator<(const cell_3d& other) const {
 }
 
 grid_3d::grid_3d(size_t rows, size_t cols)
-    : base_grid(rows, cols),
-      _logic(std::static_pointer_cast<logic_3d>(
-          std::make_shared<logic::fall_3d>())) {}
+    : base_grid(rows, cols), _logic(nullptr) {}
 
 grid_3d::~grid_3d() {}
 

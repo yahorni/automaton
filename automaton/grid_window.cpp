@@ -80,6 +80,7 @@ int grid_window::on_cmdline(
     entry = Glib::OptionEntry();
     entry.set_short_name('d');
     entry.set_long_name("delay");
+    entry.set_arg_description("NUM");
     entry.set_description("Sets delay between grid updates in ms");
     group.add_entry(entry, _options.delay);
 
@@ -89,6 +90,14 @@ int grid_window::on_cmdline(
     entry.set_arg_description("LOGIC");
     entry.set_description("Grid logic. Should be in 'fall' or 'life'");
     group.add_entry(entry, _options.logic);
+
+    entry = Glib::OptionEntry();
+    entry.set_long_name("levels-3D");
+    entry.set_arg_description("NUM");
+    entry.set_description(
+        "Grid 3D levels amount. Should be >= 0. Zero means unlimited depth "
+        "levels");
+    group.add_entry(entry, _options.levels_3d);
 
     ctx.add_group(group);
 
@@ -113,24 +122,9 @@ int grid_window::on_cmdline(
         std::cout << msg << std::endl;
     };
 
-    if (!_options.validate_cols()) {
-        invalid_value("cols");
-        return -1;
-    }
-    if (!_options.validate_rows()) {
-        invalid_value("rows");
-        return -1;
-    }
-    if (!_options.validate_type()) {
-        invalid_value("type");
-        return -1;
-    }
-    if (!_options.validate_delay()) {
-        invalid_value("delay");
-        return -1;
-    }
-    if (!_options.validate_logic()) {
-        invalid_value("logic");
+    auto validation = _options.validate();
+    if (!std::get<0>(validation)) {
+        invalid_value(std::get<1>(validation));
         return -1;
     }
 
@@ -164,7 +158,8 @@ void grid_window::initialize_grid() {
 
         // initialize logic
         if (_options.logic == "fall")
-            _grid->set_logic(std::make_shared<logic::fall_3d>());
+            _grid->set_logic(
+                std::make_shared<logic::fall_3d>(_options.levels_3d));
     }
 
     // setup grid drawing area
