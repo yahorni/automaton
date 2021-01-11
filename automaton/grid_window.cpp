@@ -1,10 +1,13 @@
+// vim: fdm=marker fdl=0
 #include <glibmm/optioncontext.h>
 
+#include <automaton/grid_1d.hpp>
 #include <automaton/grid_2d.hpp>
 #include <automaton/grid_3d.hpp>
 #include <automaton/grid_window.hpp>
 #include <automaton/logic/fall.hpp>
 #include <automaton/logic/life.hpp>
+#include <automaton/logic/wolfram.hpp>
 #include <iostream>
 #include <memory>
 
@@ -44,6 +47,8 @@ int grid_window::on_cmdline(
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
 
     Glib::OptionContext ctx;
+
+    // {{{ main
     Glib::OptionGroup group("options", "Main options");
 
     Glib::OptionEntry entry;
@@ -67,7 +72,7 @@ int grid_window::on_cmdline(
     entry.set_short_name('t');
     entry.set_long_name("type");
     entry.set_arg_description("TYPE");
-    entry.set_description("Grid type. Should be in '2D' or '3D'");
+    entry.set_description("Grid type. Should be in '1D', '2D' or '3D'");
     group.add_entry(entry, _options.type);
 
     entry = Glib::OptionEntry();
@@ -85,21 +90,51 @@ int grid_window::on_cmdline(
     group.add_entry(entry, _options.delay);
 
     entry = Glib::OptionEntry();
-    entry.set_short_name('l');
-    entry.set_long_name("logic");
-    entry.set_arg_description("LOGIC");
-    entry.set_description("Grid logic. Should be in 'fall' or 'life'");
-    group.add_entry(entry, _options.logic);
+    entry.set_long_name("cell-width");
+    entry.set_arg_description("NUM");
+    entry.set_description("Sets cell width in pixels");
+    group.add_entry(entry, _options.cell_width);
+
+    ctx.add_group(group);
+    // }}}
+
+    // {{{ 1D options
+    Glib::OptionGroup group_1d("1D", "1D options");
 
     entry = Glib::OptionEntry();
-    entry.set_long_name("levels-3D");
+    entry.set_long_name("code");
+    entry.set_arg_description("NUM");
+    entry.set_description("1D grid wolfram code. Should be from 0 to 255");
+    group.add_entry(entry, _options.code_1d);
+
+    ctx.add_group(group_1d);
+    // }}}
+
+    // {{{ 2D options
+    Glib::OptionGroup group_2d("2D", "2D options");
+
+    entry = Glib::OptionEntry();
+    entry.set_long_name("logic");
+    entry.set_arg_description("LOGIC");
+    entry.set_description("2D grid logic. Should be in 'fall' or 'life'");
+    group.add_entry(entry, _options.logic_2d);
+
+    ctx.add_group(group_2d);
+    // }}}
+
+    // {{{ 3D options
+    Glib::OptionGroup group_3d("3D", "3D options");
+
+    entry = Glib::OptionEntry();
+    entry.set_long_name("levels");
     entry.set_arg_description("NUM");
     entry.set_description(
-        "Grid 3D levels amount. Should be >= 0. Zero means unlimited depth "
+        "3D grid levels amount. Should be >= 0. Zero means unlimited depth "
         "levels");
     group.add_entry(entry, _options.levels_3d);
 
-    ctx.add_group(group);
+    ctx.add_group(group_3d);
+    // }}}
 
     // add GTK options, --help-gtk, etc
     Glib::OptionGroup gtkgroup(gtk_get_option_group(true));
@@ -134,38 +169,38 @@ int grid_window::on_cmdline(
 }
 
 void grid_window::initialize_grid() {
-    size_t cols =
-        (_options.cols == 0 ? _area.get_width() / _area.get_cell_width()
-                            : _options.cols);
-    size_t rows =
-        (_options.rows == 0 ? _area.get_height() / _area.get_cell_width()
-                            : _options.rows);
+    size_t cols = _options.cols == 0
+                      ? _area.get_width() / _area.get_cell_width()
+                      : _options.cols;
+    size_t rows = _options.rows == 0
+                      ? _area.get_height() / _area.get_cell_width()
+                      : _options.rows;
 
     // initialize grid
-    if (_options.type == "2D") {
-        _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_2d>(rows, cols));
-
+    if (_options.type == "1D") {
+        _grid = std::make_shared<automaton::grid_1d>(rows, cols);
         // initialize logic
-        if (_options.logic == "fall")
+        _grid->set_logic(std::make_shared<logic::wolfram>(_options.code_1d));
+
+    } else if (_options.type == "2D") {
+        _grid = std::make_shared<automaton::grid_2d>(rows, cols);
+        // initialize logic
+        if (_options.logic_2d == "fall")
             _grid->set_logic(std::make_shared<logic::fall_2d>());
-        else if (_options.logic == "life")
+        else if (_options.logic_2d == "life")
             _grid->set_logic(std::make_shared<logic::life_2d>());
 
     } else if (_options.type == "3D") {
-        _grid = std::static_pointer_cast<automaton::base_grid>(
-            std::make_shared<automaton::grid_3d>(rows, cols));
-
+        _grid = std::make_shared<automaton::grid_3d>(rows, cols);
         // initialize logic
-        if (_options.logic == "fall")
-            _grid->set_logic(
-                std::make_shared<logic::fall_3d>(_options.levels_3d));
+        _grid->set_logic(std::make_shared<logic::fall_3d>(_options.levels_3d));
     }
 
     // setup grid drawing area
     _area.set_grid(_grid);
     _area.set_grid_borders(_options.borders);
     _area.set_step_delay(_options.delay);
+    _area.set_cell_width(_options.cell_width);
 }
 
 void grid_window::on_resize() {

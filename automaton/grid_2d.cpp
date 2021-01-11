@@ -4,8 +4,7 @@
 
 namespace automaton {
 
-grid_2d::grid_2d(size_t rows, size_t cols)
-    : base_grid(rows, cols), _logic(nullptr) {}
+grid_2d::grid_2d(size_t rows, size_t cols) : base_grid(rows, cols) {}
 
 grid_2d::~grid_2d() {}
 
@@ -16,6 +15,7 @@ bool grid_2d::has(size_t row, size_t col) {
 }
 
 bool grid_2d::remove(size_t row, size_t col) {
+    // TODO: use erase-find
     for (auto it = _data.begin(); it != _data.end(); it++) {
         if (it->row == row && it->col == col) {
             _data.erase(it);
@@ -26,10 +26,9 @@ bool grid_2d::remove(size_t row, size_t col) {
     return false;
 }
 
-void grid_2d::clear() { _data.clear(); }
-
-void grid_2d::set_logic(std::shared_ptr<base_logic> logic) {
-    _logic = std::static_pointer_cast<logic_2d>(logic);
+void grid_2d::clear() {
+    _data.clear();
+    if (_logic) _logic->clear();
 }
 
 void grid_2d::step() {

@@ -1,4 +1,7 @@
+#include <automaton/grid_2d.hpp>
+#include <automaton/grid_3d.hpp>
 #include <automaton/logic/fall.hpp>
+#include <memory>
 
 namespace automaton {
 namespace logic {
@@ -9,10 +12,10 @@ fall_2d::fall_2d() {
     _dist = std::uniform_int_distribution<int16_t>(1, 2);
 }
 
-
-void fall_2d::step(grid_2d& grid) {
-    std::set<base_cell> data_copy = {grid.get_data().begin(),
-                                     grid.get_data().end()};
+void fall_2d::step(base_grid& _grid) {
+    auto& grid = static_cast<grid_2d&>(_grid);
+    std::set<base_cell> data_copy{grid.get_data().begin(),
+                                  grid.get_data().end()};
 
     for (auto it = data_copy.begin(); it != data_copy.end(); it++) {
         if (it->row == grid.get_rows() - 1) continue;
@@ -29,7 +32,7 @@ void fall_2d::step(grid_2d& grid) {
         }
 
         if (it->col < grid.get_cols() - 1 &&
-                   !grid.has(it->row + 1, it->col + 1)) {
+            !grid.has(it->row + 1, it->col + 1)) {
             positions.emplace_back(it->row + 1, it->col + 1);
         }
 
@@ -41,15 +44,17 @@ void fall_2d::step(grid_2d& grid) {
     }
 }
 
+void fall_2d::clear() {}
+
 fall_3d::fall_3d(uint16_t levels) : _levels(levels) {
     std::random_device rd;
     _engine = std::default_random_engine(rd());
     _dist = std::uniform_int_distribution<int16_t>(1, 12);
 }
 
-void fall_3d::step(grid_3d& grid) {
-    std::set<cell_3d> data_copy = {grid.get_data().begin(),
-                                   grid.get_data().end()};
+void fall_3d::step(base_grid& _grid) {
+    auto& grid = static_cast<grid_3d&>(_grid);
+    std::set<cell_3d> data_copy{grid.get_data().begin(), grid.get_data().end()};
 
     for (auto it = data_copy.begin(); it != data_copy.end(); it++) {
         if (it->row == grid.get_rows() - 1) continue;
@@ -97,6 +102,8 @@ void fall_3d::step(grid_3d& grid) {
         grid.move(*it, position);
     }
 }
+
+void fall_3d::clear() {}
 
 }  // namespace logic
 }  // namespace automaton

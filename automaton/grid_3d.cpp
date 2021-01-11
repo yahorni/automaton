@@ -16,8 +16,7 @@ bool cell_3d::operator<(const cell_3d& other) const {
     return row > other.row;
 }
 
-grid_3d::grid_3d(size_t rows, size_t cols)
-    : base_grid(rows, cols), _logic(nullptr) {}
+grid_3d::grid_3d(size_t rows, size_t cols) : base_grid(rows, cols) {}
 
 grid_3d::~grid_3d() {}
 
@@ -46,10 +45,6 @@ bool grid_3d::remove(size_t row, size_t col) {
 }
 
 void grid_3d::clear() { _data.clear(); }
-
-void grid_3d::set_logic(std::shared_ptr<base_logic> logic) {
-    _logic = std::static_pointer_cast<logic_3d>(logic);
-}
 
 void grid_3d::step() {
     if (_logic) _logic->step(*this);
