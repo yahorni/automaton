@@ -4,7 +4,7 @@
 namespace automaton {
 namespace logic {
 
-void life_2d::step(grid_2d& grid) {
+void life_2d::step(base_grid& grid) {
     size_t rows = grid.get_rows(), cols = grid.get_cols();
     std::set<base_cell> new_state;
 
@@ -39,6 +39,8 @@ void life_2d::step(grid_2d& grid) {
     for (auto it = new_state.begin(); it != new_state.end(); it++)
         grid.add(it->row, it->col);
 }
+
+void life_2d::clear() {}
 
 }  // namespace logic
 }  // namespace automaton

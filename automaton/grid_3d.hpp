@@ -8,8 +8,6 @@
 
 namespace automaton {
 
-class grid_3d;
-
 struct cell_3d : public base_cell {
     int level;
 
@@ -17,14 +15,9 @@ struct cell_3d : public base_cell {
     bool operator<(const cell_3d& other) const;
 };
 
-class logic_3d : public base_logic {
-   public:
-    virtual void step(grid_3d& grid) = 0;
-};
-
 class grid_3d : public base_grid {
    public:
-    typedef std::shared_ptr<logic_3d> logic_ptr;
+    typedef std::shared_ptr<base_logic> logic_ptr;
 
     grid_3d(size_t rows, size_t cols);
     ~grid_3d() override;
@@ -34,7 +27,6 @@ class grid_3d : public base_grid {
     bool has(size_t row, size_t col) override;
     void clear() override;
 
-    void set_logic(std::shared_ptr<base_logic> logic) override;
     void step() override;
 
     std::set<base_cell> get_drawable_cells() const override;
@@ -49,7 +41,6 @@ class grid_3d : public base_grid {
 
    private:
     std::set<cell_3d> _data;
-    std::shared_ptr<logic_3d> _logic;
 
     void update_sizes(size_t rows, size_t cols);
 };

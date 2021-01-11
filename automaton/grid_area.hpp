@@ -17,6 +17,8 @@ class grid_area : public Gtk::DrawingArea {
     void set_grid(std::shared_ptr<base_grid> grid);
     void set_grid_borders(bool borders);
     void set_step_delay(size_t delay);
+    void set_editable(bool is_editable);
+    void set_cell_width(double cell_width);
 
     double get_cell_width() const;
 
@@ -45,6 +47,7 @@ class grid_area : public Gtk::DrawingArea {
 
     std::shared_ptr<base_grid> _grid;
 
+    bool _is_editable = true;
     bool _is_drawing = false;
     bool _is_clearing = false;
 
@@ -58,7 +61,7 @@ class grid_area : public Gtk::DrawingArea {
     const Gdk::Color _border_color{"#000000"};
     const Gdk::Color _cell_color{"#008080"};
 
-    const double _cell_width = 15;
+    double _cell_width = 15;
     const double _line_width = 0.5;
 };
 

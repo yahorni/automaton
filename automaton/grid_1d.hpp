@@ -1,17 +1,20 @@
 #pragma once
 
-#include <automaton/base/cell.hpp>
 #include <automaton/base/grid.hpp>
 #include <memory>
 #include <set>
-#include <vector>
 
 namespace automaton {
 
-class grid_2d : public base_grid {
+struct cell_1d : public base_cell {
+    cell_1d(size_t row, size_t col);
+    bool operator<(const base_cell& other) const override;
+};
+
+class grid_1d : public base_grid {
    public:
-    grid_2d(size_t rows, size_t cols);
-    ~grid_2d() override;
+    grid_1d(size_t rows, size_t cols);
+    ~grid_1d() override;
 
     void add(size_t row, size_t col) override;
     bool remove(size_t row, size_t col) override;
@@ -22,17 +25,11 @@ class grid_2d : public base_grid {
 
     std::set<base_cell> get_drawable_cells() const override;
 
-    void set_rows(size_t rows) override;
-    void set_cols(size_t cols) override;
-
     // custom methods
-    void move(base_cell from, base_cell to);
-    const std::set<base_cell>& get_data() const;
+    const std::set<cell_1d>& get_data() const;
 
    private:
-    std::set<base_cell> _data;
-
-    void update_sizes(size_t rows, size_t cols);
+    std::set<cell_1d> _data;
 };
 
 }  // namespace automaton

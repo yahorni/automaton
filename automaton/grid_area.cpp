@@ -34,6 +34,10 @@ void grid_area::set_grid_borders(bool borders) { _grid_borders = borders; }
 
 void grid_area::set_step_delay(size_t delay) { _delay = delay; }
 
+void grid_area::set_editable(bool is_editable) { _is_editable = is_editable; }
+
+void grid_area::set_cell_width(double cell_width) { _cell_width = cell_width; }
+
 bool grid_area::on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr) {
     draw_background(cr);
     draw_frame(cr);
@@ -67,6 +71,7 @@ bool grid_area::on_key_press(GdkEventKey* ev) {
 
 bool grid_area::on_mouse_press(GdkEventButton* ev) {
     if (!_grid) return false;
+    if (!_is_editable) return false;
 
     if (ev->type == GDK_BUTTON_PRESS && (ev->button == 1 || ev->button == 3)) {
         size_t col = ev->x / _cell_width;
@@ -90,6 +95,7 @@ bool grid_area::on_mouse_press(GdkEventButton* ev) {
 
 bool grid_area::on_mouse_release(GdkEventButton* ev) {
     if (!_grid) return false;
+    if (!_is_editable) return false;
 
     if (ev->button == 1 && _is_drawing) {
         _is_drawing = false;
@@ -104,6 +110,7 @@ bool grid_area::on_mouse_release(GdkEventButton* ev) {
 
 bool grid_area::on_mouse_motion(GdkEventMotion* ev) {
     if (!_grid) return false;
+    if (!_is_editable) return false;
     if (!_is_drawing && !_is_clearing) return false;
 
     if (_is_drawing || _is_clearing) {
