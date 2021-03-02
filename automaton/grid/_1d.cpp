@@ -1,4 +1,4 @@
-#include <automaton/grid_1d.hpp>
+#include <automaton/grid/_1d.hpp>
 
 namespace automaton {
 
@@ -22,9 +22,7 @@ bool grid_1d::remove(size_t row, size_t col) {
     return true;
 }
 
-bool grid_1d::has(size_t row, size_t col) {
-    return _data.find({row, col}) != _data.end();
-}
+bool grid_1d::has(size_t row, size_t col) { return _data.find({row, col}) != _data.end(); }
 
 void grid_1d::clear() {
     _data.clear();
@@ -35,10 +33,8 @@ void grid_1d::step() {
     if (_logic) _logic->step(*this);
 }
 
-std::set<base_cell> grid_1d::get_drawable_cells() const {
-    return {_data.begin(), _data.end()};
-}
+std::set<base_cell> grid_1d::get_drawable_cells() const { return {_data.begin(), _data.end()}; }
 
 const std::set<cell_1d>& grid_1d::get_data() const { return _data; }
 
-}  // namespace automaton
+} // namespace automaton

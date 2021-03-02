@@ -17,30 +17,28 @@ void life_2d::step(base_grid& grid) {
             size_t next_col = (col == cols - 1 ? 0 : col + 1);
 
             uint8_t neighbours = 0;
-            if (grid.has(prev_row, prev_col)) neighbours++;
-            if (grid.has(prev_row, col)) neighbours++;
-            if (grid.has(prev_row, next_col)) neighbours++;
-            if (grid.has(row, prev_col)) neighbours++;
-            if (grid.has(row, next_col)) neighbours++;
-            if (grid.has(next_row, prev_col)) neighbours++;
-            if (grid.has(next_row, col)) neighbours++;
-            if (grid.has(next_row, next_col)) neighbours++;
+            if (grid.has(prev_row, prev_col)) ++neighbours;
+            if (grid.has(prev_row, col)) ++neighbours;
+            if (grid.has(prev_row, next_col)) ++neighbours;
+            if (grid.has(row, prev_col)) ++neighbours;
+            if (grid.has(row, next_col)) ++neighbours;
+            if (grid.has(next_row, prev_col)) ++neighbours;
+            if (grid.has(next_row, col)) ++neighbours;
+            if (grid.has(next_row, next_col)) ++neighbours;
 
-            if (!grid.has(row, col) && neighbours == 3)
-                new_state.emplace(row, col);
+            if (!grid.has(row, col) && neighbours == 3) new_state.emplace(row, col);
 
-            if (grid.has(row, col) && (neighbours == 2 || neighbours == 3))
-                new_state.emplace(row, col);
+            if (grid.has(row, col) && (neighbours == 2 || neighbours == 3)) new_state.emplace(row, col);
         }
     }
 
     grid.clear();
 
-    for (auto it = new_state.begin(); it != new_state.end(); it++)
-        grid.add(it->row, it->col);
+    for (const auto& cell : new_state)
+        grid.add(cell.row, cell.col);
 }
 
 void life_2d::clear() {}
 
-}  // namespace logic
-}  // namespace automaton
+} // namespace logic
+} // namespace automaton

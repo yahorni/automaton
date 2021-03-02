@@ -1,4 +1,4 @@
-#include <automaton/grid_2d.hpp>
+#include <automaton/grid/_2d.hpp>
 #include <automaton/logic/fall.hpp>
 #include <automaton/logic/life.hpp>
 
@@ -10,9 +10,7 @@ grid_2d::~grid_2d() {}
 
 void grid_2d::add(size_t row, size_t col) { _data.emplace(row, col); }
 
-bool grid_2d::has(size_t row, size_t col) {
-    return _data.find(base_cell{row, col}) != _data.end();
-}
+bool grid_2d::has(size_t row, size_t col) { return _data.find(base_cell{row, col}) != _data.end(); }
 
 bool grid_2d::remove(size_t row, size_t col) {
     // TODO: use erase-find
@@ -35,9 +33,7 @@ void grid_2d::step() {
     if (_logic) _logic->step(*this);
 }
 
-std::set<base_cell> grid_2d::get_drawable_cells() const {
-    return {_data.begin(), _data.end()};
-}
+std::set<base_cell> grid_2d::get_drawable_cells() const { return {_data.begin(), _data.end()}; }
 
 void grid_2d::move(base_cell from, base_cell to) {
     _data.erase(_data.find(from));
@@ -65,4 +61,4 @@ void grid_2d::update_sizes(size_t rows, size_t cols) {
     }
 }
 
-}  // namespace automaton
+} // namespace automaton

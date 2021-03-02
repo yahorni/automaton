@@ -1,10 +1,10 @@
 // vim: fdm=marker fdl=0
 #include <glibmm/optioncontext.h>
 
-#include <automaton/grid_1d.hpp>
-#include <automaton/grid_2d.hpp>
-#include <automaton/grid_3d.hpp>
-#include <automaton/grid_window.hpp>
+#include <automaton/grid/_1d.hpp>
+#include <automaton/grid/_2d.hpp>
+#include <automaton/grid/_3d.hpp>
+#include <automaton/ui/grid_window.hpp>
 #include <automaton/logic/fall.hpp>
 #include <automaton/logic/life.hpp>
 #include <automaton/logic/wolfram.hpp>
@@ -24,10 +24,8 @@ grid_window::grid_window() : _grid(nullptr) {
 
     _area.property_visible() = true;
 
-    signal_key_press_event().connect(
-        sigc::mem_fun(*this, &grid_window::on_key_press));
-    signal_check_resize().connect(
-        sigc::mem_fun(*this, &grid_window::on_resize));
+    signal_key_press_event().connect(sigc::mem_fun(*this, &grid_window::on_key_press));
+    signal_check_resize().connect(sigc::mem_fun(*this, &grid_window::on_resize));
 }
 
 grid_window::~grid_window() {}
@@ -40,9 +38,8 @@ bool grid_window::on_key_press(GdkEventKey* ev) {
     return false;
 }
 
-int grid_window::on_cmdline(
-    const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
-    Glib::RefPtr<Gtk::Application>& app) {
+int grid_window::on_cmdline(const Glib::RefPtr<Gio::ApplicationCommandLine>& cmdline,
+                            Glib::RefPtr<Gtk::Application>& app) {
     // NOTE:
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
 
@@ -55,17 +52,15 @@ int grid_window::on_cmdline(
     entry.set_short_name('c');
     entry.set_long_name("cols");
     entry.set_arg_description("NUM");
-    entry.set_description(
-        "Grid columns. Should be >= 0. Zero means fill window, sets by "
-        "default");
+    entry.set_description("Grid columns. Should be >= 0. Zero means fill window, sets by "
+                          "default");
     group.add_entry(entry, _options.cols);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('r');
     entry.set_long_name("rows");
     entry.set_arg_description("NUM");
-    entry.set_description(
-        "Grid rows. Should be >= 0. Zero means fill window, sets by default");
+    entry.set_description("Grid rows. Should be >= 0. Zero means fill window, sets by default");
     group.add_entry(entry, _options.rows);
 
     entry = Glib::OptionEntry();
@@ -128,9 +123,8 @@ int grid_window::on_cmdline(
     entry = Glib::OptionEntry();
     entry.set_long_name("levels");
     entry.set_arg_description("NUM");
-    entry.set_description(
-        "3D grid levels amount. Should be >= 0. Zero means unlimited depth "
-        "levels");
+    entry.set_description("3D grid levels amount. Should be >= 0. Zero means unlimited depth "
+                          "levels");
     group.add_entry(entry, _options.levels_3d);
 
     ctx.add_group(group_3d);
@@ -169,12 +163,8 @@ int grid_window::on_cmdline(
 }
 
 void grid_window::initialize_grid() {
-    size_t cols = _options.cols == 0
-                      ? _area.get_width() / _area.get_cell_width()
-                      : _options.cols;
-    size_t rows = _options.rows == 0
-                      ? _area.get_height() / _area.get_cell_width()
-                      : _options.rows;
+    size_t cols = _options.cols == 0 ? _area.get_width() / _area.get_cell_width() : _options.cols;
+    size_t rows = _options.rows == 0 ? _area.get_height() / _area.get_cell_width() : _options.rows;
 
     // initialize grid
     if (_options.type == "1D") {
@@ -206,11 +196,9 @@ void grid_window::initialize_grid() {
 void grid_window::on_resize() {
     if (!_grid) return;
 
-    if (_options.cols == 0)
-        _grid->set_cols(_area.get_width() / _area.get_cell_width());
+    if (_options.cols == 0) _grid->set_cols(_area.get_width() / _area.get_cell_width());
 
-    if (_options.rows == 0)
-        _grid->set_rows(_area.get_height() / _area.get_cell_width());
+    if (_options.rows == 0) _grid->set_rows(_area.get_height() / _area.get_cell_width());
 }
 
-}  // namespace automaton
+} // namespace automaton

@@ -1,4 +1,4 @@
-#include <automaton/grid_1d.hpp>
+#include <automaton/grid/_1d.hpp>
 #include <automaton/logic/wolfram.hpp>
 
 namespace automaton {
@@ -13,8 +13,7 @@ void wolfram::step(base_grid& _grid) {
     if (_current_step + 1 == rows) return;
 
     // when starting: fast forward to first row with cells (ignoring last row)
-    if (_current_step == 0 && grid.get_data().size() > 0 &&
-        grid.get_data().begin()->row != rows - 1)
+    if (_current_step == 0 && grid.get_data().size() > 0 && grid.get_data().begin()->row != rows - 1)
         _current_step = grid.get_data().begin()->row;
 
     size_t row = _current_step;
@@ -37,5 +36,5 @@ void wolfram::step(base_grid& _grid) {
 
 void wolfram::clear() { _current_step = 0; }
 
-}  // namespace logic
-}  // namespace automaton
+} // namespace logic
+} // namespace automaton

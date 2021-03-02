@@ -1,10 +1,9 @@
-#include <automaton/grid_3d.hpp>
+#include <automaton/grid/_3d.hpp>
 #include <automaton/logic/fall.hpp>
 
 namespace automaton {
 
-cell_3d::cell_3d(size_t row, size_t col, int level)
-    : base_cell(row, col), level(level) {}
+cell_3d::cell_3d(size_t row, size_t col, int level) : base_cell(row, col), level(level) {}
 
 bool cell_3d::operator<(const cell_3d& other) const {
     if (row == other.row) {
@@ -52,7 +51,8 @@ void grid_3d::step() {
 
 std::set<base_cell> grid_3d::get_drawable_cells() const {
     std::set<base_cell> cells;
-    for (auto& cell : _data) cells.emplace(cell.row, cell.col);
+    for (auto& cell : _data)
+        cells.emplace(cell.row, cell.col);
     return cells;
 }
 
@@ -86,4 +86,4 @@ void grid_3d::update_sizes(size_t rows, size_t cols) {
     }
 }
 
-}  // namespace automaton
+} // namespace automaton

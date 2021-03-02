@@ -16,7 +16,7 @@ struct cell_3d : public base_cell {
 };
 
 class grid_3d : public base_grid {
-   public:
+public:
     typedef std::shared_ptr<base_logic> logic_ptr;
 
     grid_3d(size_t rows, size_t cols);
@@ -39,10 +39,10 @@ class grid_3d : public base_grid {
     void move(cell_3d from, cell_3d to);
     const std::set<cell_3d>& get_data() const;
 
-   private:
+private:
     std::set<cell_3d> _data;
 
     void update_sizes(size_t rows, size_t cols);
 };
 
-}  // namespace automaton
+} // namespace automaton

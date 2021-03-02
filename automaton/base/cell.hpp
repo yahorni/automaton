@@ -16,4 +16,4 @@ struct base_cell {
     }
 };
 
-}  // namespace automaton
+} // namespace automaton
