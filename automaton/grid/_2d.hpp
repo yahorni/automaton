@@ -9,7 +9,7 @@
 namespace automaton {
 
 class grid_2d : public base_grid {
-   public:
+public:
     grid_2d(size_t rows, size_t cols);
     ~grid_2d() override;
 
@@ -29,10 +29,10 @@ class grid_2d : public base_grid {
     void move(base_cell from, base_cell to);
     const std::set<base_cell>& get_data() const;
 
-   private:
+private:
     std::set<base_cell> _data;
 
     void update_sizes(size_t rows, size_t cols);
 };
 
-}  // namespace automaton
+} // namespace automaton

@@ -1,5 +1,5 @@
-#include <automaton/grid_2d.hpp>
-#include <automaton/grid_3d.hpp>
+#include <automaton/grid/_2d.hpp>
+#include <automaton/grid/_3d.hpp>
 #include <automaton/logic/fall.hpp>
 #include <memory>
 
@@ -14,8 +14,7 @@ fall_2d::fall_2d() {
 
 void fall_2d::step(base_grid& _grid) {
     auto& grid = static_cast<grid_2d&>(_grid);
-    std::set<base_cell> data_copy{grid.get_data().begin(),
-                                  grid.get_data().end()};
+    std::set<base_cell> data_copy{grid.get_data().begin(), grid.get_data().end()};
 
     for (auto it = data_copy.begin(); it != data_copy.end(); it++) {
         if (it->row == grid.get_rows() - 1) continue;
@@ -31,8 +30,7 @@ void fall_2d::step(base_grid& _grid) {
             positions.emplace_back(it->row + 1, it->col - 1);
         }
 
-        if (it->col < grid.get_cols() - 1 &&
-            !grid.has(it->row + 1, it->col + 1)) {
+        if (it->col < grid.get_cols() - 1 && !grid.has(it->row + 1, it->col + 1)) {
             positions.emplace_back(it->row + 1, it->col + 1);
         }
 
@@ -70,8 +68,7 @@ void fall_3d::step(base_grid& _grid) {
             positions.emplace_back(it->row + 1, it->col - 1, it->level);
         }
 
-        if (it->col < grid.get_cols() - 1 &&
-            !grid.has(it->row + 1, it->col + 1, it->level)) {
+        if (it->col < grid.get_cols() - 1 && !grid.has(it->row + 1, it->col + 1, it->level)) {
             positions.emplace_back(it->row + 1, it->col + 1, it->level);
         }
 
@@ -84,13 +81,11 @@ void fall_3d::step(base_grid& _grid) {
                 positions.emplace_back(it->row + 1, it->col, it->level + 1);
             }
         } else {
-            if (it->level < _levels &&
-                !grid.has(it->row + 1, it->col, it->level + 1)) {
+            if (it->level < _levels && !grid.has(it->row + 1, it->col, it->level + 1)) {
                 positions.emplace_back(it->row + 1, it->col, it->level + 1);
             }
 
-            if (it->level > -_levels &&
-                !grid.has(it->row + 1, it->col, it->level)) {
+            if (it->level > -_levels && !grid.has(it->row + 1, it->col, it->level)) {
                 positions.emplace_back(it->row + 1, it->col, it->level - 1);
             }
         }
@@ -105,5 +100,5 @@ void fall_3d::step(base_grid& _grid) {
 
 void fall_3d::clear() {}
 
-}  // namespace logic
-}  // namespace automaton
+} // namespace logic
+} // namespace automaton

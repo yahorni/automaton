@@ -10,7 +10,7 @@
 namespace automaton {
 
 class grid_area : public Gtk::DrawingArea {
-   public:
+public:
     grid_area();
     virtual ~grid_area();
 
@@ -22,7 +22,7 @@ class grid_area : public Gtk::DrawingArea {
 
     double get_cell_width() const;
 
-   private:
+private:
     // drawing
     bool on_draw_cells(const Cairo::RefPtr<Cairo::Context>& cr);
     // keyboard
@@ -65,4 +65,4 @@ class grid_area : public Gtk::DrawingArea {
     const double _line_width = 0.5;
 };
 
-}  // namespace automaton
+} // namespace automaton

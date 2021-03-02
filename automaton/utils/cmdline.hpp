@@ -8,8 +8,8 @@ namespace automaton {
 
 struct cmdline {
     // main
-    int cols = 0;  // 0 - means fill widget width
-    int rows = 0;  // 0 - means fill widget height
+    int cols = 0; // 0 - means fill widget width
+    int rows = 0; // 0 - means fill widget height
     Glib::ustring type = "2D";
     bool borders = false;
     int delay = 100;
@@ -19,11 +19,11 @@ struct cmdline {
     // 2D
     Glib::ustring logic_2d = "fall";
     // 3D
-    int levels_3d = 0;  // 0 - means unlimited levels
+    int levels_3d = 0; // 0 - means unlimited levels
 
     std::tuple<bool, std::string> validate() const;
 
-   private:
+private:
     // main
     bool validate_cols() const;
     bool validate_rows() const;
@@ -38,4 +38,4 @@ struct cmdline {
     bool validate_levels_3d() const;
 };
 
-}  // namespace automaton
+} // namespace automaton

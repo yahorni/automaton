@@ -22,23 +22,17 @@ std::tuple<bool, std::string> cmdline::validate() const {
 // main
 bool cmdline::validate_cols() const { return cols >= 0; }
 bool cmdline::validate_rows() const { return rows >= 0; }
-bool cmdline::validate_type() const {
-    return type == "1D" || type == "2D" || type == "3D";
-}
+bool cmdline::validate_type() const { return type == "1D" || type == "2D" || type == "3D"; }
 bool cmdline::validate_delay() const { return delay > 0; }
 bool cmdline::validate_cell_width() const { return cell_width > 0; }
 
 // 1D
-bool cmdline::validate_code_1d() const {
-    return code_1d >= 0 && code_1d <= 255;
-}
+bool cmdline::validate_code_1d() const { return code_1d >= 0 && code_1d <= 255; }
 
 // 2D
-bool cmdline::validate_logic_2d() const {
-    return logic_2d == "fall" || logic_2d == "life";
-}
+bool cmdline::validate_logic_2d() const { return logic_2d == "fall" || logic_2d == "life"; }
 
 // 3D
 bool cmdline::validate_levels_3d() const { return levels_3d >= 0; }
 
-}  // namespace automaton
+} // namespace automaton

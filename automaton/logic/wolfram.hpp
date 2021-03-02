@@ -6,16 +6,16 @@ namespace automaton {
 namespace logic {
 
 class wolfram : public base_logic {
-   public:
+public:
     explicit wolfram(int8_t code);
 
     void step(base_grid& grid) override;
     void clear() override;
 
-   private:
+private:
     int8_t _code;
     size_t _current_step = 0;
 };
 
-}  // namespace logic
-}  // namespace automaton
+} // namespace logic
+} // namespace automaton

@@ -6,10 +6,10 @@ namespace automaton {
 namespace logic {
 
 class life_2d : public base_logic {
-   public:
+public:
     void step(base_grid& grid) override;
     void clear() override;
 };
 
-}  // namespace logic
-}  // namespace automaton
+} // namespace logic
+} // namespace automaton

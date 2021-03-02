@@ -12,7 +12,7 @@ struct cell_1d : public base_cell {
 };
 
 class grid_1d : public base_grid {
-   public:
+public:
     grid_1d(size_t rows, size_t cols);
     ~grid_1d() override;
 
@@ -28,8 +28,8 @@ class grid_1d : public base_grid {
     // custom methods
     const std::set<cell_1d>& get_data() const;
 
-   private:
+private:
     std::set<cell_1d> _data;
 };
 
-}  // namespace automaton
+} // namespace automaton

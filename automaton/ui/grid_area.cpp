@@ -1,26 +1,21 @@
 #include <gdkmm/general.h>
 #include <glibmm/main.h>
 
-#include <automaton/grid_area.hpp>
+#include <automaton/ui/grid_area.hpp>
 
 namespace automaton {
 
 grid_area::grid_area() {
     // to catch mouse events
-    add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
-               Gdk::POINTER_MOTION_MASK);
-    signal_button_press_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_mouse_press));
-    signal_button_release_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_mouse_release));
-    signal_motion_notify_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_mouse_motion));
+    add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::POINTER_MOTION_MASK);
+    signal_button_press_event().connect(sigc::mem_fun(*this, &grid_area::on_mouse_press));
+    signal_button_release_event().connect(sigc::mem_fun(*this, &grid_area::on_mouse_release));
+    signal_motion_notify_event().connect(sigc::mem_fun(*this, &grid_area::on_mouse_motion));
 
     // to catch keyboard events
     add_events(Gdk::KEY_PRESS_MASK);
     property_can_focus() = true;
-    signal_key_press_event().connect(
-        sigc::mem_fun(*this, &grid_area::on_key_press));
+    signal_key_press_event().connect(sigc::mem_fun(*this, &grid_area::on_key_press));
 
     // add draw function
     signal_draw().connect(sigc::mem_fun(*this, &grid_area::on_draw_cells));
@@ -70,6 +65,7 @@ bool grid_area::on_key_press(GdkEventKey* ev) {
 }
 
 bool grid_area::on_mouse_press(GdkEventButton* ev) {
+    g_debug("on_mouse_press()");
     if (!_grid) return false;
     if (!_is_editable) return false;
 
@@ -94,6 +90,7 @@ bool grid_area::on_mouse_press(GdkEventButton* ev) {
 }
 
 bool grid_area::on_mouse_release(GdkEventButton* ev) {
+    g_debug("on_mouse_release()");
     if (!_grid) return false;
     if (!_is_editable) return false;
 
@@ -131,8 +128,10 @@ bool grid_area::on_mouse_motion(GdkEventMotion* ev) {
 }
 
 bool grid_area::on_timeout() {
+    g_debug("on_timeout()");
     if (!_grid) return false;
 
+    g_debug("on_timeout(): _is_drawing %d, _is_clearing %d", _is_drawing, _is_clearing);
     if (_is_drawing || _is_clearing) {
         int x, y;
         get_pointer(x, y);
@@ -153,14 +152,13 @@ bool grid_area::on_timeout() {
 }
 
 void grid_area::toggle_ongoing() {
+    g_debug("toggle_ongoing()");
     if (!_is_ongoing) {
         // ongoing timeout
-        sigc::slot<bool()> _ongoing_slot =
-            sigc::mem_fun(*this, &grid_area::on_timeout);
+        sigc::slot<bool()> _ongoing_slot = sigc::mem_fun(*this, &grid_area::on_timeout);
 
         // ongoing connection
-        _ongoing_connection =
-            Glib::signal_timeout().connect(_ongoing_slot, _delay);
+        _ongoing_connection = Glib::signal_timeout().connect(_ongoing_slot, _delay);
         _is_ongoing = true;
     } else {
         _ongoing_connection.disconnect();
@@ -243,4 +241,4 @@ std::pair<double, double> grid_area::get_cell_xy(size_t row, size_t col) const {
     return std::make_pair(_cell_width * col, _cell_width * row);
 }
 
-}  // namespace automaton
+} // namespace automaton
