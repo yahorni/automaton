@@ -4,7 +4,6 @@
 #include "automaton/base/grid.hpp"
 
 #include <memory>
-#include <set>
 
 namespace automaton {
 

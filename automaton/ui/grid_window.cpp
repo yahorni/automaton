@@ -13,7 +13,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace automaton {
 

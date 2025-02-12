@@ -1,8 +1,5 @@
 #include "automaton/grid/_3d.hpp"
 
-#include <algorithm>
-#include <utility>
-
 namespace automaton {
 
 cell_3d::cell_3d(uint32_t row, uint32_t col, int slice)

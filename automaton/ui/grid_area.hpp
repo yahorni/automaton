@@ -5,8 +5,6 @@
 
 #include <gtkmm/drawingarea.h>
 
-#include <memory>
-#include <utility>
 #include <string>
 
 namespace automaton {

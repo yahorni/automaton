@@ -8,7 +8,6 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/frame.h>
 
-#include <memory>
 #include <string>
 
 namespace automaton {

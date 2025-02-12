@@ -1,7 +1,5 @@
 #include "automaton/grid/_2d.hpp"
 
-#include <utility>
-
 namespace automaton {
 
 bool cell_2d::operator<(const cell_2d& other) const {
