@@ -10,7 +10,7 @@ public:
 
     // return false if no steps left
     virtual bool step() = 0;
-    virtual void reset() = 0;
+    virtual void reset() {}
 };
 
 using base_logic_ptr = std::shared_ptr<base_logic>;

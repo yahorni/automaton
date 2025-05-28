@@ -1,8 +1,8 @@
 #include "automaton/logic/fall.hpp"
 
 #include <set>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace automaton::logic {
 
@@ -41,8 +41,6 @@ bool fall_2d::step() {
 
     return true;
 }
-
-void fall_2d::reset() {}
 
 fall_3d::fall_3d(base_grid_ptr grid, uint16_t slices)
     : _grid(std::static_pointer_cast<grid_3d>(grid)),
@@ -108,7 +106,5 @@ bool fall_3d::step() {
 
     return true;
 }
-
-void fall_3d::reset() {}
 
 }  // namespace automaton::logic

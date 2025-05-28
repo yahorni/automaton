@@ -1,9 +1,9 @@
 #pragma once
 
+#include "automaton/app/app_config.hpp"
+#include "automaton/app/grid_area.hpp"
 #include "automaton/grid/base_grid.hpp"
 #include "automaton/logic/base_logic.hpp"
-#include "automaton/app/grid_area.hpp"
-#include "automaton/app/app_config.hpp"
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/frame.h>

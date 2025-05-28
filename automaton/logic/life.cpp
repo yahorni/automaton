@@ -44,6 +44,4 @@ bool life_2d::step() {
     return true;
 }
 
-void life_2d::reset() {}
-
 }  // namespace automaton::logic
