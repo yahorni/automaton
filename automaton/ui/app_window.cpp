@@ -1,5 +1,5 @@
 // vim: fdm=marker fdl=0
-#include "automaton/ui/grid_window.hpp"
+#include "automaton/ui/app_window.hpp"
 #include "automaton/grid/_1d.hpp"
 #include "automaton/grid/_2d.hpp"
 #include "automaton/grid/_3d.hpp"
@@ -16,7 +16,7 @@
 
 namespace automaton {
 
-grid_window::grid_window()
+app_window::app_window()
     : _grid(nullptr) {
     set_title("Automaton");
     set_default_size(800, 600);
@@ -28,11 +28,11 @@ grid_window::grid_window()
 
     _area.property_visible() = true;
 
-    signal_key_press_event().connect(sigc::mem_fun(*this, &grid_window::on_key_press));
-    signal_check_resize().connect(sigc::mem_fun(*this, &grid_window::on_resize));
+    signal_key_press_event().connect(sigc::mem_fun(*this, &app_window::on_key_press));
+    signal_check_resize().connect(sigc::mem_fun(*this, &app_window::on_resize));
 }
 
-bool grid_window::on_key_press(GdkEventKey* ev) {
+bool app_window::on_key_press(GdkEventKey* ev) {
     g_debug("grid_window::on_key_press(key='%s')", ev->string);
     if (ev->keyval == GDK_KEY_q) {
         close();
@@ -41,7 +41,13 @@ bool grid_window::on_key_press(GdkEventKey* ev) {
     return false;
 }
 
-static Glib::OptionGroup add_main_group(cmdline* options) {
+static Glib::OptionGroup add_main_group(cli* options) {
+    // NOTE:
+    // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
+
+    Glib::OptionContext ctx;
+
+    // {{{ main options
     Glib::OptionGroup group("options", "Main options");
 
     Glib::OptionEntry entry;
@@ -85,11 +91,12 @@ static Glib::OptionGroup add_main_group(cmdline* options) {
     entry.set_description(
         Glib::ustring::compose("Grid logic. Should be 'wolfram', 'fall' or 'life'. Default: '%1'", options->logic));
     group.add_entry(entry, options->logic);
+    // }}}
 
     return group;
 }
 
-static Glib::OptionGroup add_wolfram_group(cmdline::wolfram_opts* options) {
+static Glib::OptionGroup add_wolfram_group(cli::wolfram_opts* options) {
     Glib::OptionGroup group("wolfram", "Wolfram logic options");
 
     auto entry = Glib::OptionEntry();
@@ -101,7 +108,7 @@ static Glib::OptionGroup add_wolfram_group(cmdline::wolfram_opts* options) {
     return group;
 }
 
-static Glib::OptionGroup add_fall_group(cmdline::fall_opts* options) {
+static Glib::OptionGroup add_fall_group(cli::fall_opts* options) {
     Glib::OptionGroup group("fall", "Fall logic options");
 
     auto entry = Glib::OptionEntry();
@@ -114,7 +121,7 @@ static Glib::OptionGroup add_fall_group(cmdline::fall_opts* options) {
     return group;
 }
 
-int grid_window::on_cmdline(const app_cmdline_ptr& cmdline, app_ptr& app) {
+int app_window::on_cli(const app_cli_ptr& cli, app_ptr& app) {
     g_debug("grid_window::on_cmdline()");
     // NOTE:
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
@@ -135,7 +142,7 @@ int grid_window::on_cmdline(const app_cmdline_ptr& cmdline, app_ptr& app) {
     ctx.add_group(gtkgroup);
 
     int argc;
-    char** argv = cmdline->get_arguments(argc);
+    char** argv = cli->get_arguments(argc);
 
     try {
         ctx.parse(argc, argv);
@@ -162,7 +169,7 @@ int grid_window::on_cmdline(const app_cmdline_ptr& cmdline, app_ptr& app) {
     return 0;
 }
 
-std::string grid_window::get_status() const {
+std::string app_window::get_status() const {
     std::string details;
     if (_options.logic == "fall")
         details = std::format("splices: {}", _options.fall.splices);
@@ -173,7 +180,7 @@ std::string grid_window::get_status() const {
                        _grid->get_cols(), _grid->get_rows());
 }
 
-void grid_window::initialize_grid() {
+void app_window::initialize_grid() {
     g_debug("grid_window::initialize_grid(logic='%s')", _options.logic.c_str());
 
     uint32_t cols = _options.cols == 0 ? _area.get_width() / _area.get_cell_width() : _options.cols;
@@ -206,7 +213,7 @@ void grid_window::initialize_grid() {
     _area.set_information(get_status());
 }
 
-void grid_window::on_resize() {
+void app_window::on_resize() {
     g_debug("grid_window::on_resize()");
     if (!_grid) return;
 

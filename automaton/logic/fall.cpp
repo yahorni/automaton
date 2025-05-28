@@ -4,8 +4,7 @@
 #include <vector>
 #include <utility>
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 fall_2d::fall_2d(base_grid_ptr grid)
     : _grid(std::static_pointer_cast<grid_2d>(grid)),
@@ -112,5 +111,4 @@ bool fall_3d::step() {
 
 void fall_3d::reset() {}
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic

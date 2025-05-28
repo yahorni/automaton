@@ -2,9 +2,9 @@
 
 #include "automaton/base/cell.hpp"
 
+#include <map>
 #include <memory>
 #include <set>
-#include <map>
 
 namespace automaton {
 

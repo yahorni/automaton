@@ -3,7 +3,7 @@
 #include "automaton/base/grid.hpp"
 #include "automaton/base/logic.hpp"
 #include "automaton/ui/grid_area.hpp"
-#include "automaton/utils/cmdline.hpp"
+#include "automaton/cli/cli.hpp"
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/frame.h>
@@ -12,13 +12,13 @@
 
 namespace automaton {
 
-class grid_window : public Gtk::ApplicationWindow {
+class app_window : public Gtk::ApplicationWindow {
 public:
-    using app_cmdline_ptr = Glib::RefPtr<Gio::ApplicationCommandLine>;
+    using app_cli_ptr = Glib::RefPtr<Gio::ApplicationCommandLine>;
     using app_ptr = Glib::RefPtr<Gtk::Application>;
 
-    grid_window();
-    ~grid_window() override = default;
+    app_window();
+    ~app_window() override = default;
 
 private:
     // GUI members
@@ -28,7 +28,7 @@ private:
     base_logic_ptr _logic;
     base_grid_ptr _grid;
 
-    cmdline _options;
+    cli _options;
 
     // signals
     bool on_key_press(GdkEventKey* ev);
@@ -39,7 +39,7 @@ private:
     std::string get_status() const;
 
 public:
-    int on_cmdline(const app_cmdline_ptr& cmdline, app_ptr& app);
+    int on_cli(const app_cli_ptr& cli, app_ptr& app);
 };
 
 }  // namespace automaton

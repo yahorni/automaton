@@ -3,8 +3,7 @@
 #include "automaton/base/logic.hpp"
 #include "automaton/grid/_2d.hpp"
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 class life_2d : public base_logic {
 public:
@@ -17,5 +16,4 @@ private:
     grid_2d_ptr _grid;
 };
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic

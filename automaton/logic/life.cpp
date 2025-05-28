@@ -2,8 +2,7 @@
 
 #include <set>
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 life_2d::life_2d(base_grid_ptr grid)
     : _grid(std::static_pointer_cast<grid_2d>(grid)) {}
@@ -47,5 +46,4 @@ bool life_2d::step() {
 
 void life_2d::reset() {}
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic

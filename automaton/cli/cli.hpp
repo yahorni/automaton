@@ -7,7 +7,7 @@
 
 namespace automaton {
 
-struct cmdline {
+struct cli {
     // main
     int cols = 0;  // 0 - means fill widget width
     int rows = 0;  // 0 - means fill widget height
@@ -34,7 +34,6 @@ private:
     bool validate_rows() const;
     bool validate_delay() const;
     bool validate_cell_width() const;
-    bool validate_dimensions() const;
 
     bool validate_logic() const;
     bool validate_wolfram() const;

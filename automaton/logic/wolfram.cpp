@@ -1,7 +1,6 @@
 #include "automaton/logic/wolfram.hpp"
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 wolfram::wolfram(base_grid_ptr grid, int8_t code)
     : _grid(std::static_pointer_cast<grid_1d>(grid)),
@@ -39,5 +38,4 @@ bool wolfram::step() {
 
 void wolfram::reset() { _current_step = 0; }
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic

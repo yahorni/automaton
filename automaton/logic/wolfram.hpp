@@ -3,8 +3,7 @@
 #include "automaton/base/logic.hpp"
 #include "automaton/grid/_1d.hpp"
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 class wolfram : public base_logic {
 public:
@@ -20,5 +19,4 @@ private:
     uint32_t _current_step = 0;
 };
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic

@@ -6,8 +6,7 @@
 
 #include <random>
 
-namespace automaton {
-namespace logic {
+namespace automaton::logic {
 
 class fall_2d : public base_logic {
 public:
@@ -39,5 +38,4 @@ private:
     std::uniform_int_distribution<int16_t> _dist;
 };
 
-}  // namespace logic
-}  // namespace automaton
+}  // namespace automaton::logic
