@@ -7,7 +7,7 @@
 
 namespace automaton {
 
-struct cell_3d final : public base_cell {
+struct cell_3d : public base_cell {
     int slice;
 
     cell_3d(uint32_t row, uint32_t col, int slice = 0);
@@ -15,7 +15,7 @@ struct cell_3d final : public base_cell {
     bool operator<(const cell_3d& other) const;
 };
 
-class grid_3d final : public grid<cell_3d> {
+class grid_3d : public grid<cell_3d> {
 public:
     using grid<cell_3d>::grid;
 

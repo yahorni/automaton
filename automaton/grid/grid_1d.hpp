@@ -7,13 +7,13 @@
 
 namespace automaton {
 
-struct cell_1d final : public base_cell {
+struct cell_1d : public base_cell {
     using base_cell::base_cell;
 
     bool operator<(const base_cell& other) const;
 };
 
-class grid_1d final : public grid<cell_1d> {
+class grid_1d : public grid<cell_1d> {
 public:
     using grid<cell_1d>::grid;
 };
