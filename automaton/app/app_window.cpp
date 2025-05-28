@@ -1,8 +1,7 @@
-// vim: fdm=marker fdl=0
-#include "automaton/ui/app_window.hpp"
-#include "automaton/grid/_1d.hpp"
-#include "automaton/grid/_2d.hpp"
-#include "automaton/grid/_3d.hpp"
+#include "automaton/app/app_window.hpp"
+#include "automaton/grid/grid_1d.hpp"
+#include "automaton/grid/grid_2d.hpp"
+#include "automaton/grid/grid_3d.hpp"
 #include "automaton/logic/fall.hpp"
 #include "automaton/logic/life.hpp"
 #include "automaton/logic/wolfram.hpp"
@@ -41,13 +40,10 @@ bool app_window::on_key_press(GdkEventKey* ev) {
     return false;
 }
 
-static Glib::OptionGroup add_main_group(cli* options) {
+static Glib::OptionGroup _add_ui_group(app_config::ui_options* options) {
     // NOTE:
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
 
-    Glib::OptionContext ctx;
-
-    // {{{ main options
     Glib::OptionGroup group("options", "Main options");
 
     Glib::OptionEntry entry;
@@ -84,39 +80,33 @@ static Glib::OptionGroup add_main_group(cli* options) {
     entry.set_description(Glib::ustring::compose("Sets cell width in pixels. Default: %1", options->cell_width));
     group.add_entry(entry, options->cell_width);
 
-    entry = Glib::OptionEntry();
+    return group;
+}
+
+static Glib::OptionGroup _add_automaton_group(app_config::automaton_options* options) {
+    Glib::OptionGroup group("automaton", "Automaton options");
+
+    auto entry = Glib::OptionEntry();
     entry.set_short_name('l');
     entry.set_long_name("logic");
     entry.set_arg_description("STRING");
     entry.set_description(
         Glib::ustring::compose("Grid logic. Should be 'wolfram', 'fall' or 'life'. Default: '%1'", options->logic));
     group.add_entry(entry, options->logic);
-    // }}}
 
-    return group;
-}
-
-static Glib::OptionGroup add_wolfram_group(cli::wolfram_opts* options) {
-    Glib::OptionGroup group("wolfram", "Wolfram logic options");
-
-    auto entry = Glib::OptionEntry();
+    entry = Glib::OptionEntry();
     entry.set_long_name("code");
     entry.set_arg_description("NUMBER");
-    entry.set_description(Glib::ustring::compose("Wolfram code. Should be from 0 to 255. Default: %1", options->code));
-    group.add_entry(entry, options->code);
+    entry.set_description(
+        Glib::ustring::compose("Wolfram code. Should be from 0 to 255. Default: %1", options->wf_code));
+    group.add_entry(entry, options->wf_code);
 
-    return group;
-}
-
-static Glib::OptionGroup add_fall_group(cli::fall_opts* options) {
-    Glib::OptionGroup group("fall", "Fall logic options");
-
-    auto entry = Glib::OptionEntry();
+    entry = Glib::OptionEntry();
     entry.set_long_name("splices");
     entry.set_arg_description("NUMBER");
     entry.set_description(Glib::ustring::compose(
-        "Grid splices amount. Should be >= 0. '0' means unlimited depth. Default: %1", options->splices));
-    group.add_entry(entry, options->splices);
+        "Grid splices amount. Should be >= 0. '0' means unlimited depth. Default: %1", options->fall_splices));
+    group.add_entry(entry, options->fall_splices);
 
     return group;
 }
@@ -128,14 +118,11 @@ int app_window::on_cli(const app_cli_ptr& cli, app_ptr& app) {
 
     Glib::OptionContext ctx;
 
-    auto main_group = add_main_group(&_options);
+    auto main_group = _add_ui_group(&_options.ui);
     ctx.add_group(main_group);
 
-    auto wolfram_group = add_wolfram_group(&_options.wolfram);
+    auto wolfram_group = _add_automaton_group(&_options.am);
     ctx.add_group(wolfram_group);
-
-    auto fall_group = add_fall_group(&_options.fall);
-    ctx.add_group(fall_group);
 
     // add GTK options, --help-gtk, etc
     Glib::OptionGroup gtkgroup(gtk_get_option_group(true));
@@ -171,45 +158,45 @@ int app_window::on_cli(const app_cli_ptr& cli, app_ptr& app) {
 
 std::string app_window::get_status() const {
     std::string details;
-    if (_options.logic == "fall")
-        details = std::format("splices: {}", _options.fall.splices);
-    else if (_options.logic == "wolfram")
-        details = std::format("code: {}", _options.wolfram.code);
+    if (_options.am.logic == "fall")
+        details = std::format("splices: {}", _options.am.fall_splices);
+    else if (_options.am.logic == "wolfram")
+        details = std::format("code: {}", _options.am.wf_code);
 
-    return std::format("logic: {}, {}, cols: {}, rows: {}", _options.logic.c_str(), (details.size() ? details : ""),
+    return std::format("logic: {}, {}, cols: {}, rows: {}", _options.am.logic.c_str(), (details.size() ? details : ""),
                        _grid->get_cols(), _grid->get_rows());
 }
 
 void app_window::initialize_grid() {
-    g_debug("grid_window::initialize_grid(logic='%s')", _options.logic.c_str());
+    g_debug("grid_window::initialize_grid(logic='%s')", _options.am.logic.c_str());
 
-    uint32_t cols = _options.cols == 0 ? _area.get_width() / _area.get_cell_width() : _options.cols;
-    uint32_t rows = _options.rows == 0 ? _area.get_height() / _area.get_cell_width() : _options.rows;
+    uint32_t cols = _options.ui.cols == 0 ? _area.get_width() / _area.get_cell_width() : _options.ui.cols;
+    uint32_t rows = _options.ui.rows == 0 ? _area.get_height() / _area.get_cell_width() : _options.ui.rows;
 
     // initialize grid
-    if (_options.logic == "wolfram") {
+    if (_options.am.logic == "wolfram") {
         _grid = std::make_shared<automaton::grid_1d>(rows, cols);
-        _logic = std::make_shared<logic::wolfram>(_grid, _options.wolfram.code);
+        _logic = std::make_shared<logic::wolfram>(_grid, _options.am.wf_code);
 
-    } else if (_options.logic == "fall" && _options.fall.splices != 1) {
+    } else if (_options.am.logic == "fall" && _options.am.fall_splices != 1) {
         _grid = std::make_shared<automaton::grid_3d>(rows, cols);
-        _logic = std::make_shared<logic::fall_3d>(_grid, _options.fall.splices);
+        _logic = std::make_shared<logic::fall_3d>(_grid, _options.am.fall_splices);
 
     } else {  // "life" or "fall" with splices == 1
         _grid = std::make_shared<automaton::grid_2d>(rows, cols);
 
-        if (_options.logic == "fall") {
+        if (_options.am.logic == "fall") {
             _logic = std::make_shared<logic::fall_2d>(_grid);
-        } else if (_options.logic == "life") {
+        } else if (_options.am.logic == "life") {
             _logic = std::make_shared<logic::life_2d>(_grid);
         }
     }
 
     // setup grid drawing area
     _area.set_automaton(_logic, _grid);
-    _area.set_grid_borders(_options.borders);
-    _area.set_step_delay(_options.delay);
-    _area.set_cell_width(_options.cell_width);
+    _area.set_grid_borders(_options.ui.borders);
+    _area.set_step_delay(_options.ui.delay);
+    _area.set_cell_width(_options.ui.cell_width);
     _area.set_information(get_status());
 }
 
@@ -217,8 +204,8 @@ void app_window::on_resize() {
     g_debug("grid_window::on_resize()");
     if (!_grid) return;
 
-    if (_options.cols == 0) _grid->set_cols(_area.get_width() / _area.get_cell_width());
-    if (_options.rows == 0) _grid->set_rows(_area.get_height() / _area.get_cell_width());
+    if (_options.ui.cols == 0) _grid->set_cols(_area.get_width() / _area.get_cell_width());
+    if (_options.ui.rows == 0) _grid->set_rows(_area.get_height() / _area.get_cell_width());
 
     _area.set_information(get_status());
 }

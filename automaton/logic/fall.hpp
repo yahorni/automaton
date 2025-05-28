@@ -1,8 +1,8 @@
 #pragma once
 
-#include "automaton/base/logic.hpp"
-#include "automaton/grid/_2d.hpp"
-#include "automaton/grid/_3d.hpp"
+#include "automaton/logic/base_logic.hpp"
+#include "automaton/grid/grid_2d.hpp"
+#include "automaton/grid/grid_3d.hpp"
 
 #include <random>
 

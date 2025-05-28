@@ -1,7 +1,7 @@
 #pragma once
 
-#include "automaton/base/logic.hpp"
-#include "automaton/grid/_1d.hpp"
+#include "automaton/logic/base_logic.hpp"
+#include "automaton/grid/grid_1d.hpp"
 
 namespace automaton::logic {
 

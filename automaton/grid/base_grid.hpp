@@ -1,6 +1,6 @@
 #pragma once
 
-#include "automaton/base/cell.hpp"
+#include "automaton/grid/base_cell.hpp"
 
 #include <map>
 #include <memory>
@@ -63,4 +63,4 @@ protected:
 
 }  // namespace automaton
 
-#include "automaton/base/grid.ipp"
+#include "automaton/grid/base_grid.ipp"

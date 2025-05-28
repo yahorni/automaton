@@ -1,4 +1,4 @@
-#include "automaton/ui/grid_area.hpp"
+#include "automaton/app/grid_area.hpp"
 
 #include <cairomm/fontface.h>
 #include <gdkmm/general.h>

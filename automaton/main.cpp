@@ -1,4 +1,4 @@
-#include "automaton/ui/app_window.hpp"
+#include "automaton/app/app_window.hpp"
 
 #include <gtkmm/application.h>
 

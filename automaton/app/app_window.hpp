@@ -1,9 +1,9 @@
 #pragma once
 
-#include "automaton/base/grid.hpp"
-#include "automaton/base/logic.hpp"
-#include "automaton/ui/grid_area.hpp"
-#include "automaton/cli/cli.hpp"
+#include "automaton/grid/base_grid.hpp"
+#include "automaton/logic/base_logic.hpp"
+#include "automaton/app/grid_area.hpp"
+#include "automaton/app/app_config.hpp"
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/frame.h>
@@ -28,7 +28,7 @@ private:
     base_logic_ptr _logic;
     base_grid_ptr _grid;
 
-    cli _options;
+    app_config _options;
 
     // signals
     bool on_key_press(GdkEventKey* ev);

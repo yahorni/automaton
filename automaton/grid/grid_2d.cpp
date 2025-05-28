@@ -1,4 +1,4 @@
-#include "automaton/grid/_2d.hpp"
+#include "automaton/grid/grid_2d.hpp"
 
 namespace automaton {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "automaton/base/cell.hpp"
-#include "automaton/base/grid.hpp"
+#include "automaton/grid/base_cell.hpp"
+#include "automaton/grid/base_grid.hpp"
 
 #include <memory>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "automaton/base/grid.hpp"
-#include "automaton/base/logic.hpp"
+#include "automaton/grid/base_grid.hpp"
+#include "automaton/logic/base_logic.hpp"
 
 #include <gtkmm/drawingarea.h>
 
