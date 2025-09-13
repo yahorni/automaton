@@ -1,33 +1,32 @@
-NPROC=$(shell nproc)
-
-# CC=/usr/bin/gcc-9
-# CXX=/usr/bin/g++-9
-
-.PHONY: build run clean
-
 default: build run
 
-build:
+cmake:
 	cmake -S . -B build
-	cmake --build build -- -j$(NPROC)
 
-run: build/automaton
-	@build/automaton
+build:
+	cmake --build build -- -j
 
-run-w: build/automaton
-	@build/automaton -l wolfram --code 110 --cell-width 5
+run: run-s
+debug: debug-s
 
-run-f: build/automaton
-	@build/automaton -l fall --splices 0 --cell-width 16
+run-w:
+	@build/automaton -e wolfram --wf-code 110 --cell-width 6
+run-s:
+	@build/automaton -e sand --delay 50 --animation
+run-l:
+	@build/automaton -e life
 
-run-l: build/automaton
-	@build/automaton -l life
+debug-w:
+	@G_MESSAGES_DEBUG=all $(MAKE) run-w
+debug-s:
+	@G_MESSAGES_DEBUG=all $(MAKE) run-s
+debug-l:
+	@G_MESSAGES_DEBUG=all $(MAKE) run-l
 
-run-debug: build/automaton
-	@G_MESSAGES_DEBUG=all ./build/automaton
-
-run-help:
+help:
 	@build/automaton --help-all
 
 clean:
 	rm -rf build
+
+.PHONY: build run clean debug help

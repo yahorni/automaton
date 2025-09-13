@@ -1,31 +1,34 @@
 # Cellular automaton
 
-## Build
+My take on implementing some cellular automatons:
+- Game of life
+- Falling sand
+- Wolfram codes
+
+## Build and run
 
 ```bash
-# make build
+# build and run
+make
+
+# build with make
 make build
 
-# cmake build
+# build with cmake
 cmake -S . -B build
 cmake --build build -- -j
-```
 
-## Run
-
-```bash
-# with make
+# run with make
 make run
-make run-debug
 
-# with binary
+# run with binary
 ./build/automaton
 ./build/automaton --help-all
 
 # examples
-./build/automaton -l wolfram 1 --code 110 --cell-width 5
-./build/automaton -l fall --splices 5
-./build/automaton -l life
+./build/automaton -e wolfram --wf-code 110 --cell-width 6
+./build/automaton -e sand --delay 50 --animation
+./build/automaton -e life
 ```
 
 ## Debug
@@ -33,5 +36,6 @@ make run-debug
 GTK's `g_debug()` is used for debugging. To enable debug logs use env variable:
 
 ```bash
+# with binary
 G_MESSAGES_DEBUG=all ./build/automaton
 ```
