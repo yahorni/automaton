@@ -2,6 +2,7 @@
 
 #include "automaton/core/join_options.hpp"
 
+#include <regex>
 #include <string>
 #include <tuple>
 
@@ -17,6 +18,7 @@ std::tuple<bool, std::string> config::validate() const {
     if (!_validate_cols()) return {false, "cols"};
     if (!_validate_rows()) return {false, "rows"};
     if (!_validate_wolfram_code()) return {false, "wf-code"};
+    if (!_validate_life_rule()) return {false, "life-rule"};
 
     if (!_validate_surface_for_engine()) return {false, "surface"};
 
@@ -33,6 +35,12 @@ bool config::_validate_surface() const { return options::surface::is_valid(autom
 bool config::_validate_cols() const { return automaton.cols >= 0; }
 bool config::_validate_rows() const { return automaton.rows >= 0; }
 bool config::_validate_wolfram_code() const { return automaton.wolfram_code >= 0 && automaton.wolfram_code <= 255; }
+
+bool config::_validate_life_rule() const {
+    // doesn't check for duplicates/order/semantics
+    std::regex henselRegex(R"(^B[0-8]*\/S[0-8]*$)");
+    return std::regex_match(automaton.life_rule, henselRegex);
+}
 
 bool config::_validate_surface_for_engine() const {
     engine_type engine = options::engine::from_string(automaton.engine);
@@ -68,8 +76,19 @@ surface_type config::get_automaton_surface() {
     }
 }
 
+std::tuple<std::uint16_t, std::uint16_t> config::get_life_rule() {
+    std::uint16_t birth = 0, survival = 0;
+    size_t i = 0;
+    for (; automaton.life_rule[i] != '/'; ++i) {
+        birth |= (1 << (automaton.life_rule[i] - '0'));
+    }
+    for (; i < automaton.life_rule.size(); ++i) {
+        survival |= (1 << (automaton.life_rule[i] - '0'));
+    }
+    return std::tie(birth, survival);
+}
+
 std::string config::get_engine_options() { return options::join<core::engine_type>(); }
 
 std::string config::get_surface_options() { return options::join<core::surface_type>(); }
-
 }  // namespace automaton::core

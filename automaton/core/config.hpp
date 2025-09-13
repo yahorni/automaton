@@ -3,6 +3,7 @@
 #include "automaton/core/engine_type.hpp"
 #include "automaton/core/surface_type.hpp"
 
+#include <cstdint>
 #include <string>
 #include <tuple>
 
@@ -22,7 +23,7 @@ struct config {
         int cols = 0;           // 0 - fill widget width
         int rows = 0;           // 0 - fill widget height
         int wolfram_code = 22;  // = 0-255
-
+        std::string life_rule = "B3/S23";
     } automaton;
 
     // return: false with failed options, otherwise true
@@ -30,6 +31,7 @@ struct config {
 
     engine_type get_automaton_engine();
     surface_type get_automaton_surface();
+    std::tuple<std::uint16_t, std::uint16_t> get_life_rule();
 
     static std::string get_engine_options();
     static std::string get_surface_options();
@@ -43,6 +45,7 @@ private:
     bool _validate_cols() const;
     bool _validate_rows() const;
     bool _validate_wolfram_code() const;
+    bool _validate_life_rule() const;
 
     bool _validate_surface_for_engine() const;
 };

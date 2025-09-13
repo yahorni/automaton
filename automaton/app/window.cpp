@@ -57,9 +57,11 @@ void window::_initialize() {
     case core::engine_type::SAND:
         engine = std::make_unique<engines::sand>(_grid, _config.get_automaton_surface());
         break;
-    case core::engine_type::LIFE:
-        engine = std::make_unique<engines::life>(_grid);
+    case core::engine_type::LIFE: {
+        const auto [birth, survival] = _config.get_life_rule();
+        engine = std::make_unique<engines::life>(_grid, birth, survival);
         break;
+    }
     default:
         std::unreachable();
         break;
@@ -199,6 +201,13 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_description(
         Glib::ustring::compose("Wolfram code. Should be from 0 to 255. Default: %1", opts->wolfram_code));
     group.add_entry(entry, opts->wolfram_code);
+
+    entry = Glib::OptionEntry();
+    entry.set_long_name("life-rule");
+    entry.set_arg_description("STRING");
+    entry.set_description(Glib::ustring::compose(
+        "Game of Life rule. Uses Hensel notation. Default: '%1' (classic Game of Life)", opts->life_rule));
+    group.add_entry_filename(entry, opts->life_rule);
 
     return group;
 }

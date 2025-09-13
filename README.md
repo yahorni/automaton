@@ -28,7 +28,7 @@ make run
 # examples
 ./build/automaton -e wolfram --wf-code 110 --cell-width 6
 ./build/automaton -e sand --delay 50 --animation
-./build/automaton -e life
+./build/automaton -e life --life-rule B3/S12345
 ```
 
 ## Debug

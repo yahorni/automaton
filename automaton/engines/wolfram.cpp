@@ -23,7 +23,7 @@ bool wolfram::step() {
         for (; fwd_row < dims.rows; ++fwd_row) {
             size_t col;
             for (col = 0; col < dims.cols; ++col) {
-                if (state[fwd_row][col]) break;
+                if (state[fwd_row][col] == active_state) break;
             }
             if (col != dims.cols) break;
         }

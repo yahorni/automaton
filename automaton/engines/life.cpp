@@ -4,9 +4,11 @@
 
 namespace automaton::engines {
 
-life::life(core::grid& grid)
+life::life(core::grid& grid, std::uint16_t birth_mask, std::uint16_t survival_mask)
     : engine(core::engine_type::LIFE, core::surface_type::TORUS),
-      _grid(grid) {}
+      _grid(grid),
+      _birth_mask(birth_mask),
+      _survival_mask(survival_mask) {}
 
 bool life::step() {
     const core::dims& dims = _grid.dims();
@@ -31,8 +33,12 @@ bool life::step() {
                 state[next_row][col] +       //
                 state[next_row][next_col];
 
-            if (!state[row][col] && neighbours == 3) _new_state[row][col] = true;
-            if (state[row][col] && (neighbours == 2 || neighbours == 3)) _new_state[row][col] = true;
+            // funny things happen when "+ 1" added to neighbours
+            if (state[row][col]) {
+                if (_survival_mask & (1 << neighbours)) _new_state[row][col] = true;
+            } else {
+                if (_birth_mask & (1 << neighbours)) _new_state[row][col] = true;
+            }
         }
     }
 

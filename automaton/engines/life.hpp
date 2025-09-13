@@ -7,13 +7,15 @@ namespace automaton::engines {
 
 class life : public engine {
 public:
-    explicit life(core::grid& grid);
+    explicit life(core::grid& grid, std::uint16_t birth_mask, std::uint16_t survival_mask);
     const std::string& name() const override;
 
     bool step() override;
 
 private:
     core::grid& _grid;
+    std::uint16_t _birth_mask;
+    std::uint16_t _survival_mask;
 
     core::grid_state _new_state;
 };
