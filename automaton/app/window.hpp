@@ -37,7 +37,6 @@ private:
 
     // signals
     bool _on_key_press(GdkEventKey* ev);
-    void _on_resize();
 };
 
 }  // namespace automaton::app

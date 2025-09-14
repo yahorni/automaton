@@ -9,8 +9,12 @@ sand::sand(core::grid& grid, core::surface_type surface)
       _re(std::mt19937(std::random_device{}())),
       _dist(std::bernoulli_distribution()) {}
 
+std::string sand::description() const {
+    return std::format("sand[surface={},step={}]", options::surface::to_string(_surface_type), current_step());
+}
+
 /* The implementation isn't perfect, but for now it's OK */
-bool sand::step() {
+bool sand::do_step() {
     const core::dims& dims = _grid.dims();
     const core::grid_state& data = _grid.state();
 
@@ -19,8 +23,8 @@ bool sand::step() {
             if (!data[row][col]) continue;
 
             if (!data[row + 1][col]) {
-                _grid.remove(row, col);
-                _grid.add(row + 1, col);
+                _grid.set(row, col, 0);
+                _grid.set(row + 1, col, 1);
                 continue;
             }
 
@@ -37,23 +41,19 @@ bool sand::step() {
             bool is_right_free = !data[row + 1][next_col] && !data[row][next_col];
 
             if (is_left_free && is_right_free) {
-                _grid.remove(row, col);
-                _grid.add(row + 1, _dist(_re) ? prev_col : next_col);
+                _grid.set(row, col, 0);
+                _grid.set(row + 1, _dist(_re) ? prev_col : next_col, 1);
             } else if (is_left_free) {
-                _grid.remove(row, col);
-                _grid.add(row + 1, prev_col);
+                _grid.set(row, col, 0);
+                _grid.set(row + 1, prev_col, 1);
             } else if (is_right_free) {
-                _grid.remove(row, col);
-                _grid.add(row + 1, next_col);
+                _grid.set(row, col, 0);
+                _grid.set(row + 1, next_col, 1);
             }
         }
     }
 
     return true;
-}
-
-std::string sand::description() const {
-    return std::format("sand[surface={}]", options::surface::to_string(_surface_type));
 }
 
 }  // namespace automaton::engines

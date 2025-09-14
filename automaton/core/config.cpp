@@ -42,12 +42,14 @@ bool config::_validate_surface_for_engine() const {
     surface_type surface = options::surface::from_string(automaton.surface);
 
     switch (engine) {
-    case engine_type::LIFE:
-        return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::TORUS;
     case engine_type::WOLFRAM:
         return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::CYLINDER;
     case engine_type::SAND:
         return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::CYLINDER;
+    case engine_type::LIFE:
+        return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::TORUS;
+    case engine_type::ANT:
+        return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::TORUS;
     default:
         return false;
     }
@@ -60,12 +62,14 @@ surface_type config::get_automaton_surface() {
     surface_type surface = options::surface::from_string(automaton.surface);
 
     switch (engine) {
-    case engine_type::LIFE:
-        return surface == surface_type::DEFAULT ? surface_type::TORUS : surface;
     case engine_type::WOLFRAM:
         return surface == surface_type::DEFAULT ? surface_type::CYLINDER : surface;
     case engine_type::SAND:
         return surface == surface_type::DEFAULT ? surface_type::CYLINDER : surface;
+    case engine_type::LIFE:
+        return surface == surface_type::DEFAULT ? surface_type::TORUS : surface;
+    case engine_type::ANT:
+        return surface == surface_type::DEFAULT ? surface_type::TORUS : surface;
     default:
         return surface_type::INVALID;
     }

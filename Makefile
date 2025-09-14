@@ -10,21 +10,25 @@ run: run-s
 debug: debug-s
 
 run-w:
-	@build/automaton -e wolfram --wf-code 110 --cell-width 6
+	./build/automaton -e wolfram --wf-code 110 --cell-width 6
 run-s:
-	@build/automaton -e sand --delay 50 --animation
+	./build/automaton -e sand --delay 50 --animation
 run-l:
-	@build/automaton -e life
+	./build/automaton -e life
+run-a:
+	./build/automaton -e ant --delay 10
 
 debug-w:
-	@G_MESSAGES_DEBUG=all $(MAKE) run-w
+	G_MESSAGES_DEBUG=all $(MAKE) run-w
 debug-s:
-	@G_MESSAGES_DEBUG=all $(MAKE) run-s
+	G_MESSAGES_DEBUG=all $(MAKE) run-s
 debug-l:
-	@G_MESSAGES_DEBUG=all $(MAKE) run-l
+	G_MESSAGES_DEBUG=all $(MAKE) run-l
+debug-a:
+	G_MESSAGES_DEBUG=all $(MAKE) run-a
 
 help:
-	@build/automaton --help-all
+	./build/automaton --help-all
 
 clean:
 	rm -rf build

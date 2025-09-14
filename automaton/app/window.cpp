@@ -3,6 +3,7 @@
 #include "automaton/app/animation.hpp"
 #include "automaton/app/controller.hpp"
 #include "automaton/core/dims.hpp"
+#include "automaton/engines/ant.hpp"
 #include "automaton/engines/life.hpp"
 #include "automaton/engines/sand.hpp"
 #include "automaton/engines/wolfram.hpp"
@@ -27,7 +28,7 @@ window::window()
     _canvas.property_visible() = true;
 
     signal_key_press_event().connect(sigc::mem_fun(*this, &window::_on_key_press));
-    signal_check_resize().connect(sigc::mem_fun(*this, &window::_on_resize));
+    signal_check_resize().connect(sigc::mem_fun(_canvas, &canvas::on_resize));
 }
 
 int window::on_command_line(const app_cli_ptr& cli, const app_ptr& app) {
@@ -42,7 +43,9 @@ void window::_initialize() {
     g_debug("window::initialize(engine='%s',surface='%s')",  //
             _config.automaton.engine.c_str(), _config.automaton.surface.c_str());
 
-    canvas_config cfg{_config.ui.cell_width, _config.ui.borders};
+    canvas_config cfg{_config.ui.cell_width,
+                      _config.ui.borders,  //
+                      {_config.automaton.init_rows, _config.automaton.init_cols}};
     engine_ptr engine;
 
     switch (_config.get_automaton_engine()) {
@@ -63,14 +66,16 @@ void window::_initialize() {
         engine = std::make_unique<engines::life>(_grid, _config.get_automaton_surface(), birth, survival);
         break;
     }
+    case core::engine_type::ANT:
+        engine = std::make_unique<engines::ant>(_grid, _config.get_automaton_surface());
+        break;
     default:
         std::unreachable();
         break;
     }
 
     auto animation_ = std::make_unique<animation>(_config.ui.delay, _config.ui.animation);
-    _ctrl = std::make_shared<controller>(_grid, _canvas, std::move(animation_), std::move(engine),
-                                         core::dims{_config.automaton.init_rows, _config.automaton.init_cols});
+    _ctrl = std::make_shared<controller>(_grid, std::move(animation_), std::move(engine));
     _canvas.initialize(cfg, _ctrl);
 }
 
@@ -81,11 +86,6 @@ bool window::_on_key_press(GdkEventKey* ev) {
         return true;
     }
     return false;
-}
-
-void window::_on_resize() {
-    g_debug("window::on_resize()");
-    if (_ctrl) _ctrl->window_resize();
 }
 
 static Glib::OptionGroup _add_ui_group(core::config::ui_group*);

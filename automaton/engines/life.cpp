@@ -11,7 +11,14 @@ life::life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mas
       _birth_mask(birth_mask),
       _survival_mask(survival_mask) {}
 
-bool life::step() {
+std::string life::description() const {
+    return std::format("life[surface={},rule={},step={}]",                     //
+                       options::surface::to_string(_surface_type),             //
+                       options::rule::to_string(_birth_mask, _survival_mask),  //
+                       current_step());
+}
+
+bool life::do_step() {
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
     _new_state = {};
@@ -132,11 +139,6 @@ void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
             }
         }
     }
-}
-
-std::string life::description() const {
-    return std::format("life[surface={},rule={}]", options::surface::to_string(_surface_type),
-                       options::rule::to_string(_birth_mask, _survival_mask));
 }
 
 }  // namespace automaton::engines

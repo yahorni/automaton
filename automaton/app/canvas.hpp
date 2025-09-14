@@ -15,11 +15,13 @@ struct palette {
     Gdk::RGBA border{"#000000"};
     Gdk::RGBA cell_state1{"#ffa500"};
     Gdk::RGBA cell_state2{"#008080"};
+    Gdk::RGBA cell_state3{"#8b0000"};
 };
 
 struct canvas_config {
     double cell_width;
     bool use_borders;
+    core::dims init_dims;
     double line_width = 0.5;
     int font_size = 14;
 };
@@ -28,8 +30,7 @@ class canvas : public Gtk::DrawingArea {
 public:
     explicit canvas(const core::grid& grid);
     void initialize(canvas_config cfg, std::weak_ptr<controller> ctrl);
-
-    core::dims calculate_dims() const;
+    void on_resize();
 
 private:
     using cairo_context = Cairo::RefPtr<Cairo::Context>;
@@ -47,9 +48,10 @@ private:
     void _draw_frame(const cairo_context& cr, const core::dims& dims);
     void _draw_grid_borders(const cairo_context& cr, const core::dims& dims);
     void _draw_cells(const cairo_context& cr, const core::dims& dims, const core::grid_state& state);
-    void _draw_information(const cairo_context& cr);
+    void _draw_status(const cairo_context& cr);
 
     bool _handle_cell_press(int x, int y);
+    void _resize_grid();
 
     const core::grid& _grid;
 

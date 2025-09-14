@@ -8,6 +8,7 @@ enum class type {
     WOLFRAM,
     SAND,
     LIFE,
+    ANT,
 
     INVALID
 };
@@ -15,6 +16,7 @@ enum class type {
 constexpr std::string_view wolfram = "wolfram";
 constexpr std::string_view sand = "sand";
 constexpr std::string_view life = "life";
+constexpr std::string_view ant = "ant";
 constexpr std::string_view invalid = "invalid";
 
 std::string_view to_string(type value);

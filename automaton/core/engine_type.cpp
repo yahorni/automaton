@@ -10,6 +10,8 @@ std::string_view to_string(type value) {
         return sand;
     case type::LIFE:
         return life;
+    case type::ANT:
+        return ant;
     default:
         return invalid;
     }
@@ -22,6 +24,8 @@ type from_string(std::string_view svalue) {
         return type::SAND;
     else if (svalue == life)
         return type::LIFE;
+    else if (svalue == ant)
+        return type::ANT;
     else
         return type::INVALID;
 }

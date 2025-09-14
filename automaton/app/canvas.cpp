@@ -16,6 +16,7 @@ namespace automaton::app {
 
 canvas::canvas(const core::grid& grid)
     : _grid(grid) {
+    _resize_grid();
 
     // catch mouse press/release events
     add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
@@ -43,6 +44,11 @@ void canvas::initialize(canvas_config cfg, std::weak_ptr<controller> ctrl) {
     _ctrl = ctrl;
 }
 
+void canvas::on_resize() {
+    g_debug("canvas::on_resize()");
+    _resize_grid();
+}
+
 bool canvas::_on_draw(const cairo_context& cr) {
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
@@ -51,7 +57,7 @@ bool canvas::_on_draw(const cairo_context& cr) {
     _draw_frame(cr, dims);
     if (_cfg.use_borders) _draw_grid_borders(cr, dims);
     _draw_cells(cr, dims, state);
-    _draw_information(cr);
+    _draw_status(cr);
 
     return false;
 }
@@ -64,7 +70,7 @@ bool canvas::_on_key_press(GdkEventKey* ev) {
     } else if (ev->keyval == GDK_KEY_s) {
         _ctrl.lock()->engine_step();
     } else if (ev->keyval == GDK_KEY_c) {
-        _ctrl.lock()->grid_clear();
+        _ctrl.lock()->engine_clear();
     } else if (ev->keyval == GDK_KEY_r) {
         _ctrl.lock()->engine_restart();
     } else {
@@ -189,11 +195,12 @@ void canvas::_draw_cells(const cairo_context& cr, const core::dims& dims, const 
 
     draw_cells_with_state(1, _palette.cell_state1);
     draw_cells_with_state(2, _palette.cell_state2);
+    draw_cells_with_state(3, _palette.cell_state3);
 
     cr->restore();
 }
 
-void canvas::_draw_information(const cairo_context& cr) {
+void canvas::_draw_status(const cairo_context& cr) {
     cr->save();
     cr->move_to(0, _cfg.font_size);
 
@@ -227,17 +234,20 @@ bool canvas::_handle_cell_press(int x, int y) {
 
     auto ctrl = _ctrl.lock();
     if (_is_drawing) {
-        ctrl->grid_add(row, col);
+        ctrl->engine_activate(row, col);
     } else if (_is_erasing) {
-        ctrl->grid_remove(row, col);
+        ctrl->engine_deactivate(row, col);
     }
 
     return true;
 }
 
-core::dims canvas::calculate_dims() const {
-    return {static_cast<size_t>(get_height() / _cfg.cell_width),  //
-            static_cast<size_t>(get_width() / _cfg.cell_width)};
+void canvas::_resize_grid() {
+    core::dims size;
+    size.rows = _cfg.init_dims.rows ? _cfg.init_dims.rows : static_cast<size_t>(get_height() / _cfg.cell_width);
+    size.cols = _cfg.init_dims.cols ? _cfg.init_dims.cols : static_cast<size_t>(get_width() / _cfg.cell_width);
+
+    if (auto ctrl = _ctrl.lock()) ctrl->grid_resize(size);
 }
 
 }  // namespace automaton::app

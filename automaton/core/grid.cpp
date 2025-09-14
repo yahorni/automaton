@@ -4,13 +4,9 @@
 
 namespace automaton::core {
 
-void grid::add(size_t row, size_t col) { set(row, col, 1); }
+cell_state grid::get(size_t row, size_t col) { return _state[row][col]; }
 
-void grid::remove(size_t row, size_t col) { set(row, col, 0); }
-
-void grid::set(size_t row, size_t col, std::uint8_t value) { _state[row][col] = value; }
-
-const grid_state& grid::state() const { return _state; }
+void grid::set(size_t row, size_t col, cell_state value) { _state[row][col] = value; }
 
 void grid::clear() { _state = {}; }
 
@@ -22,5 +18,6 @@ void grid::resize(size_t rows, size_t cols) {
 void grid::reset(const grid_state& state) { _state = state; }
 
 const core::dims& grid::dims() const { return _dims; }
+const grid_state& grid::state() const { return _state; }
 
 }  // namespace automaton::core

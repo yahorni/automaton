@@ -8,9 +8,14 @@ wolfram::wolfram(core::grid& grid, core::surface_type surface, std::uint8_t code
     : engine(grid, core::engine_type::WOLFRAM, surface),
       _code(code) {}
 
-bool wolfram::step() {
-    static constexpr int active_state = 1;
-    static constexpr int inactive_state = 2;
+std::string wolfram::description() const {
+    return std::format("wolfram[surface={},rule={},step={}]",  //
+                       options::surface::to_string(_surface_type), _code, current_step());
+}
+
+bool wolfram::do_step() {
+    constexpr int active_state = 1;
+    constexpr int inactive_state = 2;
 
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
@@ -55,17 +60,14 @@ bool wolfram::step() {
             if (col != dims.cols - 1 && state[_current_row][col + 1]) combination |= 0b100;
         }
 
-        if ((_code >> combination) & 1) _grid.set(_current_row + 1, col, active_state);
+        if ((_code >> combination) & 0b1) _grid.set(_current_row + 1, col, active_state);
     }
 
     _current_row++;
     return true;
 }
 
-void wolfram::reset() { _current_row = 0; }
-
-std::string wolfram::description() const {
-    return std::format("wolfram[surface={},rule={}]", options::surface::to_string(_surface_type), _code);
-}
+void wolfram::do_restart() { _current_row = 0; }
+void wolfram::do_clear() { _current_row = 0; }
 
 }  // namespace automaton::engines
