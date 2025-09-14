@@ -66,10 +66,8 @@ bool wolfram::step() {
 
 void wolfram::reset() { _current_row = 0; }
 
-const std::string& wolfram::name() const {
-    static std::string name =
-        std::format("wolfram[surface={},rule={}]", options::surface::to_string(_surface_type), _code);
-    return name;
+std::string wolfram::description() const {
+    return std::format("wolfram[surface={},rule={}]", options::surface::to_string(_surface_type), _code);
 }
 
 }  // namespace automaton::engines

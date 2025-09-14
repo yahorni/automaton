@@ -53,9 +53,8 @@ bool sand::step() {
     return true;
 }
 
-const std::string& sand::name() const {
-    static std::string name = std::format("sand[surface={}]", options::surface::to_string(_surface_type));
-    return name;
+std::string sand::description() const {
+    return std::format("sand[surface={}]", options::surface::to_string(_surface_type));
 }
 
 }  // namespace automaton::engines

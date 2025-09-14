@@ -1,4 +1,7 @@
+#pragma once
+
 #include <glibmm/main.h>
+#include <memory>
 
 namespace automaton::app {
 
@@ -16,6 +19,8 @@ public:
     int delay() const;
     void set_delay(int delay);
 
+    std::string description() const;
+
 private:
     int _delay;
     const bool _enabled;
@@ -24,5 +29,7 @@ private:
     sigc::slot<bool()> _motion_slot;
     sigc::connection _animation_connection;
 };
+
+using animation_ptr = std::unique_ptr<animation>;
 
 }  // namespace automaton::app

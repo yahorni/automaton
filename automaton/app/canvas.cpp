@@ -60,13 +60,13 @@ bool canvas::_on_key_press(GdkEventKey* ev) {
     g_debug("canvas::on_key_press(key='%s')", ev->string);
 
     if (ev->keyval == GDK_KEY_space) {
-        _ctrl.lock()->toggle_animation();
+        _ctrl.lock()->animation_toggle();
     } else if (ev->keyval == GDK_KEY_s) {
-        _ctrl.lock()->step();
+        _ctrl.lock()->engine_step();
     } else if (ev->keyval == GDK_KEY_c) {
-        _ctrl.lock()->clear_grid();
+        _ctrl.lock()->grid_clear();
     } else if (ev->keyval == GDK_KEY_r) {
-        _ctrl.lock()->restart_steps();
+        _ctrl.lock()->engine_restart();
     } else {
         return false;
     }
@@ -91,7 +91,7 @@ bool canvas::_on_mouse_press(GdkEventButton* ev) {
     } else if (ev->button == 2) {  // middle click
         auto ctrl = _ctrl.lock();
         if (!ctrl) return true;
-        ctrl->toggle_animation();
+        ctrl->animation_toggle();
 
     } else {
         return false;
@@ -227,9 +227,9 @@ bool canvas::_handle_cell_press(int x, int y) {
 
     auto ctrl = _ctrl.lock();
     if (_is_drawing) {
-        ctrl->add_cell(row, col);
+        ctrl->grid_add(row, col);
     } else if (_is_erasing) {
-        ctrl->remove_cell(row, col);
+        ctrl->grid_remove(row, col);
     }
 
     return true;

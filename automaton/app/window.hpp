@@ -1,8 +1,6 @@
 #pragma once
 
-#include "automaton/app/animation.hpp"
 #include "automaton/app/canvas.hpp"
-#include "automaton/app/controller.hpp"
 #include "automaton/core/config.hpp"
 #include "automaton/core/grid.hpp"
 
@@ -12,6 +10,8 @@
 #include <memory>
 
 namespace automaton::app {
+
+class controller;
 
 class window : public Gtk::ApplicationWindow {
 public:
@@ -30,7 +30,6 @@ private:
     canvas _canvas;
 
     core::grid _grid;
-    std::unique_ptr<animation> _animation;
     std::shared_ptr<controller> _ctrl;
 
     bool _parse_command_line(const app_cli_ptr& cli);

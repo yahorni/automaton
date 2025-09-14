@@ -10,9 +10,9 @@ namespace automaton::engines {
 class sand : public engine {
 public:
     sand(core::grid& grid, core::surface_type surface);
-    const std::string& name() const override;
 
     bool step() override;
+    std::string description() const override;
 
 private:
     core::grid& _grid;

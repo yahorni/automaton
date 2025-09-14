@@ -32,8 +32,8 @@ bool config::_validate_delay() const { return ui.delay > 0; }
 // automaton
 bool config::_validate_engine() const { return options::engine::is_valid(automaton.engine); }
 bool config::_validate_surface() const { return options::surface::is_valid(automaton.surface); }
-bool config::_validate_cols() const { return automaton.cols >= 0; }
-bool config::_validate_rows() const { return automaton.rows >= 0; }
+bool config::_validate_cols() const { return automaton.init_cols >= 0; }
+bool config::_validate_rows() const { return automaton.init_rows >= 0; }
 bool config::_validate_wolfram_code() const { return automaton.wolfram_code >= 0 && automaton.wolfram_code <= 255; }
 bool config::_validate_life_rule() const { return options::rule::is_valid(automaton.life_rule); }
 

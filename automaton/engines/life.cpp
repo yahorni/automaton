@@ -135,10 +135,9 @@ void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
     }
 }
 
-const std::string& life::name() const {
-    static std::string name = std::format("life[surface={},rule={}]", options::surface::to_string(_surface_type),
-                                          options::rule::to_string(_birth_mask, _survival_mask));
-    return name;
+std::string life::description() const {
+    return std::format("life[surface={},rule={}]", options::surface::to_string(_surface_type),
+                       options::rule::to_string(_birth_mask, _survival_mask));
 }
 
 }  // namespace automaton::engines

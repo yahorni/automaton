@@ -19,7 +19,7 @@ public:
     virtual bool step() = 0;
     virtual void reset() {};
 
-    virtual const std::string& name() const = 0;
+    virtual std::string description() const = 0;
 
 protected:
     core::engine_type _engine_type;

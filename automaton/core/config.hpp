@@ -20,8 +20,8 @@ struct config {
     struct automaton_group {
         std::string engine{options::engine::sand};
         std::string surface{options::surface::default_};
-        int cols = 0;           // 0 - fill widget width
-        int rows = 0;           // 0 - fill widget height
+        int init_cols = 0;      // 0 - fill widget width
+        int init_rows = 0;      // 0 - fill widget height
         int wolfram_code = 22;  // = 0-255
         std::string life_rule = "B3/S23";
     } automaton;

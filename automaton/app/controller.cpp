@@ -1,59 +1,59 @@
 #include "automaton/app/controller.hpp"
 
-#include "automaton/app/animation.hpp"
 #include "automaton/app/canvas.hpp"
 
 #include <format>
 
 namespace automaton::app {
 
-controller::controller(core::grid& grid, canvas& canvas, animation& animation, engine_ptr engine, core::dims init_dims)
+controller::controller(core::grid& grid, canvas& canvas, animation_ptr animation, engine_ptr engine,
+                       core::dims init_dims)
     : _grid(grid),
       _canvas(canvas),
-      _animation(animation),
+      _animation(std::move(animation)),
       _engine(std::move(engine)),
       _init_dims(init_dims) {
     _resize_grid();
-    _animation.connect(*this);
+    _animation->connect(*this);
 }
 
-void controller::add_cell(size_t row, size_t col) { _grid.add(row, col); }
-void controller::remove_cell(size_t row, size_t col) { _grid.remove(row, col); }
+void controller::grid_add(size_t row, size_t col) { _grid.add(row, col); }
+void controller::grid_remove(size_t row, size_t col) { _grid.remove(row, col); }
 
-bool controller::step() {
-    _animation.stop();
-    return _engine->step();
-}
-
-void controller::clear_grid() {
-    _animation.stop();
+void controller::grid_clear() {
+    _animation->stop();
     _grid.clear();
     _engine->reset();
 }
 
-void controller::restart_steps() {
-    _animation.stop();
+bool controller::engine_step() {
+    _animation->stop();
+    return _engine->step();
+}
+
+void controller::engine_restart() {
+    _animation->stop();
     _engine->reset();
 }
 
-void controller::toggle_animation() { _animation.is_running() ? _animation.stop() : _animation.start(); }
+void controller::animation_toggle() { _animation->is_running() ? _animation->stop() : _animation->start(); }
 
-void controller::handle_resize() {
-    g_debug("controller::handle_resize()");
+void controller::window_resize() {
+    g_debug("controller::window_resize()");
     _resize_grid();
 }
 
 std::string controller::get_status() const {
+    static const std::string engine_desc = _engine->description();
+    static const std::string animation_desc = _animation->description();
+
     const core::dims& dims = _grid.dims();
-    return std::format("{}, size={}x{}, animation[enabled={},delay={}ms]",  //
-                       _engine->name(),                                     //
-                       dims.cols, dims.rows,                                //
-                       _animation.is_running(), _animation.delay());
+    return std::format("{}, {}, size[{}x{}]", engine_desc, animation_desc, dims.cols, dims.rows);
 }
 
 bool controller::on_animation_timeout() {
     g_debug("controller::on_animation_timeout()");
-    if (!_engine->step()) _animation.stop();
+    if (!_engine->step()) _animation->stop();
     return true;
 }
 

@@ -37,4 +37,8 @@ int animation::delay() const { return _delay; }
 
 void animation::set_delay(int delay) { _delay = delay; }
 
+std::string animation::description() const {
+    return std::format("animation[enabled={},delay={}ms]", _is_running, _delay);
+}
+
 }  // namespace automaton::app
