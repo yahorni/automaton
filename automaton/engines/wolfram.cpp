@@ -57,7 +57,7 @@ bool wolfram::step() {
             if (col != dims.cols - 1 && state[_current_row][col + 1]) combination |= 0b100;
         }
 
-        if ((_code >> combination) & 0b1) _grid.set(_current_row + 1, col, active_state);
+        if ((_code >> combination) & 1) _grid.set(_current_row + 1, col, active_state);
     }
 
     _current_row++;
@@ -68,7 +68,7 @@ void wolfram::reset() { _current_row = 0; }
 
 const std::string& wolfram::name() const {
     static std::string name =
-        std::format("wolfram[code={}, surface={}]", _code, options::surface::to_string(_surface_type));
+        std::format("wolfram[surface={},rule={}]", options::surface::to_string(_surface_type), _code);
     return name;
 }
 

@@ -1,5 +1,7 @@
 #include "automaton/engines/life.hpp"
 
+#include "automaton/core/rule_option.hpp"
+
 #include <format>
 
 namespace automaton::engines {
@@ -48,7 +50,8 @@ bool life::step() {
 }
 
 const std::string& life::name() const {
-    static std::string name = std::format("life[surface={}]", options::surface::to_string(_surface_type));
+    static std::string name = std::format("life[surface={},rule={}]", options::surface::to_string(_surface_type),
+                                          options::rule::to_string(_birth_mask, _survival_mask));
     return name;
 }
 

@@ -15,7 +15,7 @@ bool sand::step() {
     const core::dims& dims = _grid.dims();
     const core::grid_state& data = _grid.state();
 
-    for (size_t row = dims.rows - 2; row > 0; --row) {
+    for (size_t row = dims.rows - 2; row != static_cast<size_t>(-1); --row) {
         for (size_t col = 0; col < dims.cols; ++col) {
             if (!data[row][col]) continue;
 

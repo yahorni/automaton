@@ -29,4 +29,7 @@ help:
 clean:
 	rm -rf build
 
+format:
+	pre-commit run --all-files
+
 .PHONY: build run clean debug help

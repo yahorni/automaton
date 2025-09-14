@@ -1,13 +1,18 @@
 # Cellular automaton rules to play with
 
-## wolfram
+## Wolfram rules
+
+- [Elementary cellular automaton](https://en.wikipedia.org/wiki/Elementary_cellular_automaton)
 
 - [Rule 30](https://en.wikipedia.org/wiki/Rule_30) - shell texture
 - [Rule 90](https://en.wikipedia.org/wiki/Rule_90) - XOR of neighbours
 - [Rule 110](https://en.wikipedia.org/wiki/Rule_110) - Turing complete
 - [Rule 184](https://en.wikipedia.org/wiki/Rule_184) - Majority problem
 
-## game of life
+
+## Game of Life
+
+- [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
 - `B3/S23` - Conway's Game of Life
 - `B3/S12345` - Maze (Mazectric)
