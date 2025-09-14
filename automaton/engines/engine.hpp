@@ -6,12 +6,17 @@
 #include <memory>
 #include <string>
 
+namespace automaton::core {
+class grid;
+}  // namespace automaton::core
+
 namespace automaton::engines {
 
 class engine {
 public:
-    engine(core::engine_type engine_type, core::surface_type surface_type)
-        : _engine_type(engine_type),
+    engine(core::grid& grid, core::engine_type engine_type, core::surface_type surface_type)
+        : _grid(grid),
+          _engine_type(engine_type),
           _surface_type(surface_type) {}
     virtual ~engine() = default;
 
@@ -22,6 +27,7 @@ public:
     virtual std::string description() const = 0;
 
 protected:
+    core::grid& _grid;
     core::engine_type _engine_type;
     core::surface_type _surface_type;
 };

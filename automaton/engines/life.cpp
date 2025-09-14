@@ -7,8 +7,7 @@
 namespace automaton::engines {
 
 life::life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mask, std::uint16_t survival_mask)
-    : engine(core::engine_type::LIFE, surface),
-      _grid(grid),
+    : engine(grid, core::engine_type::LIFE, surface),
       _birth_mask(birth_mask),
       _survival_mask(survival_mask) {}
 

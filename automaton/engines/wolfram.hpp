@@ -7,16 +7,14 @@ namespace automaton::engines {
 
 class wolfram : public engine {
 public:
-    wolfram(core::grid& grid, std::uint8_t code, core::surface_type surface);
+    wolfram(core::grid& grid, core::surface_type surface, std::uint8_t code);
 
     bool step() override;
     void reset() override;
     std::string description() const override;
 
 private:
-    core::grid& _grid;
     std::uint8_t _code;
-    core::surface_type _surface;
 
     size_t _current_row = 0;
 };

@@ -48,7 +48,7 @@ void window::_initialize() {
     switch (_config.get_automaton_engine()) {
     case core::engine_type::WOLFRAM: {
         engine = std::make_unique<engines::wolfram>(  //
-            _grid, static_cast<std::uint8_t>(_config.automaton.wolfram_code), _config.get_automaton_surface());
+            _grid, _config.get_automaton_surface(), static_cast<std::uint8_t>(_config.automaton.wolfram_code));
         if (_config.ui.animation) {
             g_warning("window::initialize(): animation disabled for wolfram on start");
             _config.ui.animation = false;

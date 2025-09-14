@@ -5,8 +5,7 @@
 namespace automaton::engines {
 
 sand::sand(core::grid& grid, core::surface_type surface)
-    : engine(core::engine_type::SAND, surface),
-      _grid(grid),
+    : engine(grid, core::engine_type::SAND, surface),
       _re(std::mt19937(std::random_device{}())),
       _dist(std::bernoulli_distribution()) {}
 

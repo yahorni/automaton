@@ -4,11 +4,9 @@
 
 namespace automaton::engines {
 
-wolfram::wolfram(core::grid& grid, std::uint8_t code, core::surface_type surface)
-    : engine(core::engine_type::WOLFRAM, surface),
-      _grid(grid),
-      _code(code),
-      _surface(surface) {}
+wolfram::wolfram(core::grid& grid, core::surface_type surface, std::uint8_t code)
+    : engine(grid, core::engine_type::WOLFRAM, surface),
+      _code(code) {}
 
 bool wolfram::step() {
     static constexpr int active_state = 1;
@@ -44,7 +42,7 @@ bool wolfram::step() {
     for (size_t col = 0; col < dims.cols; col++) {
         std::uint8_t combination = 0;
 
-        if (_surface == core::surface_type::CYLINDER) {
+        if (_surface_type == core::surface_type::CYLINDER) {
             size_t prev_col = (col == 0 ? dims.cols - 1 : col - 1);
             size_t next_col = (col == dims.cols - 1 ? 0 : col + 1);
 

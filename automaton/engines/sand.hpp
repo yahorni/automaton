@@ -15,8 +15,6 @@ public:
     std::string description() const override;
 
 private:
-    core::grid& _grid;
-
     std::mt19937 _re;
     std::bernoulli_distribution _dist;
 };

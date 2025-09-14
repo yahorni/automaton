@@ -16,7 +16,6 @@ private:
     void _step_torus(const core::dims& dims, const core::grid_state&);
     void _step_plain(const core::dims& dims, const core::grid_state&);
 
-    core::grid& _grid;
     std::uint16_t _birth_mask;
     std::uint16_t _survival_mask;
 
