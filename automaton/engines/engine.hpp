@@ -31,8 +31,9 @@ public:
         do_clear();
     }
 
-    virtual void activate(size_t row, size_t col) { _grid.set(row, col, 1); }
-    virtual void deactivate(size_t row, size_t col) { _grid.set(row, col, 0); }
+    virtual void action1(size_t row, size_t col) { _grid.set(row, col, 1); }
+    virtual void action2(size_t row, size_t col) { _grid.set(row, col, 0); }
+    virtual void shift_actions() {}
 
     virtual std::string description() const = 0;
 

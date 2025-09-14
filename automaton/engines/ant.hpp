@@ -12,8 +12,9 @@ public:
     explicit ant(core::grid& grid, core::surface_type surface);
     std::string description() const override;
 
-    void activate(size_t row, size_t col) override;
-    void deactivate(size_t row, size_t col) override;
+    void action1(size_t row, size_t col) override;
+    void action2(size_t row, size_t col) override;
+    void shift_actions() override;
 
 protected:
     bool do_step() override;
@@ -32,6 +33,7 @@ private:
     };
 
     std::vector<_ant> _ants;
+    bool _ant_actions = true;
 };
 
 }  // namespace automaton::engines

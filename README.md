@@ -1,34 +1,29 @@
 # Cellular automaton
 
 My take on implementing some cellular automatons:
-- Game of life
-- Falling sand
 - Wolfram codes
+- Falling sand
+- Game of life
+- Langton's ant
 
 ## Build and run
 
 ```bash
 # build and run
 make
-
-# build with make
+# build
 make build
-
-# build with cmake
-cmake -S . -B build
-cmake --build build -- -j
-
-# run with make
+# run
 make run
 
 # run with binary
 ./build/automaton
 ./build/automaton --help-all
 
-# examples
 ./build/automaton -e wolfram --wf-code 110 --cell-width 6
 ./build/automaton -e sand --delay 50 --animation
 ./build/automaton -e life --life-rule B3/S12345
+./build/automaton -e ant --delay 3 --cell-width 5
 ```
 
 ## Debug

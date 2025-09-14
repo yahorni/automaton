@@ -8,20 +8,33 @@ ant::ant(core::grid& grid, core::surface_type surface)
     : engine(grid, core::engine_type::ANT, surface) {}
 
 std::string ant::description() const {
-    return std::format("ant[surface={},step={}]", options::surface::to_string(_surface_type), current_step());
+    return std::format("ant[surface={},action={},step={}]",         //
+                       options::surface::to_string(_surface_type),  //
+                       _ant_actions ? "ant" : "wall",               //
+                       current_step());
 }
 
-void ant::activate(size_t row, size_t col) {
-    _ants.emplace_back(row, col, directions::UP);
-    _grid.set(row, col, _grid.get(row, col) | 0b10);
+void ant::action1(size_t row, size_t col) {
+    if (_ant_actions) {
+        _ants.emplace_back(row, col, directions::UP);
+        _grid.set(row, col, _grid.get(row, col) | 0b10);
+    } else {
+        if (auto s = _grid.get(row, col); !(_grid.get(row, col) & 0b01)) _grid.set(row, col, s + 1);
+    }
 }
 
-void ant::deactivate(size_t row, size_t col) {
-    _ants.erase(std::remove_if(_ants.begin(), _ants.end(),  //
-                               [row, col](const _ant& a) { return a.row == row && a.col == col; }),
-                _ants.end());
-    _grid.set(row, col, _grid.get(row, col) & 0b1);
+void ant::action2(size_t row, size_t col) {
+    if (_ant_actions) {
+        _ants.erase(std::remove_if(_ants.begin(), _ants.end(),  //
+                                   [row, col](const _ant& a) { return a.row == row && a.col == col; }),
+                    _ants.end());
+        _grid.set(row, col, _grid.get(row, col) & 0b01);
+    } else {
+        if (auto s = _grid.get(row, col); _grid.get(row, col) & 0b01) _grid.set(row, col, s - 1);
+    }
 }
+
+void ant::shift_actions() { _ant_actions = !_ant_actions; }
 
 bool ant::do_step() {
     if (_ants.empty()) return false;
@@ -32,11 +45,11 @@ bool ant::do_step() {
     // update ants
     if (_surface_type == core::surface_type::TORUS) {
         for (auto& a : _ants) {
-            a.rotate_and_move_torus(state[a.row][a.col] & 0b1, dims);
+            a.rotate_and_move_torus(state[a.row][a.col] & 0b01, dims);
         }
     } else {
         for (auto& a : _ants) {
-            a.rotate_and_move_plain(state[a.row][a.col] & 0b1, dims);
+            a.rotate_and_move_plain(state[a.row][a.col] & 0b01, dims);
         }
     }
 
@@ -45,7 +58,7 @@ bool ant::do_step() {
         for (size_t col = 0; col < dims.cols; ++col) {
             // if there's an ant in a cell, then invert it's color
             if (state[row][col] & 0b10)  //
-                _grid.set(row, col, !static_cast<bool>(state[row][col] & 0b1));
+                _grid.set(row, col, !static_cast<bool>(state[row][col] & 0b01));
         }
     }
 
@@ -63,7 +76,7 @@ void ant::do_clear() {
 
     for (size_t row = 0; row < dims.rows; ++row) {
         for (size_t col = 0; col < dims.cols; ++col) {
-            _grid.set(row, col, state[row][col] & 0b1);
+            _grid.set(row, col, state[row][col] & 0b01);
         }
     }
 

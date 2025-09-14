@@ -14,8 +14,10 @@ class controller {
 public:
     controller(core::grid& grid, animation_ptr animation, engine_ptr engine);
 
-    void engine_activate(size_t row, size_t col);
-    void engine_deactivate(size_t row, size_t col);
+    void engine_action1(size_t row, size_t col);
+    void engine_action2(size_t row, size_t col);
+    void engine_shift_actions();
+
     bool engine_step();
     void engine_restart();
     void engine_clear();

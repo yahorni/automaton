@@ -73,6 +73,8 @@ bool canvas::_on_key_press(GdkEventKey* ev) {
         _ctrl.lock()->engine_clear();
     } else if (ev->keyval == GDK_KEY_r) {
         _ctrl.lock()->engine_restart();
+    } else if (ev->keyval == GDK_KEY_Tab) {
+        _ctrl.lock()->engine_shift_actions();
     } else {
         return false;
     }
@@ -234,9 +236,9 @@ bool canvas::_handle_cell_press(int x, int y) {
 
     auto ctrl = _ctrl.lock();
     if (_is_drawing) {
-        ctrl->engine_activate(row, col);
+        ctrl->engine_action1(row, col);
     } else if (_is_erasing) {
-        ctrl->engine_deactivate(row, col);
+        ctrl->engine_action2(row, col);
     }
 
     return true;

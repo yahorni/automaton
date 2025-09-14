@@ -27,3 +27,7 @@
 - `B2/S` - Seeds
 - `B234/S` - Persian rug
 - `B45678/S5678` - Majority
+
+## Langton's ant
+
+- [Langton's ant](https://en.wikipedia.org/wiki/Langton%27s_ant)

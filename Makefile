@@ -16,7 +16,7 @@ run-s:
 run-l:
 	./build/automaton -e life
 run-a:
-	./build/automaton -e ant --delay 10
+	./build/automaton -e ant --delay 10 --cell-width 10
 
 debug-w:
 	G_MESSAGES_DEBUG=all $(MAKE) run-w

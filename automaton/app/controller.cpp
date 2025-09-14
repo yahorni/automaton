@@ -11,8 +11,8 @@ controller::controller(core::grid& grid, animation_ptr animation, engine_ptr eng
     _animation->connect(*this);
 }
 
-void controller::engine_activate(size_t row, size_t col) { _engine->activate(row, col); }
-void controller::engine_deactivate(size_t row, size_t col) { _engine->deactivate(row, col); }
+void controller::engine_action1(size_t row, size_t col) { _engine->action1(row, col); }
+void controller::engine_action2(size_t row, size_t col) { _engine->action2(row, col); }
 
 bool controller::engine_step() {
     _animation->stop();
@@ -28,6 +28,8 @@ void controller::engine_clear() {
     _animation->stop();
     _engine->clear();
 }
+
+void controller::engine_shift_actions() { _engine->shift_actions(); }
 
 void controller::animation_toggle() { _animation->is_running() ? _animation->stop() : _animation->start(); }
 
