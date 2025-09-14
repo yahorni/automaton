@@ -51,7 +51,7 @@ bool wolfram::step() {
             if (state[_current_row][prev_col]) combination |= 0b001;
             if (state[_current_row][col]) combination |= 0b010;
             if (state[_current_row][next_col]) combination |= 0b100;
-        } else {
+        } else {  // core::surface_type::PLAIN
             if (col != 0 && state[_current_row][col - 1]) combination |= 0b001;
             if (state[_current_row][col]) combination |= 0b010;
             if (col != dims.cols - 1 && state[_current_row][col + 1]) combination |= 0b100;

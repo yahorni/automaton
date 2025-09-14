@@ -59,7 +59,7 @@ void window::_initialize() {
         break;
     case core::engine_type::LIFE: {
         const auto [birth, survival] = _config.get_life_rule();
-        engine = std::make_unique<engines::life>(_grid, birth, survival);
+        engine = std::make_unique<engines::life>(_grid, _config.get_automaton_surface(), birth, survival);
         break;
     }
     default:

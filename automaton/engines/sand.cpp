@@ -29,7 +29,7 @@ bool sand::step() {
             if (_surface_type == core::surface_type::CYLINDER) {
                 prev_col = (col == 0 ? dims.cols - 1 : col - 1);
                 next_col = (col == dims.cols - 1 ? 0 : col + 1);
-            } else {
+            } else {  // core::surface_type::PLAIN
                 prev_col = (col == 0 ? 0 : col - 1);
                 next_col = (col == dims.cols - 1 ? col : col + 1);
             }

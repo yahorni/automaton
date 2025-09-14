@@ -43,7 +43,7 @@ bool config::_validate_surface_for_engine() const {
 
     switch (engine) {
     case engine_type::LIFE:
-        return surface == surface_type::DEFAULT || surface == surface_type::TORUS;
+        return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::TORUS;
     case engine_type::WOLFRAM:
         return surface == surface_type::DEFAULT || surface == surface_type::PLAIN || surface == surface_type::CYLINDER;
     case engine_type::SAND:
