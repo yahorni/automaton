@@ -10,7 +10,7 @@ animation::animation(int delay, bool enabled)
       _is_running(false) {}
 
 void animation::connect(controller& ctrl) {
-    _motion_slot = sigc::mem_fun(ctrl, &controller::on_timeout);
+    _motion_slot = sigc::mem_fun(ctrl, &controller::on_animation_timeout);
     if (_enabled) _animation_connection = Glib::signal_timeout().connect(_motion_slot, _delay);
     _is_running = _enabled;
 }

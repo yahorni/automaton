@@ -26,17 +26,13 @@ struct canvas_config {
 
 class canvas : public Gtk::DrawingArea {
 public:
-    using cairo_context = Cairo::RefPtr<Cairo::Context>;
-
     explicit canvas(const core::grid& grid);
     void initialize(canvas_config cfg, std::weak_ptr<controller> ctrl);
-    void handle_timeout();
-    void redraw();
 
     core::dims calculate_dims() const;
 
 private:
-    using const_grid_ptr = std::shared_ptr<const core::grid>;
+    using cairo_context = Cairo::RefPtr<Cairo::Context>;
 
     // events
     bool _on_draw(const cairo_context& cr);
@@ -44,8 +40,7 @@ private:
     bool _on_mouse_press(GdkEventButton* ev);
     bool _on_mouse_release(GdkEventButton* ev);
     bool _on_mouse_motion(GdkEventMotion* ev);
-    bool _on_mouse_enter(GdkEventCrossing* ev);
-    bool _on_mouse_leave(GdkEventCrossing* ev);
+    bool _on_redraw_timeout();
 
     // drawing
     void _draw_background(const cairo_context& cr);
@@ -64,6 +59,8 @@ private:
     const palette _palette;
     bool _is_drawing = false;
     bool _is_erasing = false;
+
+    sigc::connection _redraw_connection;
 };
 
 }  // namespace automaton::app

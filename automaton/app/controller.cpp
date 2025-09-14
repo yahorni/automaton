@@ -41,20 +41,18 @@ void controller::toggle_animation() { _animation.is_running() ? _animation.stop(
 void controller::handle_resize() {
     g_debug("controller::handle_resize()");
     _resize_grid();
-    _canvas.redraw();
 }
 
 std::string controller::get_status() const {
     const core::dims& dims = _grid.dims();
-    return std::format("{}: size={}x{}, animation={}, delay={}ms",  //
-                       _engine->name(),                             //
-                       dims.cols, dims.rows,                        //
+    return std::format("{}, size={}x{}, animation[enabled={},delay={}ms]",  //
+                       _engine->name(),                                     //
+                       dims.cols, dims.rows,                                //
                        _animation.is_running(), _animation.delay());
 }
 
-bool controller::on_timeout() {
-    g_debug("controller::on_timeout()");
-    _canvas.handle_timeout();
+bool controller::on_animation_timeout() {
+    g_debug("controller::on_animation_timeout()");
     if (!_engine->step()) _animation.stop();
     return true;
 }

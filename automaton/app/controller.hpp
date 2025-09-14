@@ -21,7 +21,8 @@ public:
     void toggle_animation();
     void handle_resize();
     std::string get_status() const;
-    bool on_timeout();
+
+    bool on_animation_timeout();
 
 private:
     void _resize_grid();

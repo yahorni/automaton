@@ -16,22 +16,23 @@ namespace automaton::app {
 
 canvas::canvas(const core::grid& grid)
     : _grid(grid) {
+
     // catch mouse press/release events
     add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
     signal_button_press_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_press));
     signal_button_release_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_release));
+
     // catch mouse motion event
     add_events(Gdk::POINTER_MOTION_MASK);
     signal_motion_notify_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_motion));
-    // catch mouse leave/enter events
-    add_events(Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK);
-    signal_enter_notify_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_enter));
-    signal_leave_notify_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_leave));
 
     // catch keyboard events
     add_events(Gdk::KEY_PRESS_MASK);
     property_can_focus() = true;
     signal_key_press_event().connect(sigc::mem_fun(*this, &canvas::_on_key_press));
+
+    // set timeout to redraw
+    _redraw_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout), 50);
 
     // add draw function
     signal_draw().connect(sigc::mem_fun(*this, &canvas::_on_draw));
@@ -105,7 +106,6 @@ bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
 
     if (_is_drawing || _is_erasing) {
         if (!_handle_cell_press(ev->x, ev->y)) return false;
-        queue_draw();
         return true;
     }
 
@@ -123,18 +123,6 @@ bool canvas::_on_mouse_release(GdkEventButton* ev) {
         return true;
     }
 
-    return false;
-}
-
-bool canvas::_on_mouse_enter(GdkEventCrossing* ev) {
-    g_debug("canvas::on_mouse_enter()");
-    (void)ev;
-    return false;
-}
-
-bool canvas::_on_mouse_leave(GdkEventCrossing* ev) {
-    g_debug("canvas::on_mouse_leave()");
-    (void)ev;
     return false;
 }
 
@@ -217,8 +205,8 @@ void canvas::_draw_information(const cairo_context& cr) {
     cr->restore();
 }
 
-void canvas::handle_timeout() {
-    g_debug("canvas::handle_timeout()");
+bool canvas::_on_redraw_timeout() {
+    /* g_debug("canvas::on_redraw_timeout()"); */
 
     if (_is_drawing || _is_erasing) {
         int x, y;
@@ -227,6 +215,7 @@ void canvas::handle_timeout() {
     }
 
     queue_draw();
+    return true;
 }
 
 bool canvas::_handle_cell_press(int x, int y) {
@@ -245,8 +234,6 @@ bool canvas::_handle_cell_press(int x, int y) {
 
     return true;
 }
-
-void canvas::redraw() { queue_draw(); }
 
 core::dims canvas::calculate_dims() const {
     return {static_cast<size_t>(get_height() / _cfg.cell_width),  //
