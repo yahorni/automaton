@@ -175,6 +175,7 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     group.add_entry_filename(entry, opts->engine);
 
     entry = Glib::OptionEntry();
+    entry.set_short_name('s');
     entry.set_long_name("surface");
     entry.set_arg_description("STRING");
     entry.set_description(Glib::ustring::compose("Surface. Options: %1", core::config::get_surface_options()));
