@@ -1,5 +1,6 @@
 #include "automaton/engines/ant.hpp"
 
+#include <algorithm>
 #include <format>
 
 namespace automaton::engines {

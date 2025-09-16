@@ -2,6 +2,8 @@
 
 #include "automaton/app/controller.hpp"
 
+#include <format>
+
 namespace automaton::app {
 
 animation::animation(int delay, bool enabled)

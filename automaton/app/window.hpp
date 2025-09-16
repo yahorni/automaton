@@ -24,19 +24,18 @@ public:
     int on_command_line(const app_cli_ptr& cli, const app_ptr& app);
 
 private:
-    core::config _config;
-
-    Gtk::Frame _frame;
-    canvas _canvas;
-
-    core::grid _grid;
-    std::shared_ptr<controller> _ctrl;
-
     bool _parse_command_line(const app_cli_ptr& cli);
     void _initialize();
 
     // signals
     bool _on_key_press(GdkEventKey* ev);
+
+    core::config _config;
+    core::grid _grid;
+    std::shared_ptr<controller> _ctrl;
+
+    Gtk::Frame _frame;
+    canvas _canvas;
 };
 
 }  // namespace automaton::app
