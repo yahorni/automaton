@@ -12,8 +12,7 @@ public:
     sand(core::grid& grid, core::surface_type surface);
     std::string description() const override;
 
-protected:
-    bool do_step() override;
+    bool step() override;
 
 private:
     std::mt19937 _re;

@@ -12,13 +12,13 @@ life::life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mas
       _survival_mask(survival_mask) {}
 
 std::string life::description() const {
-    return std::format("life[surface={},rule={},step={}]",                     //
+    return std::format("life[surface={},rule={},size={},step={}]",             //
                        options::surface::to_string(_surface_type),             //
                        options::rule::to_string(_birth_mask, _survival_mask),  //
-                       current_step());
+                       _grid.dims(), _step);
 }
 
-bool life::do_step() {
+bool life::step() {
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
     _new_state = {};
@@ -31,6 +31,7 @@ bool life::do_step() {
 
     _grid.reset(_new_state);
 
+    _step++;
     return true;
 }
 

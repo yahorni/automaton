@@ -17,7 +17,7 @@ public:
     void set(size_t row, size_t col, cell_state value);
     void clear();
 
-    void resize(size_t rows, size_t cols);
+    void resize(const core::dims& size);
     void reset(const grid_state& state);
 
     const core::dims& dims() const;

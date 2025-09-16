@@ -7,11 +7,10 @@ namespace automaton::engines {
 
 class life : public engine {
 public:
-    explicit life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mask, std::uint16_t survival_mask);
+    life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mask, std::uint16_t survival_mask);
     std::string description() const override;
 
-protected:
-    bool do_step() override;
+    bool step() override;
 
 private:
     void _step_torus(const core::dims& dims, const core::grid_state&);

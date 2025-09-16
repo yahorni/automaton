@@ -2,7 +2,6 @@
 
 #include "automaton/app/animation.hpp"
 #include "automaton/app/controller.hpp"
-#include "automaton/core/dims.hpp"
 #include "automaton/engines/ant.hpp"
 #include "automaton/engines/life.hpp"
 #include "automaton/engines/sand.hpp"
@@ -43,11 +42,7 @@ void window::_initialize() {
     g_debug("window::initialize(engine='%s',surface='%s')",  //
             _config.automaton.engine.c_str(), _config.automaton.surface.c_str());
 
-    canvas_config cfg{_config.ui.cell_width,
-                      _config.ui.borders,  //
-                      {_config.automaton.init_rows, _config.automaton.init_cols}};
     engine_ptr engine;
-
     switch (_config.get_automaton_engine()) {
     case core::engine_type::WOLFRAM: {
         engine = std::make_unique<engines::wolfram>(  //
@@ -75,7 +70,11 @@ void window::_initialize() {
     }
 
     auto animation_ = std::make_unique<animation>(_config.ui.delay, _config.ui.animation);
-    _ctrl = std::make_shared<controller>(_grid, std::move(animation_), std::move(engine));
+    _ctrl = std::make_shared<controller>(std::move(animation_), std::move(engine));
+
+    canvas_config cfg{_config.ui.cell_width,  //
+                      _config.ui.borders,     //
+                      {_config.automaton.initial_rows, _config.automaton.initial_cols}};
     _canvas.initialize(cfg, _ctrl);
 }
 
@@ -186,16 +185,16 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_long_name("cols");
     entry.set_arg_description("NUMBER");
     entry.set_description(
-        Glib::ustring::compose("Grid columns. Should be >= 0. '0' means fill window. Default: %1", opts->init_cols));
-    group.add_entry(entry, opts->init_cols);
+        Glib::ustring::compose("Grid columns. Should be >= 0. '0' means fill window. Default: %1", opts->initial_cols));
+    group.add_entry(entry, opts->initial_cols);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('r');
     entry.set_long_name("rows");
     entry.set_arg_description("NUMBER");
     entry.set_description(
-        Glib::ustring::compose("Grid rows. Should be >= 0. '0' means fill window. Default: %1", opts->init_rows));
-    group.add_entry(entry, opts->init_rows);
+        Glib::ustring::compose("Grid rows. Should be >= 0. '0' means fill window. Default: %1", opts->initial_rows));
+    group.add_entry(entry, opts->initial_rows);
 
     entry = Glib::OptionEntry();
     entry.set_long_name("wf-code");
