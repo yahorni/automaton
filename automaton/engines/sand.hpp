@@ -14,7 +14,17 @@ public:
 
     bool step() override;
 
+    void action1(size_t row, size_t col) override;
+    void shift_actions() override;
+
 private:
+    enum class blocks : unsigned {
+        SAND = 1,
+        WALL,
+
+        SIZE,
+    } _block_actions = blocks::SAND;
+
     std::mt19937 _re;
     std::bernoulli_distribution _dist;
 };
