@@ -9,35 +9,12 @@ ant::ant(core::grid& grid, core::surface_type surface)
     : engine(grid, core::engine_type::ANT, surface) {}
 
 std::string ant::description() const {
-    return std::format("ant[surface={},action={},step={}]",         //
-                       options::surface::to_string(_surface_type),  //
-                       _ant_actions ? "ant" : "wall",               //
-                       current_step());
+    return std::format("ant[surface={},action={},size={},step={}]",  //
+                       options::surface::to_string(_surface_type),   //
+                       _ant_actions ? "ant" : "wall", _grid.dims(), _step);
 }
 
-void ant::action1(size_t row, size_t col) {
-    if (_ant_actions) {
-        _ants.emplace_back(row, col, directions::UP);
-        _grid.set(row, col, _grid.get(row, col) | 0b10);
-    } else {
-        if (auto s = _grid.get(row, col); !(_grid.get(row, col) & 0b01)) _grid.set(row, col, s + 1);
-    }
-}
-
-void ant::action2(size_t row, size_t col) {
-    if (_ant_actions) {
-        _ants.erase(std::remove_if(_ants.begin(), _ants.end(),  //
-                                   [row, col](const _ant& a) { return a.row == row && a.col == col; }),
-                    _ants.end());
-        _grid.set(row, col, _grid.get(row, col) & 0b01);
-    } else {
-        if (auto s = _grid.get(row, col); _grid.get(row, col) & 0b01) _grid.set(row, col, s - 1);
-    }
-}
-
-void ant::shift_actions() { _ant_actions = !_ant_actions; }
-
-bool ant::do_step() {
+bool ant::step() {
     if (_ants.empty()) return false;
 
     const core::dims& dims = _grid.dims();
@@ -68,10 +45,13 @@ bool ant::do_step() {
         _grid.set(a.row, a.col, state[a.row][a.col] | 0b10);
     }
 
+    _step++;
     return true;
 }
 
-void ant::do_clear() {
+void ant::restart() {
+    engine::restart();
+
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
 
@@ -83,6 +63,33 @@ void ant::do_clear() {
 
     _ants.clear();
 }
+
+void ant::clear() {
+    engine::clear();
+    _ants.clear();
+}
+
+void ant::action1(size_t row, size_t col) {
+    if (_ant_actions) {
+        _ants.emplace_back(row, col, directions::UP);
+        _grid.set(row, col, _grid.get(row, col) | 0b10);
+    } else {
+        if (auto s = _grid.get(row, col); !(_grid.get(row, col) & 0b01)) _grid.set(row, col, s + 1);
+    }
+}
+
+void ant::action2(size_t row, size_t col) {
+    if (_ant_actions) {
+        _ants.erase(std::remove_if(_ants.begin(), _ants.end(),  //
+                                   [row, col](const _ant& a) { return a.row == row && a.col == col; }),
+                    _ants.end());
+        _grid.set(row, col, _grid.get(row, col) & 0b01);
+    } else {
+        if (auto s = _grid.get(row, col); _grid.get(row, col) & 0b01) _grid.set(row, col, s - 1);
+    }
+}
+
+void ant::shift_actions() { _ant_actions = !_ant_actions; }
 
 void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& dims) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {

@@ -9,16 +9,16 @@ namespace automaton::engines {
 
 class ant : public engine {
 public:
-    explicit ant(core::grid& grid, core::surface_type surface);
+    ant(core::grid& grid, core::surface_type surface);
     std::string description() const override;
+
+    bool step() override;
+    void restart() override;
+    void clear() override;
 
     void action1(size_t row, size_t col) override;
     void action2(size_t row, size_t col) override;
     void shift_actions() override;
-
-protected:
-    bool do_step() override;
-    void do_clear() override;
 
 private:
     enum class directions { UP, DOWN, LEFT, RIGHT };

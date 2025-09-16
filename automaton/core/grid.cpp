@@ -10,9 +10,9 @@ void grid::set(size_t row, size_t col, cell_state value) { _state[row][col] = va
 
 void grid::clear() { _state = {}; }
 
-void grid::resize(size_t rows, size_t cols) {
-    _dims.rows = std::min(rows, max_dims.rows);
-    _dims.cols = std::min(cols, max_dims.cols);
+void grid::resize(const core::dims& size) {
+    _dims.rows = std::min(size.rows, max_dims.rows);
+    _dims.cols = std::min(size.cols, max_dims.cols);
 }
 
 void grid::reset(const grid_state& state) { _state = state; }

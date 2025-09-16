@@ -245,11 +245,12 @@ bool canvas::_handle_cell_press(int x, int y) {
 }
 
 void canvas::_resize_grid() {
-    core::dims size;
-    size.rows = _cfg.init_dims.rows ? _cfg.init_dims.rows : static_cast<size_t>(get_height() / _cfg.cell_width);
-    size.cols = _cfg.init_dims.cols ? _cfg.init_dims.cols : static_cast<size_t>(get_width() / _cfg.cell_width);
+    core::dims size = _cfg.initial_size;
 
-    if (auto ctrl = _ctrl.lock()) ctrl->grid_resize(size);
+    size.rows = size.rows ? size.rows : static_cast<size_t>(get_height() / _cfg.cell_width);
+    size.cols = size.cols ? size.cols : static_cast<size_t>(get_width() / _cfg.cell_width);
+
+    if (auto ctrl = _ctrl.lock()) ctrl->engine_resize(size);
 }
 
 }  // namespace automaton::app

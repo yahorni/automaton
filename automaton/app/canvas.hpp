@@ -21,7 +21,7 @@ struct palette {
 struct canvas_config {
     double cell_width;
     bool use_borders;
-    core::dims init_dims;
+    core::dims initial_size;
     double line_width = 0.5;
     int font_size = 14;
 };

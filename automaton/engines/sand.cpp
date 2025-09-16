@@ -10,11 +10,12 @@ sand::sand(core::grid& grid, core::surface_type surface)
       _dist(std::bernoulli_distribution()) {}
 
 std::string sand::description() const {
-    return std::format("sand[surface={},step={}]", options::surface::to_string(_surface_type), current_step());
+    return std::format("sand[surface={},size={},step={}]",  //
+                       options::surface::to_string(_surface_type), _grid.dims(), _step);
 }
 
 /* The implementation isn't perfect, but for now it's OK */
-bool sand::do_step() {
+bool sand::step() {
     const core::dims& dims = _grid.dims();
     const core::grid_state& data = _grid.state();
 
@@ -53,6 +54,7 @@ bool sand::do_step() {
         }
     }
 
+    _step++;
     return true;
 }
 

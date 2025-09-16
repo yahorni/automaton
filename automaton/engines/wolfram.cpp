@@ -9,28 +9,35 @@ wolfram::wolfram(core::grid& grid, core::surface_type surface, std::uint8_t code
       _code(code) {}
 
 std::string wolfram::description() const {
-    return std::format("wolfram[surface={},rule={},step={}]",  //
-                       options::surface::to_string(_surface_type), _code, current_step());
+    return std::format("wolfram[surface={},rule={},size={},step={}]",  //
+                       options::surface::to_string(_surface_type), _code, _grid.dims(), _step);
 }
 
-bool wolfram::do_step() {
+bool wolfram::step() {
     constexpr int active_state = 1;
     constexpr int inactive_state = 2;
 
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
 
-    // when starting: fast forward to the first row with cells (ignoring last row)
+    // when starting: fast forward to the first row with active cells
     if (_current_row == 0) {
-        size_t fwd_row = 0;
-        for (; fwd_row < dims.rows; ++fwd_row) {
+        bool found = false;
+        for (size_t row = 0; row < dims.rows; ++row) {
             size_t col;
             for (col = 0; col < dims.cols; ++col) {
-                if (state[fwd_row][col] == active_state) break;
+                if (state[row][col] == active_state) {
+                    _current_row = row;
+                    found = true;
+                    break;
+                }
             }
-            if (col != dims.cols) break;
+            if (found) break;
         }
-        _current_row = fwd_row;
+        if (!found) {
+            _current_row = 0;
+            return false;
+        }
     }
 
     // set current row as inactive
@@ -40,6 +47,7 @@ bool wolfram::do_step() {
 
     // reached the bottom, no further steps available
     if (_current_row + 1 == dims.rows) {
+        _current_row = 0;
         return false;
     }
 
@@ -64,10 +72,18 @@ bool wolfram::do_step() {
     }
 
     _current_row++;
+    _step++;
     return true;
 }
 
-void wolfram::do_restart() { _current_row = 0; }
-void wolfram::do_clear() { _current_row = 0; }
+void wolfram::restart() {
+    engine::restart();
+    _current_row = 0;
+}
+
+void wolfram::clear() {
+    engine::clear();
+    _current_row = 0;
+}
 
 }  // namespace automaton::engines

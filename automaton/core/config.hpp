@@ -1,5 +1,6 @@
 #pragma once
 
+#include "automaton/core/dims.hpp"
 #include "automaton/core/engine_type.hpp"
 #include "automaton/core/surface_type.hpp"
 
@@ -20,8 +21,8 @@ struct config {
     struct automaton_group {
         std::string engine{options::engine::sand};
         std::string surface{options::surface::default_};
-        int init_cols = 0;      // 0 - fill widget width
-        int init_rows = 0;      // 0 - fill widget height
+        int initial_rows;       // 0 to fill available space
+        int initial_cols;       // 0 to fill available space
         int wolfram_code = 22;  // = 0-255
         std::string life_rule = "B3/S23";
     } automaton;
