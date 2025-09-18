@@ -21,14 +21,12 @@ struct config {
     struct automaton_group {
         std::string engine{options::engine::sand};
         std::string surface{options::surface::default_};
-        // 0 to fill available space
         int initial_rows = 0;
-        // 0 to fill available space
         int initial_cols = 0;
         std::string rule;
     } automaton;
 
-    // return: false with failed options, otherwise true
+    // return: false with failed option, otherwise true
     std::tuple<bool, std::string> validate() const;
 
     engine_type get_automaton_engine() const;
@@ -38,6 +36,7 @@ struct config {
 
     static std::string get_engine_options();
     static std::string get_surface_options();
+    static std::string get_life_presets();
 
 private:
     bool _validate_cell_width() const;

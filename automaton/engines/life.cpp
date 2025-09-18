@@ -1,6 +1,6 @@
 #include "automaton/engines/life.hpp"
 
-#include "automaton/core/rule_option.hpp"
+#include "automaton/core/life_rule.hpp"
 
 #include <format>
 
@@ -14,7 +14,7 @@ life::life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mas
 std::string life::description() const {
     return std::format("life[surface={},rule={},size={},step={}]",             //
                        options::surface::to_string(_surface_type),             //
-                       options::rule::to_string(_birth_mask, _survival_mask),  //
+                       options::life::to_string(_birth_mask, _survival_mask),  //
                        _grid.dims(), _step);
 }
 

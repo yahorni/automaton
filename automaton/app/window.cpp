@@ -172,7 +172,7 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_short_name('e');
     entry.set_long_name("engine");
     entry.set_arg_description("STRING");
-    entry.set_description(Glib::ustring::compose("Grid engine. Options: %1. Default: '%2'",
+    entry.set_description(Glib::ustring::compose("Grid engine. Options: %1. Default: %2",
                                                  core::config::get_engine_options(), opts->engine));
     group.add_entry_filename(entry, opts->engine);
 
@@ -187,8 +187,8 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_short_name('c');
     entry.set_long_name("cols");
     entry.set_arg_description("NUMBER");
-    entry.set_description(
-        Glib::ustring::compose("Grid columns. Should be >= 0. '0' means fill window. Default: %1", opts->initial_cols));
+    entry.set_description(Glib::ustring::compose("Grid columns. Should be >= 0. '0' means to fill window. Default: %1",
+                                                 opts->initial_cols));
     group.add_entry(entry, opts->initial_cols);
 
     entry = Glib::OptionEntry();
@@ -205,8 +205,9 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_description(Glib::ustring::compose(  //
         R"(Automaton rule.
     For wolfram: number from 0 to 255. Default: %1
-    For Game of Life: uses Hensel notation. Default: '%2')",
-        core::defaults::wolfram_code, core::defaults::life_rule));
+    For Game of Life: uses Hensel notation. Default: %2
+    Presets can be used for Game of Life: %3)",
+        core::defaults::wolfram_code, core::defaults::life_rule, core::config::get_life_presets()));
     group.add_entry_filename(entry, opts->rule);
 
     return group;
