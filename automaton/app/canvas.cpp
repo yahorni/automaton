@@ -1,12 +1,13 @@
 #include "automaton/app/canvas.hpp"
 
 #include "automaton/app/controller.hpp"
+#include "automaton/core/defaults.hpp"
 #include "automaton/core/grid.hpp"
-#include "gdkmm/rgba.h"
 
 #include <cairomm/fontface.h>
 #include <gdk/gdk.h>
 #include <gdkmm/general.h>
+#include <gdkmm/rgba.h>
 #include <glibmm/main.h>
 
 #include <memory>
@@ -16,8 +17,6 @@ namespace automaton::app {
 
 canvas::canvas(const core::grid& grid)
     : _grid(grid) {
-    _resize_grid();
-
     // catch mouse press/release events
     add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
     signal_button_press_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_press));
@@ -33,7 +32,8 @@ canvas::canvas(const core::grid& grid)
     signal_key_press_event().connect(sigc::mem_fun(*this, &canvas::_on_key_press));
 
     // set timeout to redraw
-    _redraw_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout), 50);
+    _redraw_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout),
+                                                        core::defaults::redraw_timeout_ms);
 
     // add draw function
     signal_draw().connect(sigc::mem_fun(*this, &canvas::_on_draw));
@@ -42,6 +42,7 @@ canvas::canvas(const core::grid& grid)
 void canvas::initialize(canvas_config cfg, std::weak_ptr<controller> ctrl) {
     _cfg = cfg;
     _ctrl = ctrl;
+    _resize_grid();
 }
 
 void canvas::on_resize() {
@@ -55,8 +56,8 @@ bool canvas::_on_draw(const cairo_context& cr) {
 
     _draw_background(cr);
     _draw_frame(cr, dims);
-    if (_cfg.use_borders) _draw_grid_borders(cr, dims);
     _draw_cells(cr, dims, state);
+    if (_cfg.use_borders) _draw_borders(cr, dims);
     _draw_status(cr);
 
     return false;
@@ -144,35 +145,11 @@ void canvas::_draw_background(const cairo_context& cr) {
 void canvas::_draw_frame(const cairo_context& cr, const core::dims& dims) {
     cr->save();
     Gdk::Cairo::set_source_rgba(cr, _palette.border);
-    cr->set_line_width(_cfg.line_width);
+    cr->set_line_width(core::defaults::cell_border_width);
 
     cr->rectangle(0, 0, _cfg.cell_width * dims.cols, _cfg.cell_width * dims.rows);
     cr->stroke();
 
-    cr->restore();
-}
-
-void canvas::_draw_grid_borders(const cairo_context& cr, const core::dims& dims) {
-    cr->save();
-    Gdk::Cairo::set_source_rgba(cr, _palette.border);
-    cr->set_line_width(_cfg.line_width);
-
-    size_t width = _cfg.cell_width * dims.cols, height = _cfg.cell_width * dims.rows;
-    double x = _cfg.cell_width, y = _cfg.cell_width;
-
-    for (size_t col = 0; col < dims.cols - 1; col++) {
-        cr->move_to(x, 0);
-        cr->line_to(x, height);
-        x += _cfg.cell_width;
-    }
-
-    for (size_t row = 0; row < dims.rows - 1; row++) {
-        cr->move_to(0, y);
-        cr->line_to(width, y);
-        y += _cfg.cell_width;
-    }
-
-    cr->stroke();
     cr->restore();
 }
 
@@ -202,12 +179,36 @@ void canvas::_draw_cells(const cairo_context& cr, const core::dims& dims, const 
     cr->restore();
 }
 
+void canvas::_draw_borders(const cairo_context& cr, const core::dims& dims) {
+    cr->save();
+    Gdk::Cairo::set_source_rgba(cr, _palette.border);
+    cr->set_line_width(core::defaults::cell_border_width);
+
+    size_t width = _cfg.cell_width * dims.cols, height = _cfg.cell_width * dims.rows;
+    double x = _cfg.cell_width, y = _cfg.cell_width;
+
+    for (size_t col = 0; col < dims.cols - 1; col++) {
+        cr->move_to(x, 0);
+        cr->line_to(x, height);
+        x += _cfg.cell_width;
+    }
+
+    for (size_t row = 0; row < dims.rows - 1; row++) {
+        cr->move_to(0, y);
+        cr->line_to(width, y);
+        y += _cfg.cell_width;
+    }
+
+    cr->stroke();
+    cr->restore();
+}
+
 void canvas::_draw_status(const cairo_context& cr) {
     cr->save();
-    cr->move_to(0, _cfg.font_size);
+    cr->move_to(core::defaults::font_margin, core::defaults::font_margin + core::defaults::font_size);
 
     Gdk::Cairo::set_source_rgba(cr, _palette.surface_fg);
-    cr->set_font_size(_cfg.font_size);
+    cr->set_font_size(core::defaults::font_size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
     cr->show_text(_ctrl.lock()->get_status());
 

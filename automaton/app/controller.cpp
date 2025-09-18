@@ -15,15 +15,9 @@ bool controller::engine_step() {
     return _engine->step();
 }
 
-void controller::engine_restart() {
-    _animation->stop();
-    _engine->restart();
-}
+void controller::engine_restart() { _engine->restart(); }
 
-void controller::engine_clear() {
-    _animation->stop();
-    _engine->clear();
-}
+void controller::engine_clear() { _engine->clear(); }
 
 void controller::engine_action1(size_t row, size_t col) { _engine->action1(row, col); }
 void controller::engine_action2(size_t row, size_t col) { _engine->action2(row, col); }
@@ -35,7 +29,7 @@ void controller::engine_resize(const core::dims& size) { _engine->resize(size); 
 void controller::animation_toggle() { _animation->is_running() ? _animation->stop() : _animation->start(); }
 
 bool controller::on_animation_timeout() {
-    g_debug("controller::on_animation_timeout()");
+    /* g_debug("controller::on_animation_timeout()"); */
     if (!_engine->step()) _animation->stop();
     return true;
 }

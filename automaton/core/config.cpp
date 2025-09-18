@@ -1,5 +1,6 @@
 #include "automaton/core/config.hpp"
 
+#include "automaton/core/defaults.hpp"
 #include "automaton/core/join_options.hpp"
 #include "automaton/core/rule_option.hpp"
 
@@ -11,14 +12,13 @@ namespace automaton::core {
 std::tuple<bool, std::string> config::validate() const {
     // ui
     if (!_validate_cell_width()) return {false, "cell-width"};
-    if (!_validate_delay()) return {false, "delay"};
+    if (!_validate_pause()) return {false, "pause"};
     // automaton
     if (!_validate_engine()) return {false, "engine"};
     if (!_validate_surface()) return {false, "surface"};
     if (!_validate_cols()) return {false, "cols"};
     if (!_validate_rows()) return {false, "rows"};
-    if (!_validate_wolfram_code()) return {false, "wf-code"};
-    if (!_validate_life_rule()) return {false, "life-rule"};
+    if (!_validate_rule()) return {false, "rule"};
 
     if (!_validate_surface_for_engine()) return {false, "surface"};
 
@@ -27,15 +27,26 @@ std::tuple<bool, std::string> config::validate() const {
 
 // ui
 bool config::_validate_cell_width() const { return ui.cell_width > 0; }
-bool config::_validate_delay() const { return ui.delay > 0; }
+bool config::_validate_pause() const { return ui.animation_pause > 0; }
 
 // automaton
 bool config::_validate_engine() const { return options::engine::is_valid(automaton.engine); }
 bool config::_validate_surface() const { return options::surface::is_valid(automaton.surface); }
 bool config::_validate_cols() const { return automaton.initial_cols >= 0; }
 bool config::_validate_rows() const { return automaton.initial_rows >= 0; }
-bool config::_validate_wolfram_code() const { return automaton.wolfram_code >= 0 && automaton.wolfram_code <= 255; }
-bool config::_validate_life_rule() const { return options::rule::is_valid(automaton.life_rule); }
+
+bool config::_validate_rule() const {
+    if (automaton.rule.empty()) return true;
+
+    switch (get_automaton_engine()) {
+    case core::engine_type::WOLFRAM:
+        return std::stoi(automaton.rule) >= 0 && std::stoi(automaton.rule) <= 255;
+    case core::engine_type::LIFE:
+        return options::rule::is_valid(automaton.rule);
+    default:
+        return automaton.rule.empty();
+    }
+}
 
 bool config::_validate_surface_for_engine() const {
     engine_type engine = options::engine::from_string(automaton.engine);
@@ -55,9 +66,9 @@ bool config::_validate_surface_for_engine() const {
     }
 }
 
-engine_type config::get_automaton_engine() { return options::engine::from_string(automaton.engine); }
+engine_type config::get_automaton_engine() const { return options::engine::from_string(automaton.engine); }
 
-surface_type config::get_automaton_surface() {
+surface_type config::get_automaton_surface() const {
     engine_type engine = options::engine::from_string(automaton.engine);
     surface_type surface = options::surface::from_string(automaton.surface);
 
@@ -75,8 +86,12 @@ surface_type config::get_automaton_surface() {
     }
 }
 
-std::tuple<std::uint16_t, std::uint16_t> config::get_life_rule() {
-    return options::rule::from_string(automaton.life_rule);
+std::tuple<std::uint16_t, std::uint16_t> config::get_life_rule() const {
+    return options::rule::from_string(automaton.rule.empty() ? defaults::life_rule : automaton.rule);
+}
+
+std::uint8_t config::get_wolfram_code() const {
+    return automaton.rule.empty() ? defaults::wolfram_code : std::stoi(automaton.rule);
 }
 
 std::string config::get_engine_options() { return options::join<core::engine_type>(); }
