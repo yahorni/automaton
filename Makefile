@@ -23,14 +23,21 @@ build: cmake
 run: run-s
 debug: debug-s
 
-run-w:
-	${AUTOMATON} -e wolfram --wf-code 110 --cell-width 6
-run-s:
-	${AUTOMATON} -e sand --delay 50 --animation
-run-l:
+run-w: wolfram
+wolfram:
+	${AUTOMATON} -e wolfram --rule 110 --cell-width 6
+
+run-s: sand
+sand:
+	${AUTOMATON} -e sand --pause 50 --animation
+
+run-l: life
+life:
 	${AUTOMATON} -e life
-run-a:
-	${AUTOMATON} -e ant --delay 10 --cell-width 10
+
+run-a: ant
+ant:
+	${AUTOMATON} -e ant --pause 10 --cell-width 10 --animation
 
 debug-w:
 	G_MESSAGES_DEBUG=all $(MAKE) run-w

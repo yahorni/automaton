@@ -1,5 +1,6 @@
 #pragma once
 
+#include "automaton/core/defaults.hpp"
 #include "automaton/core/dims.hpp"
 
 #include <array>
@@ -7,9 +8,8 @@
 
 namespace automaton::core {
 
-constexpr core::dims max_dims{600, 800};
 using cell_state = std::uint8_t;
-using grid_state = std::array<std::array<cell_state, max_dims.rows>, max_dims.cols>;
+using grid_state = std::array<std::array<cell_state, defaults::grid_max_rows>, defaults::grid_max_cols>;
 
 class grid {
 public:

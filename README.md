@@ -20,10 +20,10 @@ make run
 ./build/automaton
 ./build/automaton --help-all
 
-./build/automaton -e wolfram --wf-code 110 --cell-width 6
-./build/automaton -e sand --delay 50 --animation
-./build/automaton -e life --life-rule B3/S12345
-./build/automaton -e ant --delay 3 --cell-width 5
+./build/automaton -e wolfram --rule 110 --cell-width 6
+./build/automaton -e sand --pause 50 --animation
+./build/automaton -e life --rule B3/S12345
+./build/automaton -e ant --pause 3 --cell-width 5
 ```
 
 ## Debug

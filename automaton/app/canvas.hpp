@@ -22,8 +22,6 @@ struct canvas_config {
     double cell_width;
     bool use_borders;
     core::dims initial_size;
-    double line_width = 0.5;
-    int font_size = 14;
 };
 
 class canvas : public Gtk::DrawingArea {
@@ -46,7 +44,7 @@ private:
     // drawing
     void _draw_background(const cairo_context& cr);
     void _draw_frame(const cairo_context& cr, const core::dims& dims);
-    void _draw_grid_borders(const cairo_context& cr, const core::dims& dims);
+    void _draw_borders(const cairo_context& cr, const core::dims& dims);
     void _draw_cells(const cairo_context& cr, const core::dims& dims, const core::grid_state& state);
     void _draw_status(const cairo_context& cr);
 

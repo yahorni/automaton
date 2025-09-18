@@ -2,12 +2,14 @@
 
 #include "automaton/app/animation.hpp"
 #include "automaton/app/controller.hpp"
+#include "automaton/core/defaults.hpp"
 #include "automaton/engines/ant.hpp"
 #include "automaton/engines/life.hpp"
 #include "automaton/engines/sand.hpp"
 #include "automaton/engines/wolfram.hpp"
 
 #include <glibmm/optioncontext.h>
+#include <glibmm/optionentry.h>
 
 #include <iostream>
 #include <memory>
@@ -17,10 +19,10 @@ namespace automaton::app {
 window::window()
     : _canvas(_grid) {
     set_title("Automaton");
-    set_default_size(800, 600);
+    set_default_size(core::defaults::window_width, core::defaults::window_height);
     add(_frame);
 
-    _frame.property_margin() = 7;
+    _frame.property_margin() = core::defaults::window_margin;
     _frame.add(_canvas);
     _frame.property_visible() = true;
 
@@ -46,7 +48,7 @@ void window::_initialize() {
     switch (_config.get_automaton_engine()) {
     case core::engine_type::WOLFRAM: {
         engine = std::make_unique<engines::wolfram>(  //
-            _grid, _config.get_automaton_surface(), static_cast<std::uint8_t>(_config.automaton.wolfram_code));
+            _grid, _config.get_automaton_surface(), _config.get_wolfram_code());
         if (_config.ui.animation) {
             g_warning("window::initialize(): animation disabled for wolfram on start");
             _config.ui.animation = false;
@@ -69,7 +71,7 @@ void window::_initialize() {
         break;
     }
 
-    auto animation_ = std::make_unique<animation>(_config.ui.delay, _config.ui.animation);
+    auto animation_ = std::make_unique<animation>(_config.ui.animation_pause, _config.ui.animation);
     _ctrl = std::make_shared<controller>(std::move(animation_), std::move(engine));
 
     canvas_config cfg{_config.ui.cell_width,  //
@@ -141,11 +143,12 @@ static Glib::OptionGroup _add_ui_group(core::config::ui_group* opts) {
     group.add_entry(entry, opts->cell_width);
 
     entry = Glib::OptionEntry();
-    entry.set_short_name('d');
-    entry.set_long_name("delay");
+    entry.set_short_name('p');
+    entry.set_long_name("pause");
     entry.set_arg_description("NUMBER");
-    entry.set_description(Glib::ustring::compose("Sets delay between grid updates in ms. Default: %1", opts->delay));
-    group.add_entry(entry, opts->delay);
+    entry.set_description(
+        Glib::ustring::compose("Sets pause between animation steps in ms. Default: %1", opts->animation_pause));
+    group.add_entry(entry, opts->animation_pause);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('a');
@@ -197,18 +200,14 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     group.add_entry(entry, opts->initial_rows);
 
     entry = Glib::OptionEntry();
-    entry.set_long_name("wf-code");
-    entry.set_arg_description("NUMBER");
-    entry.set_description(
-        Glib::ustring::compose("Wolfram code. Should be from 0 to 255. Default: %1", opts->wolfram_code));
-    group.add_entry(entry, opts->wolfram_code);
-
-    entry = Glib::OptionEntry();
-    entry.set_long_name("life-rule");
+    entry.set_long_name("rule");
     entry.set_arg_description("STRING");
-    entry.set_description(Glib::ustring::compose(
-        "Game of Life rule. Uses Hensel notation. Default: '%1' (classic Game of Life)", opts->life_rule));
-    group.add_entry_filename(entry, opts->life_rule);
+    entry.set_description(Glib::ustring::compose(  //
+        R"(Automaton rule.
+    For wolfram: number from 0 to 255. Default: %1
+    For Game of Life: uses Hensel notation. Default: '%2')",
+        core::defaults::wolfram_code, core::defaults::life_rule));
+    group.add_entry_filename(entry, opts->rule);
 
     return group;
 }

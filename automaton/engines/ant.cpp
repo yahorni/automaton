@@ -15,7 +15,7 @@ std::string ant::description() const {
 }
 
 bool ant::step() {
-    if (_ants.empty()) return false;
+    if (_ants.empty()) return true;
 
     const core::dims& dims = _grid.dims();
     const core::grid_state& state = _grid.state();
