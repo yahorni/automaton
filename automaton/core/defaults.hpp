@@ -22,7 +22,7 @@ constexpr auto font_margin = 2;
 
 // automaton engine
 constexpr auto wolfram_code = 22;
-constexpr auto life_rule = "B3/S23";
+constexpr auto life_rule = "life";
 constexpr auto grid_max_rows = 640;
 constexpr auto grid_max_cols = 360;
 
