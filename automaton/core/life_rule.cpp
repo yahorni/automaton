@@ -1,6 +1,7 @@
 #include "automaton/core/life_rule.hpp"
 
 #include <cstdint>
+#include <format>
 #include <regex>
 #include <string>
 

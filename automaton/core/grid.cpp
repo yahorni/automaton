@@ -11,8 +11,8 @@ void grid::set(size_t row, size_t col, cell_state value) { _state[row][col] = va
 void grid::clear() { _state = {}; }
 
 void grid::resize(const core::dims& size) {
-    _dims.rows = std::min<size_t>(size.rows, defaults::grid_max_rows);
-    _dims.cols = std::min<size_t>(size.cols, defaults::grid_max_cols);
+    _dims.rows = std::min(size.rows, static_cast<size_t>(defaults::grid_max_rows));
+    _dims.cols = std::min(size.cols, static_cast<size_t>(defaults::grid_max_cols));
 }
 
 void grid::reset(const grid_state& state) { _state = state; }
