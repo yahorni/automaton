@@ -88,7 +88,6 @@ bool canvas::_on_mouse_press(GdkEventButton* ev) {
         if (!_handle_cell_press(ev->x, ev->y)) return false;
 
     } else if (ev->button == 2) {  // middle click
-        // if (ev->state & GdkModifierType::GDK_SHIFT_MASK) {
         if (ev->type == GDK_BUTTON_PRESS && !_cfg.adapt_to_window) {
             _mouse_mode = mouse_modes::SHIFT;
             _last_shift_start = {ev->x, ev->y};
@@ -140,10 +139,25 @@ bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
 bool canvas::_on_mouse_scroll(GdkEventScroll* ev) {
     g_debug("canvas::on_mouse_scroll(%d)", ev->direction);
 
-    if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
-        _cfg.cell_width = std::min(_cfg.cell_width * defaults::scale_factor, defaults::max_cell_width);
-    } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
-        _cfg.cell_width = std::max(_cfg.cell_width / defaults::scale_factor, defaults::min_cell_width);
+    if (ev->state & GdkModifierType::GDK_SHIFT_MASK && !_cfg.adapt_to_window) {
+        // change grid size
+        core::dims size = _grid.size();
+        auto ctrl = _ctrl.lock();
+        if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
+            size.rows++;
+            size.cols++;
+        } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
+            size.rows--;
+            size.cols--;
+        }
+        ctrl->engine_resize(size);
+    } else {
+        // change cell width
+        if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
+            _cfg.cell_width = std::min(_cfg.cell_width * defaults::scale_factor, defaults::max_cell_width);
+        } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
+            _cfg.cell_width = std::max(_cfg.cell_width / defaults::scale_factor, defaults::min_cell_width);
+        }
     }
 
     if (_cfg.adapt_to_window) _resize_grid();
@@ -289,6 +303,7 @@ bool canvas::_handle_cell_press(int x, int y) {
 
 void canvas::_resize_grid() {
     auto ctrl = _ctrl.lock();
+    // TODO: add checks for all locks()
     if (!ctrl) g_warning("failed to get controller to resize grid");
     ctrl->engine_resize({static_cast<size_t>(get_height() / _cfg.cell_width),  //
                          static_cast<size_t>(get_width() / _cfg.cell_width)});
