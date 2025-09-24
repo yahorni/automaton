@@ -2,7 +2,6 @@
 
 #include "automaton/core/dims.hpp"
 #include "automaton/core/grid.hpp"
-#include "gdk/gdk.h"
 
 #include <gtkmm/drawingarea.h>
 
