@@ -11,13 +11,13 @@ void grid::set(size_t row, size_t col, cell_state value) { _state[row][col] = va
 void grid::clear() { _state = {}; }
 
 void grid::resize(const core::dims& size) {
-    _dims.rows = std::min(size.rows, static_cast<size_t>(defaults::grid_max_rows));
-    _dims.cols = std::min(size.cols, static_cast<size_t>(defaults::grid_max_cols));
+    _size.rows = std::min(size.rows, static_cast<size_t>(defaults::grid::max_rows));
+    _size.cols = std::min(size.cols, static_cast<size_t>(defaults::grid::max_cols));
 }
 
 void grid::reset(const grid_state& state) { _state = state; }
 
-const core::dims& grid::dims() const { return _dims; }
+const core::dims& grid::size() const { return _size; }
 const grid_state& grid::state() const { return _state; }
 
 }  // namespace automaton::core

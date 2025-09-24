@@ -31,6 +31,5 @@ make run
 GTK's `g_debug()` is used for debugging. To enable debug logs use env variable:
 
 ```bash
-# with binary
 G_MESSAGES_DEBUG=all ./build/automaton
 ```

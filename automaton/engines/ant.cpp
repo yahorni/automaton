@@ -11,29 +11,29 @@ ant::ant(core::grid& grid, core::surface_type surface)
 std::string ant::description() const {
     return std::format("ant[surface={},action={},size={},step={}]",  //
                        options::surface::to_string(_surface_type),   //
-                       _ant_actions ? "ant" : "wall", _grid.dims(), _step);
+                       _ant_actions ? "ant" : "wall", _grid.size(), _step);
 }
 
 bool ant::step() {
     if (_ants.empty()) return true;
 
-    const core::dims& dims = _grid.dims();
+    const core::dims& size = _grid.size();
     const core::grid_state& state = _grid.state();
 
     // update ants
     if (_surface_type == core::surface_type::TORUS) {
         for (auto& a : _ants) {
-            a.rotate_and_move_torus(state[a.row][a.col] & 0b01, dims);
+            a.rotate_and_move_torus(state[a.row][a.col] & 0b01, size);
         }
     } else {
         for (auto& a : _ants) {
-            a.rotate_and_move_plain(state[a.row][a.col] & 0b01, dims);
+            a.rotate_and_move_plain(state[a.row][a.col] & 0b01, size);
         }
     }
 
     // update state cells
-    for (size_t row = 0; row < dims.rows; ++row) {
-        for (size_t col = 0; col < dims.cols; ++col) {
+    for (size_t row = 0; row < size.rows; ++row) {
+        for (size_t col = 0; col < size.cols; ++col) {
             // if there's an ant in a cell, then invert it's color
             if (state[row][col] & 0b10)  //
                 _grid.set(row, col, !static_cast<bool>(state[row][col] & 0b01));
@@ -52,11 +52,11 @@ bool ant::step() {
 void ant::restart() {
     engine::restart();
 
-    const core::dims& dims = _grid.dims();
+    const core::dims& size = _grid.size();
     const core::grid_state& state = _grid.state();
 
-    for (size_t row = 0; row < dims.rows; ++row) {
-        for (size_t col = 0; col < dims.cols; ++col) {
+    for (size_t row = 0; row < size.rows; ++row) {
+        for (size_t col = 0; col < size.cols; ++col) {
             _grid.set(row, col, state[row][col] & 0b01);
         }
     }
@@ -91,29 +91,29 @@ void ant::action2(size_t row, size_t col) {
 
 void ant::shift_actions() { _ant_actions = !_ant_actions; }
 
-void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& dims) {
+void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& size) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
         dir = directions::RIGHT;
-        col = (col == dims.cols - 1 ? 0 : col + 1);
+        col = (col == size.cols - 1 ? 0 : col + 1);
     } else if ((dir == directions::RIGHT && is_empty) || (dir == directions::LEFT && !is_empty)) {
         dir = directions::DOWN;
-        row = (row == dims.rows - 1 ? 0 : row + 1);
+        row = (row == size.rows - 1 ? 0 : row + 1);
     } else if ((dir == directions::DOWN && is_empty) || (dir == directions::UP && !is_empty)) {
         dir = directions::LEFT;
-        col = (col == 0 ? dims.cols - 1 : col - 1);
+        col = (col == 0 ? size.cols - 1 : col - 1);
     } else if ((dir == directions::LEFT && is_empty) || (dir == directions::RIGHT && !is_empty)) {
         dir = directions::UP;
-        row = (row == 0 ? dims.rows - 1 : row - 1);
+        row = (row == 0 ? size.rows - 1 : row - 1);
     }
 }
 
-void ant::_ant::rotate_and_move_plain(bool is_empty, const core::dims& dims) {
+void ant::_ant::rotate_and_move_plain(bool is_empty, const core::dims& size) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
         dir = directions::RIGHT;
-        if (col < dims.cols) col++;
+        if (col < size.cols) col++;
     } else if ((dir == directions::RIGHT && is_empty) || (dir == directions::LEFT && !is_empty)) {
         dir = directions::DOWN;
-        if (row < dims.rows) row++;
+        if (row < size.rows) row++;
     } else if ((dir == directions::DOWN && is_empty) || (dir == directions::UP && !is_empty)) {
         dir = directions::LEFT;
         if (col > 0) col--;

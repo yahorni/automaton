@@ -11,20 +11,24 @@
 namespace automaton::core {
 
 struct config {
-    struct ui_group {
+    struct grid_group {
         double cell_width = defaults::cell_width;
-        int animation_pause = defaults::animation_pause_ms;
-        bool animation = defaults::enable_animation;
-        bool borders = defaults::enable_borders;
-    } ui;
+        bool show_borders = defaults::enable_borders;
+        int initial_rows = 0;
+        int initial_cols = 0;
+        bool adapt_to_window = defaults::grid::adapt_to_window;
+    } grid;
 
     struct automaton_group {
         std::string engine{options::engine::sand};
         std::string surface{options::surface::default_};
-        int initial_rows = 0;
-        int initial_cols = 0;
         std::string rule;
     } automaton;
+
+    struct animation_group {
+        int pause = defaults::animation_pause_ms;
+        bool enable = defaults::enable_animation;
+    } animation;
 
     // return: false with failed option, otherwise true
     std::tuple<bool, std::string> validate() const;
@@ -40,13 +44,14 @@ struct config {
 
 private:
     bool _validate_cell_width() const;
-    bool _validate_pause() const;
+    bool _validate_cols() const;
+    bool _validate_rows() const;
 
     bool _validate_engine() const;
     bool _validate_surface() const;
-    bool _validate_cols() const;
-    bool _validate_rows() const;
     bool _validate_rule() const;
+
+    bool _validate_pause() const;
 
     bool _validate_surface_for_engine() const;
 };

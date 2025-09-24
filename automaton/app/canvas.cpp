@@ -3,6 +3,7 @@
 #include "automaton/app/controller.hpp"
 #include "automaton/core/defaults.hpp"
 #include "automaton/core/grid.hpp"
+#include "glib.h"
 
 #include <cairomm/fontface.h>
 #include <gdk/gdk.h>
@@ -26,14 +27,18 @@ canvas::canvas(const core::grid& grid)
     add_events(Gdk::POINTER_MOTION_MASK);
     signal_motion_notify_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_motion));
 
+    // catch mouse scroll event
+    add_events(Gdk::SCROLL_MASK);
+    signal_scroll_event().connect(sigc::mem_fun(*this, &canvas::_on_mouse_scroll));
+
     // catch keyboard events
     add_events(Gdk::KEY_PRESS_MASK);
     property_can_focus() = true;
     signal_key_press_event().connect(sigc::mem_fun(*this, &canvas::_on_key_press));
 
     // set timeout to redraw
-    _redraw_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout),
-                                                        core::defaults::redraw_timeout_ms);
+    _redraw_connection =
+        Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout), defaults::redraw_timeout_ms);
 
     // add draw function
     signal_draw().connect(sigc::mem_fun(*this, &canvas::_on_draw));
@@ -42,25 +47,11 @@ canvas::canvas(const core::grid& grid)
 void canvas::initialize(canvas_config cfg, std::weak_ptr<controller> ctrl) {
     _cfg = cfg;
     _ctrl = ctrl;
-    _resize_grid();
 }
 
 void canvas::on_resize() {
     g_debug("canvas::on_resize()");
-    _resize_grid();
-}
-
-bool canvas::_on_draw(const cairo_context& cr) {
-    const core::dims& dims = _grid.dims();
-    const core::grid_state& state = _grid.state();
-
-    _draw_background(cr);
-    _draw_frame(cr, dims);
-    _draw_cells(cr, dims, state);
-    if (_cfg.use_borders) _draw_borders(cr, dims);
-    _draw_status(cr);
-
-    return false;
+    if (_cfg.adapt_to_window) _resize_grid();
 }
 
 bool canvas::_on_key_press(GdkEventKey* ev) {
@@ -76,96 +67,137 @@ bool canvas::_on_key_press(GdkEventKey* ev) {
         _ctrl.lock()->engine_restart();
     } else if (ev->keyval == GDK_KEY_Tab) {
         _ctrl.lock()->engine_shift_actions();
+    } else if (ev->keyval == GDK_KEY_i) {
+        _cfg.show_status = !_cfg.show_status;
     } else {
         return false;
     }
 
-    queue_draw();
     return true;
 }
 
 bool canvas::_on_mouse_press(GdkEventButton* ev) {
-    g_debug("canvas::on_mouse_press()");
+    g_debug("canvas::on_mouse_press(button=%d,type=%d)", ev->button, ev->type);
 
-    if (ev->type != GDK_BUTTON_PRESS) return false;
-
-    if (ev->button == 1) {  // left click
-        _is_drawing = true;
+    if (ev->button == 1 && ev->type == GDK_BUTTON_PRESS) {  // left click
+        _mouse_mode = mouse_modes::DRAW;
         if (!_handle_cell_press(ev->x, ev->y)) return false;
 
-    } else if (ev->button == 3) {  // right click
-        _is_erasing = true;
+    } else if (ev->button == 3 && ev->type == GDK_BUTTON_PRESS) {  // right click
+        _mouse_mode = mouse_modes::ERASE;
         if (!_handle_cell_press(ev->x, ev->y)) return false;
 
     } else if (ev->button == 2) {  // middle click
-        auto ctrl = _ctrl.lock();
-        if (!ctrl) return true;
-        ctrl->animation_toggle();
+        // if (ev->state & GdkModifierType::GDK_SHIFT_MASK) {
+        if (ev->type == GDK_BUTTON_PRESS && !_cfg.adapt_to_window) {
+            _mouse_mode = mouse_modes::SHIFT;
+            _last_shift_start = {ev->x, ev->y};
+        } else if (ev->type == GDK_DOUBLE_BUTTON_PRESS) {
+            auto ctrl = _ctrl.lock();
+            if (!ctrl) return true;
+            ctrl->animation_toggle();
+        }
 
     } else {
         return false;
     }
 
-    queue_draw();
     return true;
 }
 
-bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
-    /* g_debug("canvas::on_mouse_motion()"); */
+bool canvas::_on_mouse_release(GdkEventButton* ev) {
+    g_debug("canvas::on_mouse_release()");
 
-    if (_is_drawing || _is_erasing) {
-        if (!_handle_cell_press(ev->x, ev->y)) return false;
+    if ((ev->button == 1 && _mouse_mode == mouse_modes::DRAW) ||
+        (ev->button == 2 && _mouse_mode == mouse_modes::SHIFT) ||
+        (ev->button == 3 && _mouse_mode == mouse_modes::ERASE)) {
+        _mouse_mode = mouse_modes::NONE;
+        if (_mouse_mode == mouse_modes::SHIFT) {
+            _last_shift_start = {0, 0};
+        }
         return true;
     }
 
     return false;
 }
 
-bool canvas::_on_mouse_release(GdkEventButton* ev) {
-    g_debug("canvas::on_mouse_release()");
+bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
+    /* g_debug("canvas::on_mouse_motion()"); */
 
-    if (ev->button == 1 && _is_drawing) {
-        _is_drawing = false;
+    if (_mouse_mode == mouse_modes::DRAW || _mouse_mode == mouse_modes::ERASE) {
+        if (!_handle_cell_press(ev->x, ev->y)) return false;
         return true;
-    } else if (ev->button == 3 && _is_erasing) {
-        _is_erasing = false;
+    } else if (_mouse_mode == mouse_modes::SHIFT) {
+        _field_shift.x += ev->x - _last_shift_start.x;
+        _field_shift.y += ev->y - _last_shift_start.y;
+        _last_shift_start = {ev->x, ev->y};
         return true;
     }
+
+    return false;
+}
+
+bool canvas::_on_mouse_scroll(GdkEventScroll* ev) {
+    g_debug("canvas::on_mouse_scroll(%d)", ev->direction);
+
+    if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
+        _cfg.cell_width = std::min(_cfg.cell_width * defaults::scale_factor, defaults::max_cell_width);
+    } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
+        _cfg.cell_width = std::max(_cfg.cell_width / defaults::scale_factor, defaults::min_cell_width);
+    }
+
+    if (_cfg.adapt_to_window) _resize_grid();
+
+    return false;
+}
+
+bool canvas::_on_draw(const cairo_context& cr) {
+    const core::dims& size = _grid.size();
+    const core::grid_state& state = _grid.state();
+
+    _draw_background(cr);
+    _draw_frame(cr, size);
+    _draw_field(cr, size, state);
+    if (_cfg.show_borders) _draw_borders(cr, size);
+    if (_cfg.show_status) _draw_status(cr);
 
     return false;
 }
 
 void canvas::_draw_background(const cairo_context& cr) {
     cr->save();
+
     Gdk::Cairo::set_source_rgba(cr, _palette.surface_bg);
     cr->paint();
+
     cr->restore();
 }
 
-void canvas::_draw_frame(const cairo_context& cr, const core::dims& dims) {
+void canvas::_draw_frame(const cairo_context& cr, const core::dims& size) {
     cr->save();
-    Gdk::Cairo::set_source_rgba(cr, _palette.border);
-    cr->set_line_width(core::defaults::cell_border_width);
 
-    cr->rectangle(0, 0, _cfg.cell_width * dims.cols, _cfg.cell_width * dims.rows);
+    Gdk::Cairo::set_source_rgba(cr, _palette.border);
+    cr->set_line_width(defaults::cell_border_width);
+    _draw_shifted_rectangle(cr, 0, 0, _cfg.cell_width * size.cols, _cfg.cell_width * size.rows);
     cr->stroke();
 
     cr->restore();
 }
 
 // cell {0,0} is at the top-left corner of the screen
-void canvas::_draw_cells(const cairo_context& cr, const core::dims& dims, const core::grid_state& state) {
+void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const core::grid_state& state) {
     cr->save();
 
     const auto draw_cells_with_state = [&](std::uint8_t cell_state, const Gdk::RGBA& color) {
         Gdk::Cairo::set_source_rgba(cr, color);
-        for (size_t row = 0; row < dims.rows; ++row) {
-            for (size_t col = 0; col < dims.cols; ++col) {
+        for (size_t row = 0; row < size.rows; ++row) {
+            for (size_t col = 0; col < size.cols; ++col) {
                 if (state[row][col] == cell_state) {
-                    cr->rectangle(_cfg.cell_width * col,  //
-                                  _cfg.cell_width * row,  //
-                                  _cfg.cell_width,        //
-                                  _cfg.cell_width);
+                    _draw_shifted_rectangle(cr,                     //
+                                            _cfg.cell_width * col,  //
+                                            _cfg.cell_width * row,  //
+                                            _cfg.cell_width,        //
+                                            _cfg.cell_width);
                 }
             }
         }
@@ -179,36 +211,36 @@ void canvas::_draw_cells(const cairo_context& cr, const core::dims& dims, const 
     cr->restore();
 }
 
-void canvas::_draw_borders(const cairo_context& cr, const core::dims& dims) {
+void canvas::_draw_borders(const cairo_context& cr, const core::dims& size) {
     cr->save();
-    Gdk::Cairo::set_source_rgba(cr, _palette.border);
-    cr->set_line_width(core::defaults::cell_border_width);
 
-    size_t width = _cfg.cell_width * dims.cols, height = _cfg.cell_width * dims.rows;
+    Gdk::Cairo::set_source_rgba(cr, _palette.border);
+    cr->set_line_width(defaults::cell_border_width);
+
+    size_t width = _cfg.cell_width * size.cols, height = _cfg.cell_width * size.rows;
     double x = _cfg.cell_width, y = _cfg.cell_width;
 
-    for (size_t col = 0; col < dims.cols - 1; col++) {
-        cr->move_to(x, 0);
-        cr->line_to(x, height);
+    for (size_t col = 0; col < size.cols - 1; col++) {
+        _draw_shifted_line(cr, x, 0, x, height);
         x += _cfg.cell_width;
     }
-
-    for (size_t row = 0; row < dims.rows - 1; row++) {
-        cr->move_to(0, y);
-        cr->line_to(width, y);
+    for (size_t row = 0; row < size.rows - 1; row++) {
+        _draw_shifted_line(cr, 0, y, width, y);
         y += _cfg.cell_width;
     }
 
     cr->stroke();
+
     cr->restore();
 }
 
 void canvas::_draw_status(const cairo_context& cr) {
     cr->save();
-    cr->move_to(core::defaults::font_margin, core::defaults::font_margin + core::defaults::font_size);
+
+    cr->move_to(defaults::font_margin, defaults::font_margin + defaults::font_size);
 
     Gdk::Cairo::set_source_rgba(cr, _palette.surface_fg);
-    cr->set_font_size(core::defaults::font_size);
+    cr->set_font_size(defaults::font_size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
     cr->show_text(_ctrl.lock()->get_status());
 
@@ -218,7 +250,7 @@ void canvas::_draw_status(const cairo_context& cr) {
 bool canvas::_on_redraw_timeout() {
     /* g_debug("canvas::on_redraw_timeout()"); */
 
-    if (_is_drawing || _is_erasing) {
+    if (_mouse_mode == mouse_modes::DRAW || _mouse_mode == mouse_modes::ERASE) {
         int x, y;
         get_pointer(x, y);
         _handle_cell_press(x, y);
@@ -228,17 +260,27 @@ bool canvas::_on_redraw_timeout() {
     return true;
 }
 
-bool canvas::_handle_cell_press(int x, int y) {
-    size_t col = x / _cfg.cell_width;
-    size_t row = y / _cfg.cell_width;
+void canvas::_draw_shifted_rectangle(const cairo_context& cr, double x, double y, double width, double height) {
+    cr->rectangle(_field_shift.x + x, _field_shift.y + y, width, height);
+}
 
-    const core::dims& dims = _grid.dims();
-    if (row >= dims.rows || col >= dims.cols) return false;
+void canvas::_draw_shifted_line(const cairo_context& cr, double x_from, double y_from, double x_to, double y_to) {
+    cr->move_to(_field_shift.x + x_from, _field_shift.y + y_from);
+    cr->line_to(_field_shift.x + x_to, _field_shift.y + y_to);
+}
+
+bool canvas::_handle_cell_press(int x, int y) {
+    // NOTE: negative row/col values underflow and don't pass the check below
+    size_t col = (x - _field_shift.x) / _cfg.cell_width;
+    size_t row = (y - _field_shift.y) / _cfg.cell_width;
+
+    const core::dims& size = _grid.size();
+    if (row >= size.rows || col >= size.cols) return false;
 
     auto ctrl = _ctrl.lock();
-    if (_is_drawing) {
+    if (_mouse_mode == mouse_modes::DRAW) {
         ctrl->engine_action1(row, col);
-    } else if (_is_erasing) {
+    } else if (_mouse_mode == mouse_modes::ERASE) {
         ctrl->engine_action2(row, col);
     }
 
@@ -246,12 +288,10 @@ bool canvas::_handle_cell_press(int x, int y) {
 }
 
 void canvas::_resize_grid() {
-    core::dims size = _cfg.initial_size;
-
-    size.rows = size.rows ? size.rows : static_cast<size_t>(get_height() / _cfg.cell_width);
-    size.cols = size.cols ? size.cols : static_cast<size_t>(get_width() / _cfg.cell_width);
-
-    if (auto ctrl = _ctrl.lock()) ctrl->engine_resize(size);
+    auto ctrl = _ctrl.lock();
+    if (!ctrl) g_warning("failed to get controller to resize grid");
+    ctrl->engine_resize({static_cast<size_t>(get_height() / _cfg.cell_width),  //
+                         static_cast<size_t>(get_width() / _cfg.cell_width)});
 }
 
 }  // namespace automaton::app

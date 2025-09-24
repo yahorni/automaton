@@ -15,18 +15,18 @@ std::string life::description() const {
     return std::format("life[surface={},rule={},size={},step={}]",             //
                        options::surface::to_string(_surface_type),             //
                        options::life::to_string(_birth_mask, _survival_mask),  //
-                       _grid.dims(), _step);
+                       _grid.size(), _step);
 }
 
 bool life::step() {
-    const core::dims& dims = _grid.dims();
+    const core::dims& size = _grid.size();
     const core::grid_state& state = _grid.state();
     _new_state = {};
 
     if (_surface_type == core::surface_type::TORUS) {
-        _step_torus(dims, state);
+        _step_torus(size, state);
     } else {  // core::surface_type::PLAIN
-        _step_plain(dims, state);
+        _step_plain(size, state);
     }
 
     _grid.reset(_new_state);
@@ -35,15 +35,15 @@ bool life::step() {
     return true;
 }
 
-void life::_step_torus(const core::dims& dims, const core::grid_state& state) {
-    for (size_t row = 0; row < dims.rows; ++row) {
-        for (size_t col = 0; col < dims.cols; ++col) {
+void life::_step_torus(const core::dims& size, const core::grid_state& state) {
+    for (size_t row = 0; row < size.rows; ++row) {
+        for (size_t col = 0; col < size.cols; ++col) {
 
-            size_t prev_row = (row == 0 ? dims.rows - 1 : row - 1);
-            size_t prev_col = (col == 0 ? dims.cols - 1 : col - 1);
+            size_t prev_row = (row == 0 ? size.rows - 1 : row - 1);
+            size_t prev_col = (col == 0 ? size.cols - 1 : col - 1);
 
-            size_t next_row = (row == dims.rows - 1 ? 0 : row + 1);
-            size_t next_col = (col == dims.cols - 1 ? 0 : col + 1);
+            size_t next_row = (row == size.rows - 1 ? 0 : row + 1);
+            size_t next_col = (col == size.cols - 1 ? 0 : col + 1);
 
             std::uint8_t neighbours =        //
                 state[prev_row][prev_col] +  //
@@ -66,12 +66,12 @@ void life::_step_torus(const core::dims& dims, const core::grid_state& state) {
 }
 
 // Ugly calculations, be careful
-void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
+void life::_step_plain(const core::dims& size, const core::grid_state& state) {
     // use _new_state to temporarily calculate and store neighbours
     // all calculations are left->right & top->bottom
 
-    size_t last_row = dims.rows - 1;
-    size_t last_col = dims.cols - 1;
+    size_t last_row = size.rows - 1;
+    size_t last_col = size.cols - 1;
 
     // corners
     _new_state[0][0] =  //
@@ -84,29 +84,29 @@ void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
         state[last_row - 1][last_col - 1] + state[last_row - 1][last_col] + state[last_row][last_col - 1];
 
     // top line (row = 0)
-    for (size_t col = 1; col < dims.cols - 1; ++col) {
+    for (size_t col = 1; col < size.cols - 1; ++col) {
         _new_state[0][col] =                         //
             state[0][col - 1] + state[0][col + 1] +  //
             state[1][col - 1] + state[1][col] + state[1][col + 1];
     }
 
-    // bottom line (row = dims.rows - 1)
-    for (size_t col = 1; col < dims.cols - 1; ++col) {
+    // bottom line (row = size.rows - 1)
+    for (size_t col = 1; col < size.cols - 1; ++col) {
         _new_state[last_row][col] =                                                                   //
             state[last_row - 1][col - 1] + state[last_row - 1][col] + state[last_row - 1][col + 1] +  //
             state[last_row][col - 1] + state[last_row][col + 1];
     }
 
     // left column (col = 0)
-    for (size_t row = 1; row < dims.rows - 1; ++row) {
+    for (size_t row = 1; row < size.rows - 1; ++row) {
         _new_state[row][0] =                         //
             state[row - 1][0] + state[row - 1][1] +  //
             state[row][1] +                          //
             state[row + 1][0] + state[row + 1][1];
     }
 
-    // right column (col = dims.cols - 1)
-    for (size_t row = 1; row < dims.rows - 1; ++row) {
+    // right column (col = size.cols - 1)
+    for (size_t row = 1; row < size.rows - 1; ++row) {
         _new_state[row][last_col] =                                    //
             state[row - 1][last_col - 1] + state[row - 1][last_col] +  //
             state[row][last_col - 1] +                                 //
@@ -114,8 +114,8 @@ void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
     }
 
     // center
-    for (size_t row = 1; row < dims.rows - 1; ++row) {
-        for (size_t col = 1; col < dims.cols - 1; ++col) {
+    for (size_t row = 1; row < size.rows - 1; ++row) {
+        for (size_t col = 1; col < size.cols - 1; ++col) {
             _new_state[row][col] =         //
                 state[row - 1][col - 1] +  //
                 state[row - 1][col] +      //
@@ -129,8 +129,8 @@ void life::_step_plain(const core::dims& dims, const core::grid_state& state) {
     }
 
     // calculate state
-    for (size_t row = 0; row < dims.rows; ++row) {
-        for (size_t col = 0; col < dims.cols; ++col) {
+    for (size_t row = 0; row < size.rows; ++row) {
+        for (size_t col = 0; col < size.cols; ++col) {
             // _new_state[row][col] is overwritten here for each cell,
             // it's important to not mess neighbours with the new state
             if (state[row][col]) {
