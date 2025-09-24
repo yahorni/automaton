@@ -1,5 +1,6 @@
 #include "automaton/core/config.hpp"
 
+#include "automaton/core/defaults.hpp"
 #include "automaton/core/join_options.hpp"
 #include "automaton/core/life_rule.hpp"
 #include "automaton/core/surface_type.hpp"
@@ -10,30 +11,30 @@
 namespace automaton::core {
 
 std::tuple<bool, std::string> config::validate() const {
-    // ui
     if (!_validate_cell_width()) return {false, "cell-width"};
-    if (!_validate_pause()) return {false, "pause"};
-    // automaton
-    if (!_validate_engine()) return {false, "engine"};
-    if (!_validate_surface()) return {false, "surface"};
     if (!_validate_cols()) return {false, "cols"};
     if (!_validate_rows()) return {false, "rows"};
+
+    if (!_validate_engine()) return {false, "engine"};
+    if (!_validate_surface()) return {false, "surface"};
     if (!_validate_rule()) return {false, "rule"};
+
+    if (!_validate_pause()) return {false, "pause"};
 
     if (!_validate_surface_for_engine()) return {false, "surface"};
 
     return {true, ""};
 }
 
-// ui
-bool config::_validate_cell_width() const { return ui.cell_width > 0; }
-bool config::_validate_pause() const { return ui.animation_pause > 0; }
+bool config::_validate_cell_width() const {
+    return grid.cell_width > defaults::min_cell_width && grid.cell_width < defaults::max_cell_width;
+}
 
-// automaton
+bool config::_validate_cols() const { return grid.initial_cols >= 0; }
+bool config::_validate_rows() const { return grid.initial_rows >= 0; }
+
 bool config::_validate_engine() const { return options::engine::is_valid(automaton.engine); }
 bool config::_validate_surface() const { return options::surface::is_valid(automaton.surface); }
-bool config::_validate_cols() const { return automaton.initial_cols >= 0; }
-bool config::_validate_rows() const { return automaton.initial_rows >= 0; }
 
 bool config::_validate_rule() const {
     if (automaton.rule.empty()) return true;
@@ -47,6 +48,8 @@ bool config::_validate_rule() const {
         return automaton.rule.empty();
     }
 }
+
+bool config::_validate_pause() const { return animation.pause > 0; }
 
 bool config::_validate_surface_for_engine() const {
     engine_type engine = options::engine::from_string(automaton.engine);

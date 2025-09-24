@@ -9,7 +9,7 @@
 namespace automaton::core {
 
 using cell_state = std::uint8_t;
-using grid_state = std::array<std::array<cell_state, defaults::grid_max_rows>, defaults::grid_max_cols>;
+using grid_state = std::array<std::array<cell_state, defaults::grid::max_rows>, defaults::grid::max_cols>;
 
 class grid {
 public:
@@ -20,11 +20,11 @@ public:
     void resize(const core::dims& size);
     void reset(const grid_state& state);
 
-    const core::dims& dims() const;
+    const core::dims& size() const;
     const grid_state& state() const;
 
 private:
-    core::dims _dims{};
+    core::dims _size{defaults::grid::initial_rows, defaults::grid::initial_cols};
     grid_state _state{};
 };
 

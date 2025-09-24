@@ -28,8 +28,8 @@ private:
         size_t col;
         directions dir;
 
-        void rotate_and_move_torus(bool is_empty, const core::dims& dims);
-        void rotate_and_move_plain(bool is_empty, const core::dims& dims);
+        void rotate_and_move_torus(bool is_empty, const core::dims& size);
+        void rotate_and_move_plain(bool is_empty, const core::dims& size);
     };
 
     std::vector<_ant> _ants;

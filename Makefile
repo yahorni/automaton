@@ -33,7 +33,7 @@ sand:
 
 run-l: life
 life:
-	${AUTOMATON} -e life
+	${AUTOMATON} -e life --borders
 
 run-a: ant
 ant:

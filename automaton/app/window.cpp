@@ -19,10 +19,10 @@ namespace automaton::app {
 window::window()
     : _canvas(_grid) {
     set_title("Automaton");
-    set_default_size(core::defaults::window_width, core::defaults::window_height);
+    set_default_size(defaults::window_width, defaults::window_height);
     add(_frame);
 
-    _frame.property_margin() = core::defaults::window_margin;
+    _frame.property_margin() = defaults::window_margin;
     _frame.add(_canvas);
     _frame.property_visible() = true;
 
@@ -49,9 +49,9 @@ void window::_initialize() {
     case core::engine_type::WOLFRAM: {
         engine = std::make_unique<engines::wolfram>(  //
             _grid, _config.get_automaton_surface(), _config.get_wolfram_code());
-        if (_config.ui.animation) {
+        if (_config.animation.enable) {
             g_warning("window::initialize(): animation disabled for wolfram on start");
-            _config.ui.animation = false;
+            _config.animation.enable = false;
         }
         break;
     }
@@ -71,12 +71,16 @@ void window::_initialize() {
         break;
     }
 
-    auto animation_ = std::make_unique<animation>(_config.ui.animation_pause, _config.ui.animation);
+    auto animation_ = std::make_unique<animation>(_config.animation.pause, _config.animation.enable);
     _ctrl = std::make_shared<controller>(std::move(animation_), std::move(engine));
 
-    canvas_config cfg{_config.ui.cell_width,  //
-                      _config.ui.borders,     //
-                      {_config.automaton.initial_rows, _config.automaton.initial_cols}};
+    canvas_config cfg{
+        .initial_size = {_config.grid.initial_rows, _config.grid.initial_cols},
+        .cell_width = _config.grid.cell_width,
+        .show_borders = _config.grid.show_borders,
+        .show_status = defaults::enable_status,
+        .adapt_to_window = _config.grid.adapt_to_window,
+    };
     _canvas.initialize(cfg, _ctrl);
 }
 
@@ -89,8 +93,9 @@ bool window::_on_key_press(GdkEventKey* ev) {
     return false;
 }
 
-static Glib::OptionGroup _add_ui_group(core::config::ui_group*);
+static Glib::OptionGroup _add_grid_group(core::config::grid_group*);
 static Glib::OptionGroup _add_automaton_group(core::config::automaton_group*);
+static Glib::OptionGroup _add_animation_group(core::config::animation_group*);
 
 bool window::_parse_command_line(const app_cli_ptr& cli) {
     g_debug("window::parse_command_line()");
@@ -98,11 +103,14 @@ bool window::_parse_command_line(const app_cli_ptr& cli) {
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
     Glib::OptionContext ctx;
 
-    auto main_group = _add_ui_group(&_config.ui);
-    ctx.add_group(main_group);
+    auto grid_group = _add_grid_group(&_config.grid);
+    ctx.add_group(grid_group);
 
-    auto wolfram_group = _add_automaton_group(&_config.automaton);
-    ctx.add_group(wolfram_group);
+    auto automaton_group = _add_automaton_group(&_config.automaton);
+    ctx.add_group(automaton_group);
+
+    auto animation_group = _add_animation_group(&_config.animation);
+    ctx.add_group(animation_group);
 
     // add GTK options, --help-gtk, etc
     Glib::OptionGroup gtkgroup(gtk_get_option_group(true));
@@ -130,12 +138,13 @@ bool window::_parse_command_line(const app_cli_ptr& cli) {
     return true;
 }
 
-static Glib::OptionGroup _add_ui_group(core::config::ui_group* opts) {
+static Glib::OptionGroup _add_grid_group(core::config::grid_group* opts) {
     // NOTE:
     // https://gitlab.gnome.org/GNOME/glibmm/-/blob/glibmm-2-64/examples/options/main.cc
-    Glib::OptionGroup group("options", "Main options");
+    Glib::OptionGroup group("options", "Grid options");
+    Glib::OptionEntry entry;
 
-    auto entry = Glib::OptionEntry();
+    entry = Glib::OptionEntry();
     entry.set_short_name('w');
     entry.set_long_name("cell-width");
     entry.set_arg_description("NUMBER");
@@ -143,45 +152,10 @@ static Glib::OptionGroup _add_ui_group(core::config::ui_group* opts) {
     group.add_entry(entry, opts->cell_width);
 
     entry = Glib::OptionEntry();
-    entry.set_short_name('p');
-    entry.set_long_name("pause");
-    entry.set_arg_description("NUMBER");
-    entry.set_description(
-        Glib::ustring::compose("Sets pause between animation steps in ms. Default: %1", opts->animation_pause));
-    group.add_entry(entry, opts->animation_pause);
-
-    entry = Glib::OptionEntry();
-    entry.set_short_name('a');
-    entry.set_long_name("animation");
-    entry.set_description(Glib::ustring::compose("Enable animation on start. Default: %1", opts->animation));
-    group.add_entry(entry, opts->animation);
-
-    entry = Glib::OptionEntry();
     entry.set_short_name('b');
     entry.set_long_name("borders");
-    entry.set_description("Draw borders between cells in grid");
-    group.add_entry(entry, opts->borders);
-
-    return group;
-}
-
-static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opts) {
-    Glib::OptionGroup group("automaton", "Automaton options");
-
-    auto entry = Glib::OptionEntry();
-    entry.set_short_name('e');
-    entry.set_long_name("engine");
-    entry.set_arg_description("STRING");
-    entry.set_description(Glib::ustring::compose("Grid engine. Options: %1. Default: %2",
-                                                 core::config::get_engine_options(), opts->engine));
-    group.add_entry_filename(entry, opts->engine);
-
-    entry = Glib::OptionEntry();
-    entry.set_short_name('s');
-    entry.set_long_name("surface");
-    entry.set_arg_description("STRING");
-    entry.set_description(Glib::ustring::compose("Surface. Options: %1", core::config::get_surface_options()));
-    group.add_entry_filename(entry, opts->surface);
+    entry.set_description("Show borders between cells in grid");
+    group.add_entry(entry, opts->show_borders);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('c');
@@ -200,6 +174,33 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     group.add_entry(entry, opts->initial_rows);
 
     entry = Glib::OptionEntry();
+    entry.set_long_name("adapt");
+    entry.set_description("Adapt grid size to window");
+    group.add_entry(entry, opts->adapt_to_window);
+
+    return group;
+}
+
+static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opts) {
+    Glib::OptionGroup group("automaton", "Automaton options");
+    Glib::OptionEntry entry;
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('e');
+    entry.set_long_name("engine");
+    entry.set_arg_description("STRING");
+    entry.set_description(Glib::ustring::compose(  //
+        "Grid engine. Options: %1. Default: %2", core::config::get_engine_options(), opts->engine));
+    group.add_entry_filename(entry, opts->engine);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('s');
+    entry.set_long_name("surface");
+    entry.set_arg_description("STRING");
+    entry.set_description(Glib::ustring::compose("Surface. Options: %1", core::config::get_surface_options()));
+    group.add_entry_filename(entry, opts->surface);
+
+    entry = Glib::OptionEntry();
     entry.set_long_name("rule");
     entry.set_arg_description("STRING");
     entry.set_description(Glib::ustring::compose(  //
@@ -207,8 +208,28 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     For wolfram: number from 0 to 255. Default: %1
     For Game of Life: uses Hensel notation. Default: %2
     Presets can be used for Game of Life: %3)",
-        core::defaults::wolfram_code, core::defaults::life_rule, core::config::get_life_presets()));
+        defaults::wolfram_code, defaults::life_rule, core::config::get_life_presets()));
     group.add_entry_filename(entry, opts->rule);
+
+    return group;
+}
+
+static Glib::OptionGroup _add_animation_group(core::config::animation_group* opts) {
+    Glib::OptionGroup group("animation", "Animation options");
+    Glib::OptionEntry entry;
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('p');
+    entry.set_long_name("pause");
+    entry.set_arg_description("NUMBER");
+    entry.set_description(Glib::ustring::compose("Sets pause between animation steps in ms. Default: %1", opts->pause));
+    group.add_entry(entry, opts->pause);
+
+    entry = Glib::OptionEntry();
+    entry.set_short_name('a');
+    entry.set_long_name("animation");
+    entry.set_description(Glib::ustring::compose("Enable animation on start. Default: %1", opts->enable));
+    group.add_entry(entry, opts->enable);
 
     return group;
 }

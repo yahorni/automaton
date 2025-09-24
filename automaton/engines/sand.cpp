@@ -12,16 +12,16 @@ sand::sand(core::grid& grid, core::surface_type surface)
 
 std::string sand::description() const {
     return std::format("sand[surface={},size={},step={}]",  //
-                       options::surface::to_string(_surface_type), _grid.dims(), _step);
+                       options::surface::to_string(_surface_type), _grid.size(), _step);
 }
 
 /* The implementation isn't perfect, but for now it's OK */
 bool sand::step() {
-    const core::dims& dims = _grid.dims();
+    const core::dims& size = _grid.size();
     const core::grid_state& data = _grid.state();
 
-    for (size_t row = dims.rows - 2; row != static_cast<size_t>(-1); --row) {
-        for (size_t col = 0; col < dims.cols; ++col) {
+    for (size_t row = size.rows - 2; row != static_cast<size_t>(-1); --row) {
+        for (size_t col = 0; col < size.cols; ++col) {
             if (!data[row][col]) continue;
 
             switch (static_cast<blocks>(data[row][col])) {
@@ -34,11 +34,11 @@ bool sand::step() {
 
                 size_t prev_col, next_col;
                 if (_surface_type == core::surface_type::CYLINDER) {
-                    prev_col = (col == 0 ? dims.cols - 1 : col - 1);
-                    next_col = (col == dims.cols - 1 ? 0 : col + 1);
+                    prev_col = (col == 0 ? size.cols - 1 : col - 1);
+                    next_col = (col == size.cols - 1 ? 0 : col + 1);
                 } else {  // core::surface_type::PLAIN
                     prev_col = (col == 0 ? 0 : col - 1);
-                    next_col = (col == dims.cols - 1 ? col : col + 1);
+                    next_col = (col == size.cols - 1 ? col : col + 1);
                 }
 
                 bool is_left_free = !data[row + 1][prev_col];
