@@ -20,6 +20,8 @@ public:
     void action2(size_t row, size_t col) override;
     void shift_actions() override;
 
+    void resize(const core::dims& size) override;
+
 private:
     enum class directions { UP, DOWN, LEFT, RIGHT };
 

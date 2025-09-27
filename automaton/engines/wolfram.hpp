@@ -14,10 +14,17 @@ public:
     void restart() override;
     void clear() override;
 
+    void action1(size_t row, size_t col) override;
+    void action2(size_t row, size_t col) override;
+
 private:
+    void highlight_row();
+    void dehighlight_row();
+
     std::uint8_t _code;
 
-    size_t _current_row = 0;
+    static constexpr size_t no_row_selected = -1;
+    size_t _current_row = no_row_selected;
 };
 
 }  // namespace automaton::engines

@@ -25,7 +25,7 @@ debug: debug-s
 
 run-w: wolfram
 wolfram:
-	${AUTOMATON} -e wolfram --rule 110 --cell-width 6
+	${AUTOMATON} -e wolfram --rule 30 --cell-width 6
 
 run-s: sand
 sand:
