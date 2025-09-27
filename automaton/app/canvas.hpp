@@ -5,17 +5,25 @@
 
 #include <gtkmm/drawingarea.h>
 
+#include <vector>
+
 namespace automaton::app {
 
 class controller;
 
+// TODO: move colors to defaults.hpp
 struct palette {
-    Gdk::RGBA surface_bg{"#fbfbfb"};
-    Gdk::RGBA surface_fg{"#ff0000"};
+    Gdk::RGBA background{"#c0c0c0"};
+    Gdk::RGBA font{"#ff0000"};
     Gdk::RGBA border{"#000000"};
-    Gdk::RGBA cell_state1{"#ffa500"};
-    Gdk::RGBA cell_state2{"#008080"};
-    Gdk::RGBA cell_state3{"#8b0000"};
+    std::vector<Gdk::RGBA> cell_states = {
+        // clang-format off
+        Gdk::RGBA{"#fbfbfb"},
+        Gdk::RGBA{"#ffa500"},
+        Gdk::RGBA{"#008080"},
+        Gdk::RGBA{"#8b0000"}
+        // clang-format on
+    };
 };
 
 struct canvas_config {

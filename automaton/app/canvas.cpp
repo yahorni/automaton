@@ -181,7 +181,7 @@ bool canvas::_on_draw(const cairo_context& cr) {
 void canvas::_draw_background(const cairo_context& cr) {
     cr->save();
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.surface_bg);
+    Gdk::Cairo::set_source_rgba(cr, _palette.background);
     cr->paint();
 
     cr->restore();
@@ -218,9 +218,8 @@ void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const 
         cr->fill();
     };
 
-    draw_cells_with_state(1, _palette.cell_state1);
-    draw_cells_with_state(2, _palette.cell_state2);
-    draw_cells_with_state(3, _palette.cell_state3);
+    for (size_t i = 0; i < _palette.cell_states.size(); ++i)
+        draw_cells_with_state(i, _palette.cell_states[i]);
 
     cr->restore();
 }
@@ -253,7 +252,7 @@ void canvas::_draw_status(const cairo_context& cr) {
 
     cr->move_to(defaults::font_margin, defaults::font_margin + defaults::font_size);
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.surface_fg);
+    Gdk::Cairo::set_source_rgba(cr, _palette.font);
     cr->set_font_size(defaults::font_size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
     cr->show_text(_ctrl.lock()->get_status());
