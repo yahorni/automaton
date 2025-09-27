@@ -91,6 +91,12 @@ void ant::action2(size_t row, size_t col) {
 
 void ant::shift_actions() { _ant_actions = !_ant_actions; }
 
+void ant::resize(const core::dims& size) {
+    engine::resize(size);
+    const core::dims& new_size = _grid.size();
+    std::erase_if(_ants, [&new_size](const _ant& a) { return a.row >= new_size.rows || a.col >= new_size.cols; });
+}
+
 void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& size) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
         dir = directions::RIGHT;
