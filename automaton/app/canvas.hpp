@@ -75,7 +75,7 @@ private:
     enum class mouse_modes { NONE, DRAW, ERASE, SHIFT } _mouse_mode;
     struct {
         double x, y;
-    } _field_shift{0, 0}, _last_shift_start{0, 0};
+    } _field_at{0, 0}, _last_shift_start{0, 0};
 
     sigc::connection _redraw_connection;
 };

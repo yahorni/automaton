@@ -26,7 +26,7 @@ bool life::step() {
 
     if (_surface_type == core::surface_type::TORUS) {
         _step_torus(size, state);
-    } else {  // core::surface_type::PLAIN
+    } else {
         _step_plain(size, state);
     }
 
