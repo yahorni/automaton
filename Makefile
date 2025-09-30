@@ -29,7 +29,7 @@ wolfram:
 
 run-s: sand
 sand:
-	${AUTOMATON} -e sand --pause 50 --animation
+	${AUTOMATON} -e sand --pause 50 --animation --borders
 
 run-l: life
 life:

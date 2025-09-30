@@ -15,14 +15,13 @@ public:
 
     void action1(size_t row, size_t col) override;
     void action2(size_t row, size_t col) override;
-    // TODO: shift action to draw a line, not cells
 
 private:
-    void highlight_row();
-    void dehighlight_row();
+    void _highlight_row();
+    void _dehighlight_row();
 
-    uint8_t step_cylinder(const core::dims& size, const core::grid_state& state, size_t col);
-    uint8_t step_plain(const core::dims& size, const core::grid_state& state, size_t col);
+    uint8_t _step_cylinder(const core::dims& size, const core::grid_state& state, size_t col);
+    uint8_t _step_plain(const core::dims& size, const core::grid_state& state, size_t col);
 
     uint8_t _code;
 

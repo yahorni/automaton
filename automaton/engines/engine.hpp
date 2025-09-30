@@ -32,6 +32,7 @@ public:
         _grid.clear();
     }
 
+    // TODO: merge into `void action(uint8_t type, size_t row, size_t col)`
     virtual void action1(size_t row, size_t col) { _grid.set(row, col, 1); }
     virtual void action2(size_t row, size_t col) { _grid.set(row, col, 0); }
     virtual void shift_actions() {}

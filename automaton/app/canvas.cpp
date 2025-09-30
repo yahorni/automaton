@@ -3,14 +3,13 @@
 #include "automaton/app/controller.hpp"
 #include "automaton/core/defaults.hpp"
 #include "automaton/core/grid.hpp"
-#include "glib.h"
 
 #include <cairomm/fontface.h>
-#include <gdk/gdk.h>
 #include <gdkmm/general.h>
 #include <gdkmm/rgba.h>
 #include <glibmm/main.h>
 
+#include <format>
 #include <memory>
 #include <string>
 
@@ -127,8 +126,8 @@ bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
         if (!_handle_cell_press(ev->x, ev->y)) return false;
         return true;
     } else if (_mouse_mode == mouse_modes::SHIFT) {
-        _field_shift.x += ev->x - _last_shift_start.x;
-        _field_shift.y += ev->y - _last_shift_start.y;
+        _field_at.x += ev->x - _last_shift_start.x;
+        _field_at.y += ev->y - _last_shift_start.y;
         _last_shift_start = {ev->x, ev->y};
         return true;
     }
@@ -139,7 +138,7 @@ bool canvas::_on_mouse_motion(GdkEventMotion* ev) {
 bool canvas::_on_mouse_scroll(GdkEventScroll* ev) {
     g_debug("canvas::on_mouse_scroll(%d)", ev->direction);
 
-    if (ev->state & GdkModifierType::GDK_SHIFT_MASK && !_cfg.adapt_to_window) {
+    if (ev->state & GdkModifierType::GDK_CONTROL_MASK && !_cfg.adapt_to_window) {
         // change grid size
         core::dims size = _grid.size();
         auto ctrl = _ctrl.lock();
@@ -151,13 +150,22 @@ bool canvas::_on_mouse_scroll(GdkEventScroll* ev) {
             size.cols--;
         }
         ctrl->engine_resize(size);
-    } else {
+    } else if (ev->state & GdkModifierType::GDK_SHIFT_MASK) {
         // change cell width
+        if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
+            _cfg.cell_width = std::min(_cfg.cell_width + 0.1, defaults::max_cell_width);
+        } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
+            _cfg.cell_width = std::max(_cfg.cell_width - 0.1, defaults::min_cell_width);
+        }
+    } else {
+        // change cell width quickly
         if (ev->direction == GdkScrollDirection::GDK_SCROLL_UP) {
             _cfg.cell_width = std::min(_cfg.cell_width * defaults::scale_factor, defaults::max_cell_width);
         } else if (ev->direction == GdkScrollDirection::GDK_SCROLL_DOWN) {
             _cfg.cell_width = std::max(_cfg.cell_width / defaults::scale_factor, defaults::min_cell_width);
         }
+        constexpr auto precision = 100;
+        _cfg.cell_width = std::round(_cfg.cell_width * precision) / precision;
     }
 
     if (_cfg.adapt_to_window) _resize_grid();
@@ -255,7 +263,9 @@ void canvas::_draw_status(const cairo_context& cr) {
     Gdk::Cairo::set_source_rgba(cr, _palette.font);
     cr->set_font_size(defaults::font_size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
-    cr->show_text(_ctrl.lock()->get_status());
+    cr->show_text(std::format("{}, cell_width={:.3f}, field_at=[{:.3f}x{:.3f}]",  //
+                              _ctrl.lock()->get_status(), _cfg.cell_width,        //
+                              _field_at.x, _field_at.y));
 
     cr->restore();
 }
@@ -274,18 +284,18 @@ bool canvas::_on_redraw_timeout() {
 }
 
 void canvas::_draw_shifted_rectangle(const cairo_context& cr, double x, double y, double width, double height) {
-    cr->rectangle(_field_shift.x + x, _field_shift.y + y, width, height);
+    cr->rectangle(_field_at.x + x, _field_at.y + y, width, height);
 }
 
 void canvas::_draw_shifted_line(const cairo_context& cr, double x_from, double y_from, double x_to, double y_to) {
-    cr->move_to(_field_shift.x + x_from, _field_shift.y + y_from);
-    cr->line_to(_field_shift.x + x_to, _field_shift.y + y_to);
+    cr->move_to(_field_at.x + x_from, _field_at.y + y_from);
+    cr->line_to(_field_at.x + x_to, _field_at.y + y_to);
 }
 
 bool canvas::_handle_cell_press(int x, int y) {
     // NOTE: negative row/col values underflow and don't pass the check below
-    size_t col = (x - _field_shift.x) / _cfg.cell_width;
-    size_t row = (y - _field_shift.y) / _cfg.cell_width;
+    size_t col = (x - _field_at.x) / _cfg.cell_width;
+    size_t row = (y - _field_at.y) / _cfg.cell_width;
 
     const core::dims& size = _grid.size();
     if (row >= size.rows || col >= size.cols) return false;
@@ -303,7 +313,7 @@ bool canvas::_handle_cell_press(int x, int y) {
 void canvas::_resize_grid() {
     auto ctrl = _ctrl.lock();
     // TODO: add checks for all locks()
-    if (!ctrl) g_warning("failed to get controller to resize grid");
+    if (!ctrl) g_warning("Failed to get controller to resize grid");
     ctrl->engine_resize({static_cast<size_t>(get_height() / _cfg.cell_width),  //
                          static_cast<size_t>(get_width() / _cfg.cell_width)});
 }
