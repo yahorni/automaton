@@ -89,11 +89,11 @@ surface_type config::get_automaton_surface() const {
     }
 }
 
-std::tuple<std::uint16_t, std::uint16_t> config::get_life_rule() const {
+std::tuple<uint16_t, uint16_t> config::get_life_rule() const {
     return options::life::from_string(automaton.rule.empty() ? defaults::life_rule : automaton.rule);
 }
 
-std::uint8_t config::get_wolfram_code() const {
+uint8_t config::get_wolfram_code() const {
     return automaton.rule.empty() ? defaults::wolfram_code : std::stoi(automaton.rule);
 }
 

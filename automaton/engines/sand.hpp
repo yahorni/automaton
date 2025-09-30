@@ -1,6 +1,5 @@
 #pragma once
 
-#include "automaton/core/grid.hpp"
 #include "automaton/engines/engine.hpp"
 
 #include <random>
@@ -9,7 +8,7 @@ namespace automaton::engines {
 
 class sand : public engine {
 public:
-    sand(core::grid& grid, core::surface_type surface);
+    sand(parameters& params);
     std::string description() const override;
 
     bool step() override;

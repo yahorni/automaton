@@ -1,13 +1,14 @@
 #include "automaton/engines/life.hpp"
 
+#include "automaton/core/engine_type.hpp"
 #include "automaton/core/life_rule.hpp"
 
 #include <format>
 
 namespace automaton::engines {
 
-life::life(core::grid& grid, core::surface_type surface, std::uint16_t birth_mask, std::uint16_t survival_mask)
-    : engine(grid, core::engine_type::LIFE, surface),
+life::life(parameters& params, uint16_t birth_mask, uint16_t survival_mask)
+    : engine(core::engine_type::LIFE, params),
       _birth_mask(birth_mask),
       _survival_mask(survival_mask) {}
 
@@ -45,7 +46,7 @@ void life::_step_torus(const core::dims& size, const core::grid_state& state) {
             size_t next_row = (row == size.rows - 1 ? 0 : row + 1);
             size_t next_col = (col == size.cols - 1 ? 0 : col + 1);
 
-            std::uint8_t neighbours =        //
+            uint8_t neighbours =             //
                 state[prev_row][prev_col] +  //
                 state[prev_row][col] +       //
                 state[prev_row][next_col] +  //

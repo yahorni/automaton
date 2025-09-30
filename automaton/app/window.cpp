@@ -4,6 +4,7 @@
 #include "automaton/app/controller.hpp"
 #include "automaton/core/defaults.hpp"
 #include "automaton/engines/ant.hpp"
+#include "automaton/engines/engine.hpp"
 #include "automaton/engines/life.hpp"
 #include "automaton/engines/sand.hpp"
 #include "automaton/engines/wolfram.hpp"
@@ -44,31 +45,35 @@ void window::_initialize() {
     g_debug("window::initialize(engine='%s',surface='%s')",  //
             _config.automaton.engine.c_str(), _config.automaton.surface.c_str());
 
+    engines::parameters engine_params{_config.get_automaton_surface(), _grid};
     engine_ptr engine;
+
     switch (_config.get_automaton_engine()) {
     case core::engine_type::WOLFRAM: {
-        engine = std::make_unique<engines::wolfram>(  //
-            _grid, _config.get_automaton_surface(), _config.get_wolfram_code());
+        engine = std::make_unique<engines::wolfram>(engine_params, _config.get_wolfram_code());
         if (_config.animation.enable) {
             g_warning("window::initialize(): animation disabled for wolfram on start");
             _config.animation.enable = false;
         }
         break;
     }
-    case core::engine_type::SAND:
-        engine = std::make_unique<engines::sand>(_grid, _config.get_automaton_surface());
-        break;
-    case core::engine_type::LIFE: {
-        const auto [birth, survival] = _config.get_life_rule();
-        engine = std::make_unique<engines::life>(_grid, _config.get_automaton_surface(), birth, survival);
+    case core::engine_type::SAND: {
+        engine = std::make_unique<engines::sand>(engine_params);
         break;
     }
-    case core::engine_type::ANT:
-        engine = std::make_unique<engines::ant>(_grid, _config.get_automaton_surface());
+    case core::engine_type::LIFE: {
+        const auto [birth, survival] = _config.get_life_rule();
+        engine = std::make_unique<engines::life>(engine_params, birth, survival);
         break;
-    default:
+    }
+    case core::engine_type::ANT: {
+        engine = std::make_unique<engines::ant>(engine_params);
+        break;
+    }
+    default: {
         std::unreachable();
         break;
+    }
     }
 
     auto animation_ = std::make_unique<animation>(_config.animation.pause, _config.animation.enable);

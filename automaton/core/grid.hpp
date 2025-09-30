@@ -8,7 +8,7 @@
 
 namespace automaton::core {
 
-using cell_state = std::uint8_t;
+using cell_state = uint8_t;
 using grid_state = std::array<std::array<cell_state, defaults::grid::max_rows>, defaults::grid::max_cols>;
 
 class grid {

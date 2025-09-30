@@ -1,12 +1,14 @@
 #include "automaton/engines/sand.hpp"
 
+#include "automaton/core/engine_type.hpp"
+
 #include <format>
 #include <utility>
 
 namespace automaton::engines {
 
-sand::sand(core::grid& grid, core::surface_type surface)
-    : engine(grid, core::engine_type::SAND, surface),
+sand::sand(parameters& params)
+    : engine(core::engine_type::SAND, params),
       _re(std::mt19937(std::random_device{}())),
       _dist(std::bernoulli_distribution()) {}
 

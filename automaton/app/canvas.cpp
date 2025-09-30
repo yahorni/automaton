@@ -202,7 +202,7 @@ void canvas::_draw_frame(const cairo_context& cr, const core::dims& size) {
 void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const core::grid_state& state) {
     cr->save();
 
-    const auto draw_cells_with_state = [&](std::uint8_t cell_state, const Gdk::RGBA& color) {
+    const auto draw_cells_with_state = [&](uint8_t cell_state, const Gdk::RGBA& color) {
         Gdk::Cairo::set_source_rgba(cr, color);
         for (size_t row = 0; row < size.rows; ++row) {
             for (size_t col = 0; col < size.cols; ++col) {

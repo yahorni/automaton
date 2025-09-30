@@ -35,8 +35,8 @@ struct config {
 
     engine_type get_automaton_engine() const;
     surface_type get_automaton_surface() const;
-    std::tuple<std::uint16_t, std::uint16_t> get_life_rule() const;
-    std::uint8_t get_wolfram_code() const;
+    std::tuple<uint16_t, uint16_t> get_life_rule() const;
+    uint8_t get_wolfram_code() const;
 
     static std::string get_engine_options();
     static std::string get_surface_options();
