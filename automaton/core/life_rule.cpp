@@ -14,10 +14,10 @@ bool is_valid(const std::string& rule) {
     return std::regex_match(rule, henselRegex);
 }
 
-std::tuple<std::uint16_t, std::uint16_t> from_string(const std::string& rule) {
+std::tuple<uint16_t, uint16_t> from_string(const std::string& rule) {
     std::string_view hensel = (presets.contains(rule) ? presets.at(rule) : rule);
 
-    std::uint16_t birth = 0, survival = 0;
+    uint16_t birth = 0, survival = 0;
     size_t i = 0;
     for (; hensel[i] != '/'; ++i) {
         birth |= (1 << (hensel[i] - '0'));
@@ -28,7 +28,7 @@ std::tuple<std::uint16_t, std::uint16_t> from_string(const std::string& rule) {
     return std::tie(birth, survival);
 }
 
-std::string to_string(std::uint16_t birth_mask, std::uint16_t survival_mask) {
+std::string to_string(uint16_t birth_mask, uint16_t survival_mask) {
     std::string rule = "B";
     for (int i = 0; i < 9; ++i) {
         if (birth_mask & (1 << i)) rule += static_cast<char>(i + '0');

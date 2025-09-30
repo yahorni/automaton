@@ -28,9 +28,9 @@ const std::map<std::string_view, std::string_view> presets{
 bool is_valid(const std::string& rule);
 
 // should be already validated
-std::tuple<std::uint16_t, std::uint16_t> from_string(const std::string& rule);
+std::tuple<uint16_t, uint16_t> from_string(const std::string& rule);
 
-std::string to_string(std::uint16_t birth_mask, std::uint16_t survival_mask);
+std::string to_string(uint16_t birth_mask, uint16_t survival_mask);
 
 std::string get_preset_names();
 

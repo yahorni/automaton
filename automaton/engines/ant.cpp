@@ -1,12 +1,14 @@
 #include "automaton/engines/ant.hpp"
 
+#include "automaton/core/engine_type.hpp"
+
 #include <algorithm>
 #include <format>
 
 namespace automaton::engines {
 
-ant::ant(core::grid& grid, core::surface_type surface)
-    : engine(grid, core::engine_type::ANT, surface) {}
+ant::ant(parameters& params)
+    : engine(core::engine_type::ANT, params) {}
 
 std::string ant::description() const {
     return std::format("ant[surface={},action={},size={},step={}]",  //
@@ -23,11 +25,11 @@ bool ant::step() {
     // update ants
     if (_surface_type == core::surface_type::TORUS) {
         for (auto& a : _ants) {
-            a.rotate_and_move_torus(state[a.row][a.col] & 0b01, size);
+            a.rotate_and_move_torus(size, state[a.row][a.col] & 0b01);
         }
     } else {
         for (auto& a : _ants) {
-            a.rotate_and_move_plain(state[a.row][a.col] & 0b01, size);
+            a.rotate_and_move_plain(size, state[a.row][a.col] & 0b01);
         }
     }
 
@@ -97,7 +99,7 @@ void ant::resize(const core::dims& size) {
     std::erase_if(_ants, [&new_size](const _ant& a) { return a.row >= new_size.rows || a.col >= new_size.cols; });
 }
 
-void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& size) {
+void ant::_ant::rotate_and_move_torus(const core::dims& size, bool is_empty) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
         dir = directions::RIGHT;
         col = (col == size.cols - 1 ? 0 : col + 1);
@@ -113,7 +115,7 @@ void ant::_ant::rotate_and_move_torus(bool is_empty, const core::dims& size) {
     }
 }
 
-void ant::_ant::rotate_and_move_plain(bool is_empty, const core::dims& size) {
+void ant::_ant::rotate_and_move_plain(const core::dims& size, bool is_empty) {
     if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
         dir = directions::RIGHT;
         if (col < size.cols) col++;

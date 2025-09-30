@@ -1,11 +1,13 @@
 #include "automaton/engines/wolfram.hpp"
 
+#include "automaton/core/engine_type.hpp"
+
 #include <format>
 
 namespace automaton::engines {
 
-wolfram::wolfram(core::grid& grid, core::surface_type surface, std::uint8_t code)
-    : engine(grid, core::engine_type::WOLFRAM, surface),
+wolfram::wolfram(parameters& params, uint8_t code)
+    : engine(core::engine_type::WOLFRAM, params),
       _code(code) {}
 
 std::string wolfram::description() const {
@@ -67,19 +69,11 @@ bool wolfram::step() {
 
     // calculate new state of the next row
     for (size_t col = 0; col < size.cols; col++) {
-        std::uint8_t combination = 0;
-
+        uint8_t combination;
         if (_surface_type == core::surface_type::CYLINDER) {
-            size_t prev_col = (col == 0 ? size.cols - 1 : col - 1);
-            size_t next_col = (col == size.cols - 1 ? 0 : col + 1);
-
-            if (state[_current_row][prev_col] == FILLED) combination |= 0b001;
-            if (state[_current_row][col] == FILLED) combination |= 0b010;
-            if (state[_current_row][next_col] == FILLED) combination |= 0b100;
-        } else {  // core::surface_type::PLAIN
-            if (col != 0 && state[_current_row][col - 1] == FILLED) combination |= 0b001;
-            if (state[_current_row][col] == FILLED) combination |= 0b010;
-            if (col != size.cols - 1 && state[_current_row][col + 1] == FILLED) combination |= 0b100;
+            combination = step_cylinder(size, state, col);
+        } else {
+            combination = step_plain(size, state, col);
         }
 
         if ((_code >> combination) & 0b1) _grid.set(_current_row + 1, col, states::FILLED);
@@ -90,6 +84,21 @@ bool wolfram::step() {
 
     _step++;
     return true;
+}
+
+uint8_t wolfram::step_cylinder(const core::dims& size, const core::grid_state& state, size_t col) {
+    size_t prev_col = (col == 0 ? size.cols - 1 : col - 1);
+    size_t next_col = (col == size.cols - 1 ? 0 : col + 1);
+
+    return (state[_current_row][prev_col] == FILLED) |      // 0b001
+           (state[_current_row][col] == FILLED) << 1 |      // 0b010
+           (state[_current_row][next_col] == FILLED) << 2;  // 0b100
+}
+
+uint8_t wolfram::step_plain(const core::dims& size, const core::grid_state& state, size_t col) {
+    return (col != 0 && state[_current_row][col - 1] == FILLED) |                  // 0b001
+           (state[_current_row][col] == FILLED) << 1 |                             // 0b010
+           (col != size.cols - 1 && state[_current_row][col + 1] == FILLED) << 2;  // 0b100
 }
 
 void wolfram::restart() {

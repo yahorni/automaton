@@ -9,12 +9,17 @@
 
 namespace automaton::engines {
 
+struct parameters {
+    core::surface_type surface_type;
+    core::grid& grid;
+};
+
 class engine {
 public:
-    engine(core::grid& grid, core::engine_type engine_type, core::surface_type surface_type)
-        : _grid(grid),
-          _engine_type(engine_type),
-          _surface_type(surface_type) {}
+    engine(core::engine_type engine_type, parameters& params)
+        : _engine_type(engine_type),
+          _surface_type(params.surface_type),
+          _grid(params.grid) {}
     virtual ~engine() = default;
 
     virtual std::string description() const = 0;
@@ -34,9 +39,9 @@ public:
     virtual void resize(const core::dims& size) { _grid.resize(size); }
 
 protected:
+    const core::engine_type _engine_type;
+    const core::surface_type _surface_type;
     core::grid& _grid;
-    core::engine_type _engine_type;
-    core::surface_type _surface_type;
 
     size_t _step = 0;
 };
