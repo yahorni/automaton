@@ -76,8 +76,8 @@ void window::_initialize() {
     }
     }
 
-    auto animation_ = std::make_unique<animation>(_config.animation.pause, _config.animation.enable);
-    _ctrl = std::make_shared<controller>(std::move(animation_), std::move(engine));
+    _ctrl = std::make_shared<controller>(std::make_unique<animation>(_config.animation.pause, _config.animation.enable),
+                                         std::move(engine));
 
     canvas_config cfg{
         .initial_size = {_config.grid.initial_rows, _config.grid.initial_cols},

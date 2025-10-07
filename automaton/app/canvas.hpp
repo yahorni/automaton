@@ -37,7 +37,7 @@ struct canvas_config {
 class canvas : public Gtk::DrawingArea {
 public:
     explicit canvas(const core::grid& grid);
-    void initialize(canvas_config cfg, std::weak_ptr<controller> ctrl);
+    void initialize(canvas_config cfg, std::shared_ptr<controller> ctrl);
     void on_resize();
 
 private:
@@ -68,7 +68,7 @@ private:
     const core::grid& _grid;
 
     canvas_config _cfg;
-    std::weak_ptr<controller> _ctrl;
+    std::shared_ptr<controller> _ctrl;
 
     const palette _palette;
 
