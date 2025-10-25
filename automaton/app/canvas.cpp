@@ -37,7 +37,7 @@ canvas::canvas(const core::grid& grid)
 
     // set timeout to redraw
     _redraw_connection =
-        Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout), defaults::redraw_timeout_ms);
+        Glib::signal_timeout().connect(sigc::mem_fun(*this, &canvas::_on_redraw_timeout), defaults::redraw_delay_ms);
 
     // add draw function
     signal_draw().connect(sigc::mem_fun(*this, &canvas::_on_draw));
