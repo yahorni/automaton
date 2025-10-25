@@ -76,7 +76,7 @@ void window::_initialize() {
     }
     }
 
-    _ctrl = std::make_shared<controller>(std::make_unique<animation>(_config.animation.pause, _config.animation.enable),
+    _ctrl = std::make_shared<controller>(std::make_unique<animation>(_config.animation.delay, _config.animation.enable),
                                          std::move(engine));
 
     canvas_config cfg{
@@ -227,8 +227,8 @@ static Glib::OptionGroup _add_animation_group(core::config::animation_group* opt
     entry.set_short_name('p');
     entry.set_long_name("pause");
     entry.set_arg_description("NUMBER");
-    entry.set_description(Glib::ustring::compose("Sets pause between animation steps in ms. Default: %1", opts->pause));
-    group.add_entry(entry, opts->pause);
+    entry.set_description(Glib::ustring::compose("Sets pause between animation steps in ms. Default: %1", opts->delay));
+    group.add_entry(entry, opts->delay);
 
     entry = Glib::OptionEntry();
     entry.set_short_name('a');

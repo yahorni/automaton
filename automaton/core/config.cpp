@@ -49,7 +49,7 @@ bool config::_validate_rule() const {
     }
 }
 
-bool config::_validate_pause() const { return animation.pause > 0; }
+bool config::_validate_pause() const { return animation.delay > 0; }
 
 bool config::_validate_surface_for_engine() const {
     engine_type engine = options::engine::from_string(automaton.engine);

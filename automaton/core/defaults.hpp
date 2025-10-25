@@ -5,7 +5,7 @@ namespace automaton::defaults {
 constexpr auto window_margin = 4;
 constexpr auto window_width = 600;
 constexpr auto window_height = 600;
-constexpr auto redraw_timeout_ms = 30;
+constexpr auto redraw_delay_ms = 15;
 
 constexpr auto cell_width = 10.0;
 constexpr auto min_cell_width = 3.0;
@@ -16,7 +16,7 @@ constexpr auto enable_status = true;
 constexpr auto scale_factor = 1.1;
 
 constexpr auto enable_animation = false;
-constexpr auto animation_pause_ms = 100;
+constexpr auto animation_delay_ms = 100;
 
 constexpr auto font_size = 16;
 constexpr auto font_margin = 2;

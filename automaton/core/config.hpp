@@ -26,7 +26,7 @@ struct config {
     } automaton;
 
     struct animation_group {
-        int pause = defaults::animation_pause_ms;
+        int delay = defaults::animation_delay_ms;
         bool enable = defaults::enable_animation;
     } animation;
 
