@@ -27,7 +27,7 @@ std::tuple<bool, std::string> config::validate() const {
 }
 
 bool config::_validate_cell_width() const {
-    return grid.cell_width > defaults::min_cell_width && grid.cell_width < defaults::max_cell_width;
+    return grid.cell_width > defaults::cell::min_width && grid.cell_width < defaults::cell::max_width;
 }
 
 bool config::_validate_cols() const { return grid.initial_cols >= 0; }
