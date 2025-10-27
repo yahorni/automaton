@@ -12,8 +12,8 @@ namespace automaton::core {
 
 struct config {
     struct grid_group {
-        double cell_width = defaults::cell_width;
-        bool show_borders = defaults::enable_borders;
+        double cell_width = defaults::cell::width;
+        bool show_borders = defaults::ui::enable_borders;
         int initial_rows = 0;
         int initial_cols = 0;
         bool adapt_to_window = defaults::grid::adapt_to_window;
@@ -26,8 +26,8 @@ struct config {
     } automaton;
 
     struct animation_group {
-        int delay = defaults::animation_delay_ms;
-        bool enable = defaults::enable_animation;
+        int delay = defaults::animation::delay_ms;
+        bool enable = defaults::animation::enable;
     } animation;
 
     // return: false with failed option, otherwise true

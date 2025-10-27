@@ -20,33 +20,29 @@ cmake-gcc:
 build: cmake
 	cmake --build ${BUILD_DIR} -- -j
 
-run: run-s
-debug: debug-s
+run: sand
+debug: sand-debug
 
-run-w: wolfram
 wolfram:
 	${AUTOMATON} -e wolfram --rule 30 --cell-width 6
 
-run-s: sand
 sand:
-	${AUTOMATON} -e sand --pause 50 --animation --borders
+	${AUTOMATON} -e sand --pause 50 --animation --borders --cell-width 6
 
-run-l: life
 life:
 	${AUTOMATON} -e life --borders
 
-run-a: ant
 ant:
 	${AUTOMATON} -e ant --pause 10 --cell-width 10 --animation
 
-debug-w:
-	G_MESSAGES_DEBUG=all $(MAKE) run-w
-debug-s:
-	G_MESSAGES_DEBUG=all $(MAKE) run-s
-debug-l:
-	G_MESSAGES_DEBUG=all $(MAKE) run-l
-debug-a:
-	G_MESSAGES_DEBUG=all $(MAKE) run-a
+wolfram-debug:
+	G_MESSAGES_DEBUG=all $(MAKE) wolfram
+sand-debug:
+	G_MESSAGES_DEBUG=all $(MAKE) sand
+life-debug:
+	G_MESSAGES_DEBUG=all $(MAKE) life
+ant-debug:
+	G_MESSAGES_DEBUG=all $(MAKE) ant
 
 help:
 	${AUTOMATON} --help-all

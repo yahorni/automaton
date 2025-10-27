@@ -20,10 +20,10 @@ namespace automaton::app {
 window::window()
     : _canvas(_grid) {
     set_title("Automaton");
-    set_default_size(defaults::window_width, defaults::window_height);
+    set_default_size(defaults::window::width, defaults::window::height);
     add(_frame);
 
-    _frame.property_margin() = defaults::window_margin;
+    _frame.property_margin() = defaults::window::margin;
     _frame.add(_canvas);
     _frame.property_visible() = true;
 
@@ -83,7 +83,7 @@ void window::_initialize() {
         .initial_size = {_config.grid.initial_rows, _config.grid.initial_cols},
         .cell_width = _config.grid.cell_width,
         .show_borders = _config.grid.show_borders,
-        .show_status = defaults::enable_status,
+        .show_status = defaults::ui::enable_status,
         .adapt_to_window = _config.grid.adapt_to_window,
     };
     _canvas.initialize(cfg, _ctrl);

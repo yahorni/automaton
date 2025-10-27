@@ -43,6 +43,13 @@ public:
 private:
     using cairo_context = Cairo::RefPtr<Cairo::Context>;
 
+    enum class mouse_modes { NONE, DRAW, ERASE } _mouse_mode;
+
+    struct vec2 {
+        double x = 0;
+        double y = 0;
+    };
+
     // events
     bool _on_key_press(GdkEventKey* ev);
     bool _on_mouse_press(GdkEventButton* ev);
@@ -53,15 +60,18 @@ private:
     bool _on_draw(const cairo_context& cr);
 
     // drawing
-    void _draw_background(const cairo_context& cr);
-    void _draw_frame(const cairo_context& cr, const core::dims& size);
-    void _draw_borders(const cairo_context& cr, const core::dims& size);
-    void _draw_field(const cairo_context& cr, const core::dims& size, const core::grid_state& state);
-    void _draw_status(const cairo_context& cr);
+    void _draw_background(const cairo_context& cr) const;
+    void _draw_frame(const cairo_context& cr, const vec2& real_size, const vec2& field_start) const;
+    void _draw_field(const cairo_context& cr, const core::dims& size, const vec2& field_start) const;
+    void _draw_borders(const cairo_context& cr, const core::dims& size, const vec2& real_size,
+                       const vec2& field_start) const;
+    void _draw_status(const cairo_context& cr) const;
 
     // helpers
-    void _draw_shifted_rectangle(const cairo_context& cr, double x, double y, double width, double height);
-    void _draw_shifted_line(const cairo_context& cr, double x_from, double y_from, double x_to, double y_to);
+
+    vec2 _calculate_real_size() const;
+    vec2 _calculate_field_start(const vec2& real_size) const;
+
     bool _handle_cell_press(int x, int y);
     void _resize_grid();
 
@@ -72,10 +82,8 @@ private:
 
     const palette _palette;
 
-    enum class mouse_modes { NONE, DRAW, ERASE, SHIFT } _mouse_mode;
-    struct {
-        double x, y;
-    } _field_at{0, 0}, _last_shift_start{0, 0};
+    vec2 _field_shift;
+    std::optional<vec2> _shift_start;
 
     sigc::connection _redraw_connection;
 };
