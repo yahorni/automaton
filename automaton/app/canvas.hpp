@@ -5,26 +5,9 @@
 
 #include <gtkmm/drawingarea.h>
 
-#include <vector>
-
 namespace automaton::app {
 
 class controller;
-
-// TODO: move colors to defaults.hpp
-struct palette {
-    Gdk::RGBA background{"#c0c0c0"};
-    Gdk::RGBA font{"#ff0000"};
-    Gdk::RGBA border{"#000000"};
-    std::vector<Gdk::RGBA> cell_states = {
-        // clang-format off
-        Gdk::RGBA{"#fbfbfb"},
-        Gdk::RGBA{"#ffa500"},
-        Gdk::RGBA{"#008080"},
-        Gdk::RGBA{"#8b0000"}
-        // clang-format on
-    };
-};
 
 struct canvas_config {
     core::dims initial_size;
@@ -79,8 +62,6 @@ private:
 
     canvas_config _cfg;
     std::shared_ptr<controller> _ctrl;
-
-    const palette _palette;
 
     vec2 _field_shift;
     std::optional<vec2> _shift_start;

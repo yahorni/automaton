@@ -10,7 +10,7 @@ namespace automaton::options::life {
 bool is_valid(const std::string& rule) {
     if (presets.contains(rule)) return true;
 
-    std::regex henselRegex(R"(^B[0-8]*\/S[0-8]*$)");
+    static const std::regex henselRegex(R"(^B[0-8]*\/S[0-8]*$)");
     return std::regex_match(rule, henselRegex);
 }
 

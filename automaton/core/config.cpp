@@ -1,5 +1,6 @@
 #include "automaton/core/config.hpp"
 
+#include "automaton/core/ant_rule.hpp"
 #include "automaton/core/defaults.hpp"
 #include "automaton/core/join_options.hpp"
 #include "automaton/core/life_rule.hpp"
@@ -44,6 +45,8 @@ bool config::_validate_rule() const {
         return std::stoi(automaton.rule) >= 0 && std::stoi(automaton.rule) <= 255;
     case core::engine_type::LIFE:
         return options::life::is_valid(automaton.rule);
+    case core::engine_type::ANT:
+        return rules::ant::is_valid(automaton.rule);
     default:
         return automaton.rule.empty();
     }
@@ -89,12 +92,21 @@ surface_type config::get_automaton_surface() const {
     }
 }
 
-std::tuple<uint16_t, uint16_t> config::get_life_rule() const {
-    return options::life::from_string(automaton.rule.empty() ? defaults::life_rule : automaton.rule);
+uint8_t config::get_wolfram_code() const {
+    return automaton.rule.empty() ? defaults::rules::wolfram : std::stoi(automaton.rule);
 }
 
-uint8_t config::get_wolfram_code() const {
-    return automaton.rule.empty() ? defaults::wolfram_code : std::stoi(automaton.rule);
+std::tuple<uint16_t, uint16_t> config::get_life_rule() const {
+    return options::life::from_string(automaton.rule.empty() ? defaults::rules::life : automaton.rule);
+}
+
+std::string config::get_life_presets() {
+    static const std::string life_presets = options::life::get_preset_names();
+    return life_presets;
+}
+
+rules::ant config::get_ant_rule() const {
+    return rules::ant(automaton.rule.empty() ? defaults::rules::ant : automaton.rule);
 }
 
 std::string config::get_engine_options() {
@@ -105,11 +117,6 @@ std::string config::get_engine_options() {
 std::string config::get_surface_options() {
     static const std::string surface_options = options::join<core::surface_type>();
     return surface_options;
-}
-
-std::string config::get_life_presets() {
-    static const std::string life_presets = options::life::get_preset_names();
-    return life_presets;
 }
 
 }  // namespace automaton::core

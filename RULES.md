@@ -31,3 +31,12 @@
 ## Langton's ant
 
 - [Langton's ant](https://en.wikipedia.org/wiki/Langton%27s_ant)
+
+- `RL` - Standard Langton's ant
+- `LN` - Grow in a line
+- `RLLR` - Simple symmetric ant
+- `LLRR` - Another symmetric ant
+- `RLR` - Chaotic ant
+- `LRRRRRLLR` - Fills space in a square around itself.
+- `LLRRRLRLRLLR` - Creates a convoluted highway.
+- `RRLLLRLLLRRR` - Creates a filled triangle shape that grows and moves after 15900~ iterations.
