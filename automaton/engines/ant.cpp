@@ -1,9 +1,5 @@
 #include "automaton/engines/ant.hpp"
 
-#include "automaton/core/ant_rule.hpp"
-#include "automaton/core/engine_type.hpp"
-#include "automaton/core/grid.hpp"
-
 #include <algorithm>
 #include <format>
 #include <utility>

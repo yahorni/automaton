@@ -1,8 +1,8 @@
 #pragma once
 
-#include "automaton/core/engine_type.hpp"
 #include "automaton/core/grid.hpp"
-#include "automaton/core/surface_type.hpp"
+#include "automaton/core/options/engine_type.hpp"
+#include "automaton/core/options/surface_type.hpp"
 
 #include <memory>
 #include <string>

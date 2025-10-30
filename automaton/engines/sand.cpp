@@ -1,7 +1,5 @@
 #include "automaton/engines/sand.hpp"
 
-#include "automaton/core/engine_type.hpp"
-
 #include <format>
 #include <utility>
 

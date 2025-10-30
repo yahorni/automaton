@@ -1,21 +1,17 @@
 #include "automaton/engines/life.hpp"
 
-#include "automaton/core/engine_type.hpp"
-#include "automaton/core/life_rule.hpp"
-
 #include <format>
 
 namespace automaton::engines {
 
-life::life(parameters& params, uint16_t birth_mask, uint16_t survival_mask)
+life::life(parameters& params, rules::life&& rule)
     : engine(core::engine_type::LIFE, params),
-      _birth_mask(birth_mask),
-      _survival_mask(survival_mask) {}
+      _rule(std::move(rule)) {}
 
 std::string life::description() const {
-    return std::format("life[surface={},rule={},size={},step={}]",             //
-                       options::surface::to_string(_surface_type),             //
-                       options::life::to_string(_birth_mask, _survival_mask),  //
+    return std::format("life[surface={},rule={},size={},step={}]",  //
+                       options::surface::to_string(_surface_type),  //
+                       _rule.to_string(),                           //
                        _grid.size(), _step);
 }
 
@@ -58,9 +54,9 @@ void life::_step_torus(const core::dims& size, const core::grid_state& state) {
 
             // funny things happen when "+ 1" added to neighbours
             if (state[row][col]) {
-                _new_state[row][col] = static_cast<bool>(_survival_mask & (1 << neighbours));
+                _new_state[row][col] = static_cast<bool>(_rule.survival_mask() & (1 << neighbours));
             } else {
-                _new_state[row][col] = static_cast<bool>(_birth_mask & (1 << neighbours));
+                _new_state[row][col] = static_cast<bool>(_rule.birth_mask() & (1 << neighbours));
             }
         }
     }
@@ -135,9 +131,9 @@ void life::_step_plain(const core::dims& size, const core::grid_state& state) {
             // _new_state[row][col] is overwritten here for each cell,
             // it's important to not mess neighbours with the new state
             if (state[row][col]) {
-                _new_state[row][col] = static_cast<bool>(_survival_mask & (1 << _new_state[row][col]));
+                _new_state[row][col] = static_cast<bool>(_rule.survival_mask() & (1 << _new_state[row][col]));
             } else {
-                _new_state[row][col] = static_cast<bool>(_birth_mask & (1 << _new_state[row][col]));
+                _new_state[row][col] = static_cast<bool>(_rule.birth_mask() & (1 << _new_state[row][col]));
             }
         }
     }

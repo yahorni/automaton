@@ -1,9 +1,10 @@
 #pragma once
 
-#include "automaton/core/ant_rule.hpp"
 #include "automaton/core/defaults.hpp"
-#include "automaton/core/engine_type.hpp"
-#include "automaton/core/surface_type.hpp"
+#include "automaton/core/options/engine_type.hpp"
+#include "automaton/core/options/surface_type.hpp"
+#include "automaton/core/rules/ant.hpp"
+#include "automaton/core/rules/life.hpp"
 
 #include <cstdint>
 #include <string>
@@ -38,10 +39,10 @@ struct config {
     surface_type get_automaton_surface() const;
 
     uint8_t get_wolfram_code() const;
-    std::tuple<uint16_t, uint16_t> get_life_rule() const;
-    static std::string get_life_presets();
+    rules::life get_life_rule() const;
     rules::ant get_ant_rule() const;
 
+    static std::string get_life_presets();
     static std::string get_engine_options();
     static std::string get_surface_options();
 
