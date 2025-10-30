@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <string_view>
 
 namespace automaton::defaults {
 
@@ -69,9 +68,8 @@ constexpr auto initial_rows = 100;
 constexpr auto initial_cols = 100;
 constexpr auto min_rows = 1;
 constexpr auto min_cols = 1;
-// TODO: calculate max size in runtime for given display size
-constexpr auto max_rows = 1280ul;
-constexpr auto max_cols = 720ul;
+constexpr auto max_rows = 700;
+constexpr auto max_cols = 700;
 constexpr auto adapt_to_window = false;
 }  // namespace grid
 

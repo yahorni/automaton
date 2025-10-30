@@ -1,6 +1,6 @@
 #pragma once
 
-#include "automaton/core/ant_rule.hpp"
+#include "automaton/core/rules/ant.hpp"
 #include "automaton/engines/engine.hpp"
 
 #include <vector>

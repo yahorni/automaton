@@ -62,8 +62,7 @@ void window::_initialize() {
         break;
     }
     case core::engine_type::LIFE: {
-        const auto [birth, survival] = _config.get_life_rule();
-        engine = std::make_unique<engines::life>(engine_params, birth, survival);
+        engine = std::make_unique<engines::life>(engine_params, _config.get_life_rule());
         break;
     }
     case core::engine_type::ANT: {

@@ -13,6 +13,7 @@ public:
 
     static bool is_valid(const std::string& rule);
 
+    // should be already validated
     explicit ant(const std::string& rule);
 
     action operator[](core::cell_state state) const;

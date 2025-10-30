@@ -1,7 +1,5 @@
 #include "automaton/engines/wolfram.hpp"
 
-#include "automaton/core/engine_type.hpp"
-
 #include <format>
 
 namespace automaton::engines {

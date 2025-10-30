@@ -1,4 +1,4 @@
-#include "automaton/core/surface_type.hpp"
+#include "automaton/core/options/surface_type.hpp"
 
 namespace automaton::options::surface {
 

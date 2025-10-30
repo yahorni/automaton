@@ -1,10 +1,9 @@
 #include "automaton/core/config.hpp"
 
-#include "automaton/core/ant_rule.hpp"
 #include "automaton/core/defaults.hpp"
-#include "automaton/core/join_options.hpp"
-#include "automaton/core/life_rule.hpp"
-#include "automaton/core/surface_type.hpp"
+#include "automaton/core/options/join.hpp"
+#include "automaton/core/rules/ant.hpp"
+#include "automaton/core/rules/life.hpp"
 
 #include <string>
 #include <tuple>
@@ -31,8 +30,15 @@ bool config::_validate_cell_width() const {
     return grid.cell_width > defaults::cell::min_width && grid.cell_width < defaults::cell::max_width;
 }
 
-bool config::_validate_cols() const { return grid.initial_cols >= 0; }
-bool config::_validate_rows() const { return grid.initial_rows >= 0; }
+bool config::_validate_cols() const {
+    return grid.initial_cols >= defaults::grid::min_cols &&  //
+           grid.initial_cols <= defaults::grid::max_cols;
+}
+
+bool config::_validate_rows() const {
+    return grid.initial_rows >= defaults::grid::min_rows &&  //
+           grid.initial_rows <= defaults::grid::max_rows;
+}
 
 bool config::_validate_engine() const { return options::engine::is_valid(automaton.engine); }
 bool config::_validate_surface() const { return options::surface::is_valid(automaton.surface); }
@@ -44,7 +50,7 @@ bool config::_validate_rule() const {
     case core::engine_type::WOLFRAM:
         return std::stoi(automaton.rule) >= 0 && std::stoi(automaton.rule) <= 255;
     case core::engine_type::LIFE:
-        return options::life::is_valid(automaton.rule);
+        return rules::life::is_valid(automaton.rule);
     case core::engine_type::ANT:
         return rules::ant::is_valid(automaton.rule);
     default:
@@ -96,17 +102,17 @@ uint8_t config::get_wolfram_code() const {
     return automaton.rule.empty() ? defaults::rules::wolfram : std::stoi(automaton.rule);
 }
 
-std::tuple<uint16_t, uint16_t> config::get_life_rule() const {
-    return options::life::from_string(automaton.rule.empty() ? defaults::rules::life : automaton.rule);
-}
-
-std::string config::get_life_presets() {
-    static const std::string life_presets = options::life::get_preset_names();
-    return life_presets;
+rules::life config::get_life_rule() const {
+    return rules::life(automaton.rule.empty() ? defaults::rules::life : automaton.rule);
 }
 
 rules::ant config::get_ant_rule() const {
     return rules::ant(automaton.rule.empty() ? defaults::rules::ant : automaton.rule);
+}
+
+std::string config::get_life_presets() {
+    static const std::string presets = rules::life::get_preset_names();
+    return presets;
 }
 
 std::string config::get_engine_options() {
