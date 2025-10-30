@@ -9,11 +9,20 @@
 #include <gdkmm/rgba.h>
 #include <glibmm/main.h>
 
+#include <algorithm>
 #include <format>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace automaton::app {
+
+namespace palette {
+static const Gdk::RGBA font{defaults::palette::font};
+static const Gdk::RGBA border{defaults::palette::border};
+static const Gdk::RGBA background{defaults::palette::background};
+static const std::vector<Gdk::RGBA> states{defaults::palette::states.begin(), defaults::palette::states.end()};
+};  // namespace palette
 
 canvas::canvas(const core::grid& grid)
     : _grid(grid) {
@@ -46,6 +55,8 @@ canvas::canvas(const core::grid& grid)
 void canvas::initialize(canvas_config cfg, std::shared_ptr<controller> ctrl) {
     _cfg = cfg;
     _ctrl = ctrl;
+
+    if (!_cfg.adapt_to_window) _ctrl->engine_resize(_cfg.initial_size);
 }
 
 void canvas::on_resize() {
@@ -186,7 +197,7 @@ bool canvas::_on_draw(const cairo_context& cr) {
 void canvas::_draw_background(const cairo_context& cr) const {
     cr->save();
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.background);
+    Gdk::Cairo::set_source_rgba(cr, palette::background);
     cr->paint();
 
     cr->restore();
@@ -195,7 +206,7 @@ void canvas::_draw_background(const cairo_context& cr) const {
 void canvas::_draw_frame(const cairo_context& cr, const vec2& real_size, const vec2& field_start) const {
     cr->save();
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.border);
+    Gdk::Cairo::set_source_rgba(cr, palette::border);
     cr->set_line_width(defaults::cell::border_width);
 
     cr->rectangle(field_start.x, field_start.y, real_size.x, real_size.y);
@@ -210,6 +221,7 @@ void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const 
     cr->save();
 
     const core::grid_state& state = _grid.state();
+
     const auto draw_cells_with_state = [&](uint8_t cell_state, const Gdk::RGBA& color) {
         Gdk::Cairo::set_source_rgba(cr, color);
         for (size_t row = 0; row < size.rows; ++row) {
@@ -224,8 +236,8 @@ void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const 
         cr->fill();
     };
 
-    for (size_t i = 0; i < _palette.cell_states.size(); ++i)
-        draw_cells_with_state(i, _palette.cell_states[i]);
+    for (size_t i = 0; i < palette::states.size(); ++i)
+        draw_cells_with_state(i, palette::states[i]);
 
     cr->restore();
 }
@@ -234,7 +246,7 @@ void canvas::_draw_borders(const cairo_context& cr, const core::dims& size, cons
                            const vec2& field_start) const {
     cr->save();
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.border);
+    Gdk::Cairo::set_source_rgba(cr, palette::border);
     cr->set_line_width(defaults::cell::border_width);
 
     double x = _cfg.cell_width, y = _cfg.cell_width;
@@ -262,7 +274,7 @@ void canvas::_draw_status(const cairo_context& cr) const {
 
     cr->move_to(defaults::font::margin, defaults::font::margin + defaults::font::size);
 
-    Gdk::Cairo::set_source_rgba(cr, _palette.font);
+    Gdk::Cairo::set_source_rgba(cr, palette::font);
     cr->set_font_size(defaults::font::size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
     cr->show_text(std::format("{}, cell_width={:.3f}", _ctrl->get_status(), _cfg.cell_width));

@@ -67,7 +67,7 @@ void window::_initialize() {
         break;
     }
     case core::engine_type::ANT: {
-        engine = std::make_unique<engines::ant>(engine_params);
+        engine = std::make_unique<engines::ant>(engine_params, _config.get_ant_rule());
         break;
     }
     default: {
@@ -210,10 +210,11 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     entry.set_arg_description("STRING");
     entry.set_description(Glib::ustring::compose(  //
         R"(Automaton rule.
-    For wolfram: number from 0 to 255. Default: %1
-    For Game of Life: uses Hensel notation. Default: %2
-    Presets can be used for Game of Life: %3)",
-        defaults::wolfram_code, defaults::life_rule, core::config::get_life_presets()));
+    For Wolfram: number from 0 to 255. Default: %1
+    For Game of Life: uses Hensel notation or presets. Default: %2
+      Presets: %3
+    For Langton's ant: L/R/N string. Default: %4)",
+        defaults::rules::wolfram, defaults::rules::life, core::config::get_life_presets(), defaults::rules::ant));
     group.add_entry_filename(entry, opts->rule);
 
     return group;

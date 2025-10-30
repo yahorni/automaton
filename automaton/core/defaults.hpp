@@ -1,9 +1,15 @@
 #pragma once
 
+#include <array>
+#include <string_view>
+
 namespace automaton::defaults {
 
-constexpr auto wolfram_code = 22;
-constexpr auto life_rule = "life";
+namespace rules {
+constexpr auto wolfram = 22;
+constexpr auto life = "life";
+constexpr auto ant = "LR";
+}  // namespace rules
 
 namespace window {
 constexpr auto margin = 4;
@@ -16,6 +22,27 @@ namespace ui {
 constexpr auto enable_borders = false;
 constexpr auto enable_status = true;
 }  // namespace ui
+
+namespace palette {
+constexpr auto background{"#c0c0c0"};
+constexpr auto font{"#ff0000"};
+constexpr auto border{"#000000"};
+constexpr auto states = std::to_array({
+    // https://loading.io/color/feature/Paired-12/
+    "#fbfbfb",  // "#a6cee3" - original color, but I don't like it
+    "#1f78b4",
+    "#33a02c",
+    "#b2df8a",
+    "#fb9a99",
+    "#e31a1c",
+    "#fdbf6f",
+    "#ff7f00",
+    "#cab2d6",
+    "#6a3d9a",
+    "#ffff99",
+    "#b15928",
+});
+}  // namespace palette
 
 namespace cell {
 constexpr auto width = 10.0;

@@ -1,14 +1,23 @@
 #include "automaton/engines/ant.hpp"
 
+#include "automaton/core/ant_rule.hpp"
 #include "automaton/core/engine_type.hpp"
+#include "automaton/core/grid.hpp"
 
 #include <algorithm>
 #include <format>
+#include <utility>
 
 namespace automaton::engines {
 
-ant::ant(parameters& params)
-    : engine(core::engine_type::ANT, params) {}
+// the last bit is to set if there's an ant in a cell, other bits - for colors
+//  ant_mask = 0b1000...
+// ~ant_mask = 0b0111...
+static constexpr core::cell_state ant_mask = (1 << (sizeof(core::cell_state) * CHAR_BIT - 1));
+
+ant::ant(parameters& params, rules::ant&& rule)
+    : engine(core::engine_type::ANT, params),
+      _rule(std::move(rule)) {}
 
 std::string ant::description() const {
     return std::format("ant[surface={},action={},size={},step={}]",  //
@@ -22,29 +31,44 @@ bool ant::step() {
     const core::dims& size = _grid.size();
     const core::grid_state& state = _grid.state();
 
-    // update ants
+    // update ants direction
+    for (auto& a : _ants) {
+        const auto s = state[a.row][a.col] & (~ant_mask);
+        switch (_rule[s]) {
+        case rules::ant::action::LEFT:
+            a.rotate_left();
+            break;
+        case rules::ant::action::RIGHT:
+            a.rotate_right();
+            break;
+        case rules::ant::action::FORWARD:
+            break;
+        default:
+            std::unreachable();
+        }
+    }
+
+    // update ants position
     if (_surface_type == core::surface_type::TORUS) {
         for (auto& a : _ants) {
-            a.rotate_and_move_torus(size, state[a.row][a.col] & 0b01);
+            a.move_on_torus(size);
         }
     } else {
         for (auto& a : _ants) {
-            a.rotate_and_move_plain(size, state[a.row][a.col] & 0b01);
+            a.move_on_plain(size);
         }
     }
 
-    // update state cells
+    // update cells color and remove ants
     for (size_t row = 0; row < size.rows; ++row) {
         for (size_t col = 0; col < size.cols; ++col) {
-            // if there's an ant in a cell, then invert it's color
-            if (state[row][col] & 0b10)  //
-                _grid.set(row, col, !static_cast<bool>(state[row][col] & 0b01));
+            if (state[row][col] & ant_mask) _grid.set(row, col, ((state[row][col] & (~ant_mask)) + 1) % (_rule.size()));
         }
     }
 
-    // update state with ants
+    // place ants to cells
     for (const auto& a : _ants) {
-        _grid.set(a.row, a.col, state[a.row][a.col] | 0b10);
+        _grid.set(a.row, a.col, state[a.row][a.col] | ant_mask);
     }
 
     _step++;
@@ -59,7 +83,7 @@ void ant::restart() {
 
     for (size_t row = 0; row < size.rows; ++row) {
         for (size_t col = 0; col < size.cols; ++col) {
-            _grid.set(row, col, state[row][col] & 0b01);
+            _grid.set(row, col, state[row][col] & ant_mask);
         }
     }
 
@@ -72,22 +96,25 @@ void ant::clear() {
 }
 
 void ant::action1(size_t row, size_t col) {
+    const auto s = _grid.get(row, col);
     if (_ant_actions) {
         _ants.emplace_back(row, col, directions::UP);
-        _grid.set(row, col, _grid.get(row, col) | 0b10);
+        _grid.set(row, col, s | ant_mask);
     } else {
-        if (auto s = _grid.get(row, col); !(_grid.get(row, col) & 0b01)) _grid.set(row, col, s + 1);
+        if (!(s & (~ant_mask))) _grid.set(row, col, s | 1);
     }
 }
 
 void ant::action2(size_t row, size_t col) {
+    const auto s = _grid.get(row, col);
     if (_ant_actions) {
-        _ants.erase(std::remove_if(_ants.begin(), _ants.end(),  //
-                                   [row, col](const _ant& a) { return a.row == row && a.col == col; }),
+        _ants.erase(std::remove_if(                  //
+                        _ants.begin(), _ants.end(),  //
+                        [row, col](const _ant& a) { return a.row == row && a.col == col; }),
                     _ants.end());
-        _grid.set(row, col, _grid.get(row, col) & 0b01);
+        _grid.set(row, col, s & (~ant_mask));
     } else {
-        if (auto s = _grid.get(row, col); _grid.get(row, col) & 0b01) _grid.set(row, col, s - 1);
+        if (s & (~ant_mask)) _grid.set(row, col, s & ant_mask);
     }
 }
 
@@ -99,35 +126,79 @@ void ant::resize(const core::dims& size) {
     std::erase_if(_ants, [&new_size](const _ant& a) { return a.row >= new_size.rows || a.col >= new_size.cols; });
 }
 
-void ant::_ant::rotate_and_move_torus(const core::dims& size, bool is_empty) {
-    if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
+void ant::_ant::rotate_left() {
+    switch (dir) {
+    case directions::DOWN:
         dir = directions::RIGHT;
-        col = (col == size.cols - 1 ? 0 : col + 1);
-    } else if ((dir == directions::RIGHT && is_empty) || (dir == directions::LEFT && !is_empty)) {
+        break;
+    case directions::LEFT:
         dir = directions::DOWN;
-        row = (row == size.rows - 1 ? 0 : row + 1);
-    } else if ((dir == directions::DOWN && is_empty) || (dir == directions::UP && !is_empty)) {
+        break;
+    case directions::UP:
         dir = directions::LEFT;
-        col = (col == 0 ? size.cols - 1 : col - 1);
-    } else if ((dir == directions::LEFT && is_empty) || (dir == directions::RIGHT && !is_empty)) {
+        break;
+    case directions::RIGHT:
         dir = directions::UP;
-        row = (row == 0 ? size.rows - 1 : row - 1);
+        break;
+    default:
+        std::unreachable();
     }
 }
 
-void ant::_ant::rotate_and_move_plain(const core::dims& size, bool is_empty) {
-    if ((dir == directions::UP && is_empty) || (dir == directions::DOWN && !is_empty)) {
+void ant::_ant::rotate_right() {
+    switch (dir) {
+    case directions::UP:
         dir = directions::RIGHT;
-        if (col < size.cols) col++;
-    } else if ((dir == directions::RIGHT && is_empty) || (dir == directions::LEFT && !is_empty)) {
+        break;
+    case directions::RIGHT:
         dir = directions::DOWN;
-        if (row < size.rows) row++;
-    } else if ((dir == directions::DOWN && is_empty) || (dir == directions::UP && !is_empty)) {
+        break;
+    case directions::DOWN:
         dir = directions::LEFT;
-        if (col > 0) col--;
-    } else if ((dir == directions::LEFT && is_empty) || (dir == directions::RIGHT && !is_empty)) {
+        break;
+    case directions::LEFT:
         dir = directions::UP;
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+void ant::_ant::move_on_torus(const core::dims& size) {
+    switch (dir) {
+    case directions::RIGHT:
+        col = (col == size.cols - 1 ? 0 : col + 1);
+        break;
+    case directions::DOWN:
+        row = (row == size.rows - 1 ? 0 : row + 1);
+        break;
+    case directions::LEFT:
+        col = (col == 0 ? size.cols - 1 : col - 1);
+        break;
+    case directions::UP:
+        row = (row == 0 ? size.rows - 1 : row - 1);
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+void ant::_ant::move_on_plain(const core::dims& size) {
+    switch (dir) {
+    case directions::RIGHT:
+        if (col < size.cols) col++;
+        break;
+    case directions::DOWN:
+        if (row < size.rows) row++;
+        break;
+    case directions::LEFT:
+        if (col > 0) col--;
+        break;
+    case directions::UP:
         if (row > 0) row--;
+        break;
+    default:
+        std::unreachable();
     }
 }
 

@@ -24,7 +24,7 @@ public:
     const grid_state& state() const;
 
 private:
-    core::dims _size{defaults::grid::initial_rows, defaults::grid::initial_cols};
+    core::dims _size{0, 0};
     grid_state _state{};
 };
 
