@@ -17,38 +17,31 @@ std::string wolfram::description() const {
 enum states { EMPTY, EMPTY_CURRENT, FILLED, FILLED_CURRENT };
 
 void wolfram::_highlight_row() {
-    const core::dims& size = _grid.size();
-    const core::grid_state& state = _grid.state();
-
-    for (size_t col = 0; col < size.cols; col++) {
-        if (state[_current_row][col] == states::FILLED)
+    for (size_t col = 0; col < _grid.cols(); col++) {
+        if (_grid[_current_row, col] == states::FILLED)
             _grid.set(_current_row, col, states::FILLED_CURRENT);
-        else if (state[_current_row][col] == states::EMPTY)
+        else if (_grid[_current_row, col] == states::EMPTY)
             _grid.set(_current_row, col, states::EMPTY_CURRENT);
     }
 }
 
 void wolfram::_dehighlight_row() {
-    const core::dims& size = _grid.size();
-    const core::grid_state& state = _grid.state();
-
-    for (size_t col = 0; col < size.cols; col++) {
-        if (state[_current_row][col] == states::FILLED_CURRENT)
+    for (size_t col = 0; col < _grid.cols(); col++) {
+        if (_grid[_current_row, col] == states::FILLED_CURRENT)
             _grid.set(_current_row, col, states::FILLED);
-        else if (state[_current_row][col] == states::EMPTY_CURRENT)
+        else if (_grid[_current_row, col] == states::EMPTY_CURRENT)
             _grid.set(_current_row, col, states::EMPTY);
     }
 }
 
 bool wolfram::step() {
     const core::dims& size = _grid.size();
-    const core::grid_state& state = _grid.state();
 
     // when starting: fast forward to the first row with active cells
     if (_current_row == no_row_selected) {
         for (size_t row = 0; row < size.rows; ++row) {
             for (size_t col = 0; col < size.cols; ++col) {
-                if (state[row][col] == states::FILLED) {
+                if (_grid[row, col] == states::FILLED) {
                     _current_row = row;
                     _highlight_row();
                     return true;
@@ -69,9 +62,9 @@ bool wolfram::step() {
     for (size_t col = 0; col < size.cols; col++) {
         uint8_t combination;
         if (_surface_type == core::surface_type::CYLINDER) {
-            combination = _step_cylinder(size, state, col);
+            combination = _step_cylinder(col);
         } else {
-            combination = _step_plain(size, state, col);
+            combination = _step_plain(col);
         }
 
         if ((_code >> combination) & 0b1) _grid.set(_current_row + 1, col, states::FILLED);
@@ -84,19 +77,19 @@ bool wolfram::step() {
     return true;
 }
 
-uint8_t wolfram::_step_cylinder(const core::dims& size, const core::grid_state& state, size_t col) {
-    size_t prev_col = (col == 0 ? size.cols - 1 : col - 1);
-    size_t next_col = (col == size.cols - 1 ? 0 : col + 1);
+uint8_t wolfram::_step_cylinder(size_t col) {
+    size_t prev_col = (col == 0 ? _grid.cols() - 1 : col - 1);
+    size_t next_col = (col == _grid.cols() - 1 ? 0 : col + 1);
 
-    return (state[_current_row][prev_col] == FILLED) |      // 0b001
-           (state[_current_row][col] == FILLED) << 1 |      // 0b010
-           (state[_current_row][next_col] == FILLED) << 2;  // 0b100
+    return (_grid[_current_row, prev_col] == FILLED) |      // 0b001
+           (_grid[_current_row, col] == FILLED) << 1 |      // 0b010
+           (_grid[_current_row, next_col] == FILLED) << 2;  // 0b100
 }
 
-uint8_t wolfram::_step_plain(const core::dims& size, const core::grid_state& state, size_t col) {
-    return (col != 0 && state[_current_row][col - 1] == FILLED) |                  // 0b001
-           (state[_current_row][col] == FILLED) << 1 |                             // 0b010
-           (col != size.cols - 1 && state[_current_row][col + 1] == FILLED) << 2;  // 0b100
+uint8_t wolfram::_step_plain(size_t col) {
+    return (col != 0 && _grid[_current_row, col - 1] == FILLED) |                     // 0b001
+           (_grid[_current_row, col] == FILLED) << 1 |                                // 0b010
+           (col != _grid.cols() - 1 && _grid[_current_row, col + 1] == FILLED) << 2;  // 0b100
 }
 
 void wolfram::restart() {

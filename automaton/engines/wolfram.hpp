@@ -20,8 +20,8 @@ private:
     void _highlight_row();
     void _dehighlight_row();
 
-    uint8_t _step_cylinder(const core::dims& size, const core::grid_state& state, size_t col);
-    uint8_t _step_plain(const core::dims& size, const core::grid_state& state, size_t col);
+    uint8_t _step_cylinder(size_t col);
+    uint8_t _step_plain(size_t col);
 
     uint8_t _code;
 

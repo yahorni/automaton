@@ -14,8 +14,8 @@ public:
     bool step() override;
 
 private:
-    void _step_torus(const core::dims& size, const core::grid_state&);
-    void _step_plain(const core::dims& size, const core::grid_state&);
+    void _step_torus();
+    void _step_plain();
 
     rules::life _rule;
 
