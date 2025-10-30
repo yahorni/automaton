@@ -18,15 +18,14 @@ std::string sand::description() const {
 /* The implementation isn't perfect, but for now it's OK */
 bool sand::step() {
     const core::dims& size = _grid.size();
-    const core::grid_state& data = _grid.state();
 
     for (size_t row = size.rows - 2; row != static_cast<size_t>(-1); --row) {
         for (size_t col = 0; col < size.cols; ++col) {
-            if (!data[row][col]) continue;
+            if (!_grid[row, col]) continue;
 
-            switch (static_cast<blocks>(data[row][col])) {
+            switch (static_cast<blocks>(_grid[row, col])) {
             case blocks::SAND: {
-                if (!data[row + 1][col]) {
+                if (!_grid[row + 1, col]) {
                     _grid.set(row, col, 0);
                     _grid.set(row + 1, col, 1);
                     continue;
@@ -41,8 +40,8 @@ bool sand::step() {
                     next_col = (col == size.cols - 1 ? col : col + 1);
                 }
 
-                bool is_left_free = !data[row + 1][prev_col];
-                bool is_right_free = !data[row + 1][next_col] && !data[row][next_col];
+                bool is_left_free = !_grid[row + 1, prev_col];
+                bool is_right_free = !_grid[row + 1, next_col] && !_grid[row, next_col];
 
                 if (is_left_free && is_right_free) {
                     _grid.set(row, col, 0);

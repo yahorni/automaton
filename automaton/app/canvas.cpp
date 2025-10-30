@@ -61,7 +61,7 @@ void canvas::initialize(canvas_config cfg, std::shared_ptr<controller> ctrl) {
 
 void canvas::on_resize() {
     g_debug("canvas::on_resize()");
-    if (_cfg.adapt_to_window && _ctrl) _resize_grid();
+    if (_cfg.adapt_to_window && _ctrl) _ctrl->engine_resize(_calculate_grid_size());
 }
 
 bool canvas::_on_key_press(GdkEventKey* ev) {
@@ -174,7 +174,7 @@ bool canvas::_on_mouse_scroll(GdkEventScroll* ev) {
         _cfg.cell_width = std::round(_cfg.cell_width * cell::precision) / cell::precision;
     }
 
-    if (_cfg.adapt_to_window) _resize_grid();
+    if (_cfg.adapt_to_window) _ctrl->engine_resize(_calculate_grid_size());
 
     return false;
 }
@@ -220,13 +220,11 @@ void canvas::_draw_frame(const cairo_context& cr, const vec2& real_size, const v
 void canvas::_draw_field(const cairo_context& cr, const core::dims& size, const vec2& field_start) const {
     cr->save();
 
-    const core::grid_state& state = _grid.state();
-
     const auto draw_cells_with_state = [&](uint8_t cell_state, const Gdk::RGBA& color) {
         Gdk::Cairo::set_source_rgba(cr, color);
         for (size_t row = 0; row < size.rows; ++row) {
             for (size_t col = 0; col < size.cols; ++col) {
-                if (state[row][col] == cell_state) {
+                if (_grid[row, col] == cell_state) {
                     cr->rectangle(field_start.x + _cfg.cell_width * col,  //
                                   field_start.y + _cfg.cell_width * row,  //
                                   _cfg.cell_width, _cfg.cell_width);
@@ -295,6 +293,11 @@ bool canvas::_on_redraw_timeout() {
     return true;
 }
 
+core::dims canvas::_calculate_grid_size() const {
+    return {static_cast<size_t>(get_height() / _cfg.cell_width),  //
+            static_cast<size_t>(get_width() / _cfg.cell_width)};
+}
+
 auto canvas::_calculate_real_size() const -> vec2 {
     const core::dims& size = _grid.size();
     return {_cfg.cell_width * size.cols, _cfg.cell_width * size.rows};
@@ -322,11 +325,6 @@ bool canvas::_handle_cell_press(int x, int y) {
     }
 
     return true;
-}
-
-void canvas::_resize_grid() {
-    _ctrl->engine_resize({static_cast<size_t>(get_height() / _cfg.cell_width),  //
-                          static_cast<size_t>(get_width() / _cfg.cell_width)});
 }
 
 }  // namespace automaton::app

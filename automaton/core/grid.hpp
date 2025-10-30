@@ -20,8 +20,11 @@ public:
     void resize(const core::dims& size);
     void reset(const grid_state& state);
 
-    const core::dims& size() const;
-    const grid_state& state() const;
+    const core::dims& size() const { return _size; }
+    size_t rows() const { return _size.rows; };
+    size_t cols() const { return _size.cols; };
+
+    cell_state operator[](std::size_t row, std::size_t col) const { return _state[row][col]; }
 
 private:
     core::dims _size{0, 0};

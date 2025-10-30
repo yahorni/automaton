@@ -25,11 +25,10 @@ bool ant::step() {
     if (_ants.empty()) return true;
 
     const core::dims& size = _grid.size();
-    const core::grid_state& state = _grid.state();
 
     // update ants direction
     for (auto& a : _ants) {
-        const auto s = state[a.row][a.col] & (~ant_mask);
+        const auto s = _grid[a.row, a.col] & (~ant_mask);
         switch (_rule[s]) {
         case rules::ant::action::LEFT:
             a.rotate_left();
@@ -58,13 +57,13 @@ bool ant::step() {
     // update cells color and remove ants
     for (size_t row = 0; row < size.rows; ++row) {
         for (size_t col = 0; col < size.cols; ++col) {
-            if (state[row][col] & ant_mask) _grid.set(row, col, ((state[row][col] & (~ant_mask)) + 1) % (_rule.size()));
+            if (_grid[row, col] & ant_mask) _grid.set(row, col, ((_grid[row, col] & (~ant_mask)) + 1) % (_rule.size()));
         }
     }
 
     // place ants to cells
     for (const auto& a : _ants) {
-        _grid.set(a.row, a.col, state[a.row][a.col] | ant_mask);
+        _grid.set(a.row, a.col, _grid[a.row, a.col] | ant_mask);
     }
 
     _step++;
@@ -74,12 +73,9 @@ bool ant::step() {
 void ant::restart() {
     engine::restart();
 
-    const core::dims& size = _grid.size();
-    const core::grid_state& state = _grid.state();
-
-    for (size_t row = 0; row < size.rows; ++row) {
-        for (size_t col = 0; col < size.cols; ++col) {
-            _grid.set(row, col, state[row][col] & ant_mask);
+    for (size_t row = 0; row < _grid.rows(); ++row) {
+        for (size_t col = 0; col < _grid.cols(); ++col) {
+            _grid.set(row, col, _grid[row, col] & ant_mask);
         }
     }
 

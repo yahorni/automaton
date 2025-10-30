@@ -33,7 +33,4 @@ void grid::resize(const core::dims& size) {
 
 void grid::reset(const grid_state& state) { _state = state; }
 
-const core::dims& grid::size() const { return _size; }
-const grid_state& grid::state() const { return _state; }
-
 }  // namespace automaton::core

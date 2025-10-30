@@ -51,12 +51,11 @@ private:
     void _draw_status(const cairo_context& cr) const;
 
     // helpers
-
+    core::dims _calculate_grid_size() const;
     vec2 _calculate_real_size() const;
     vec2 _calculate_field_start(const vec2& real_size) const;
 
     bool _handle_cell_press(int x, int y);
-    void _resize_grid();
 
     const core::grid& _grid;
 
