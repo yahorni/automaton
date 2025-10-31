@@ -275,7 +275,8 @@ void canvas::_draw_status(const cairo_context& cr) const {
     Gdk::Cairo::set_source_rgba(cr, palette::font);
     cr->set_font_size(defaults::font::size);
     cr->select_font_face("", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
-    cr->show_text(std::format("{}, cell_width={:.3f}", _ctrl->get_status(), _cfg.cell_width));
+    cr->show_text(std::format("{}, cell_width={:.3f}, mouse_mode={}", _ctrl->get_status(), _cfg.cell_width,
+                              std::to_underlying(_mouse_mode)));
 
     cr->restore();
 }
