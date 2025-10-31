@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <regex>
+#include <utility>
 
 namespace automaton::rules {
 

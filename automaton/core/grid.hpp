@@ -27,7 +27,7 @@ public:
     cell_state operator[](std::size_t row, std::size_t col) const { return _state[row][col]; }
 
 private:
-    core::dims _size{0, 0};
+    core::dims _size{};
     grid_state _state{};
 };
 

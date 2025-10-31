@@ -7,8 +7,8 @@
 namespace automaton::core {
 
 struct dims {
-    size_t rows;
-    size_t cols;
+    size_t rows = 0;
+    size_t cols = 0;
 
     constexpr dims() = default;
     constexpr dims(int rows, int cols)

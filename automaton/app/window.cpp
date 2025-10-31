@@ -205,6 +205,7 @@ static Glib::OptionGroup _add_automaton_group(core::config::automaton_group* opt
     group.add_entry_filename(entry, opts->surface);
 
     entry = Glib::OptionEntry();
+    entry.set_short_name('R');
     entry.set_long_name("rule");
     entry.set_arg_description("STRING");
     entry.set_description(Glib::ustring::compose(  //

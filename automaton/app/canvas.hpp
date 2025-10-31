@@ -26,7 +26,7 @@ public:
 private:
     using cairo_context = Cairo::RefPtr<Cairo::Context>;
 
-    enum class mouse_modes { NONE, DRAW, ERASE } _mouse_mode;
+    enum class mouse_modes { NONE, DRAW, ERASE } _mouse_mode{mouse_modes::NONE};
 
     struct vec2 {
         double x = 0;
