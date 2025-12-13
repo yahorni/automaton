@@ -44,10 +44,7 @@ private:
 
     // drawing
     void _draw_background(const cairo_context& cr) const;
-    void _draw_frame(const cairo_context& cr, const vec2& real_size, const vec2& field_start) const;
     void _draw_field(const cairo_context& cr, const core::dims& size, const vec2& field_start) const;
-    void _draw_borders(const cairo_context& cr, const core::dims& size, const vec2& real_size,
-                       const vec2& field_start) const;
     void _draw_status(const cairo_context& cr) const;
 
     // helpers

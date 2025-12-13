@@ -25,7 +25,6 @@ constexpr auto enable_status = true;
 namespace palette {
 constexpr auto background{"#c0c0c0"};
 constexpr auto font{"#ff0000"};
-constexpr auto border{"#000000"};
 constexpr auto states = std::to_array({
     // https://loading.io/color/feature/Paired-12/
     "#fbfbfb",  // "#a6cee3" - original color, but I don't like it
